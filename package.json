@@ -3,7 +3,10 @@
     "private": true,
     "scripts": {
         "format": "prettier --write .",
-        "lint-fix": "eslint . --cache --fix"
+        "lint:fix": "eslint . --cache --fix",
+        "dev": "pnpm -r --parallel dev",
+        "dev:api": "pnpm --filter @apps/api dev",
+        "dev:web": "pnpm --filter @apps/web dev"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.2",

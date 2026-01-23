@@ -1,0 +1,34 @@
+services:
+    postgres:
+        image: postgres:18
+        container_name: sprintly-postgres
+        env_file:
+            - .env-dev
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - '${POSTGRES_PORT}:5432'
+        volumes:
+            - sprintly_pg:/var/lib/postgresql
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+            interval: 5s
+            timeout: 3s
+            retries: 15
+
+    redis:
+        image: redis:8
+        container_name: sprintly-redis
+        env_file:
+            - .env-dev
+        ports:
+            - '${REDIS_PORT}:6379'
+        volumes:
+            - sprintly_redis:/data
+        command: ['redis-server', '--appendonly', 'yes']
+
+volumes:
+    sprintly_pg:
+    sprintly_redis:
