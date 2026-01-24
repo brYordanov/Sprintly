@@ -9,7 +9,7 @@
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
-        "dev": "docker compose -f ../../docker-compose.dev.yml --env-file ../../.env-dev --wait && cross-env NODE_ENV=dev nest start --watch",
+        "dev": "docker compose -f ../../docker-compose.dev.yml --env-file ../../.env-dev up -d --wait && cross-env NODE_ENV=dev nest start --watch",
         "start:debug": "nest start --debug --watch",
         "start:prod": "cross-env NODE_ENV=production node dist/main",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -18,7 +18,9 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "studio": "drizzle-kit studio"
+        "studio": "drizzle-kit studio",
+        "migration:generate:dev": "cross-env NODE_ENV=dev drizzle-kit generate",
+        "migration:apply:dev": "cross-env NODE_ENV=dev drizzle-kit migrate"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",

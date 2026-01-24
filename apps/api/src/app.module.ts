@@ -4,14 +4,13 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DbModule } from './db/db.module'
 import { resolve } from 'path'
-import { existsSync } from 'fs'
 import { RedisModule } from './redis/redis.module'
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            envFilePath: resolve(__dirname, '../../../..', '.env-dev'),
+            envFilePath: resolve(__dirname, '../../../..', `.env-${process.env.NODE_ENV ?? 'dev'}`),
         }),
         DbModule,
         RedisModule,
