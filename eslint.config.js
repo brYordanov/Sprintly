@@ -37,6 +37,18 @@ export default tseslint.config(
         files: ['**/*.ts', '**/*.tsx'],
         ...tseslint.configs.recommended,
         rules: {
+            'import/no-duplicates': 'error',
+            'import/order': [
+                'error',
+                {
+                    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+                    'newlines-between': 'always',
+                    alphabetize: {
+                        order: 'asc',
+                        caseInsensitive: true,
+                    },
+                },
+            ],
             'no-unused-vars': 'off',
             '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             '@typescript-eslint/no-explicit-any': 'off',

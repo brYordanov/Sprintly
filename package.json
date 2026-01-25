@@ -1,6 +1,7 @@
 {
     "name": "sprintly",
     "private": true,
+    "type": "module",
     "scripts": {
         "format": "prettier --write .",
         "lint:fix": "eslint . --cache --fix",
