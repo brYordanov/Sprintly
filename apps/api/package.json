@@ -1,7 +1,6 @@
 {
     "name": "@apps/api",
     "private": true,
-    "type": "module",
     "version": "0.0.1",
     "description": "",
     "author": "",
@@ -19,7 +18,7 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "studio": "drizzle-kit studio",
+        "studio": "cross-env NODE_ENV=dev drizzle-kit studio",
         "migration:generate:dev": "cross-env NODE_ENV=dev drizzle-kit generate",
         "migration:apply:dev": "cross-env NODE_ENV=dev drizzle-kit migrate"
     },

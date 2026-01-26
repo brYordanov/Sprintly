@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1769453534455,
+      "tag": "0000_create-user-table",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769453652870,
+      "tag": "0001_create-updated-at-function",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769453683647,
+      "tag": "0002_set-user-updated-at-trigger",
+      "breakpoints": true
+    }
+  ]
+}
