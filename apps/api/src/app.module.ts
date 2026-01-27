@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { resolve } from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DbModule } from './db/db.module'
-import { resolve } from 'path'
+import { UserModule } from './modules/user/user.module'
 import { RedisModule } from './redis/redis.module'
 
 @Module({
@@ -14,6 +15,7 @@ import { RedisModule } from './redis/redis.module'
         }),
         DbModule,
         RedisModule,
+        UserModule,
     ],
     controllers: [AppController],
     providers: [AppService],
