@@ -11,7 +11,7 @@ export const UserSchema = pgTable(
         emailNormalized: varchar('email_normalized', { length: 320 }).notNull(),
         passHash: text('password_hash').notNull(),
         status: userStatusEnum('status').notNull().default('active'),
-        username: varchar('username', { length: 32 }),
+        username: varchar('username', { length: 32 }).notNull(),
         fullname: varchar('fullname', { length: 120 }),
         avatarUrl: text('avatar_url'),
         createdAt: timestamp('created_at', { withTimezone: true })

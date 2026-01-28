@@ -1,11 +1,15 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as argon2 from 'argon2'
-import { eq, or } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from '../../db/drizzle-entrypoint'
 import { CreateUserBodyDto, UpdateProfileDto, UserPublicDto } from './user.dtos'
+
+function isPgUniqueViolation(err: unknown): boolean {
+    return typeof err === 'object' && err !== null && (err as any).code === '23505'
+}
 
 @Injectable()
 export class UserService {
@@ -21,30 +25,27 @@ export class UserService {
         const emailNormalized = dto.email.toLowerCase().trim()
         const passHash = await this.hashPassword(dto.password)
 
-        const existing = await this.db
-            .select({ id: schema.UserSchema.id })
-            .from(schema.UserSchema)
-            .where(
-                or(
-                    eq(schema.UserSchema.emailNormalized, emailNormalized),
-                    eq(schema.UserSchema.username, dto.username),
-                ),
-            )
-        if (existing.length > 0) throw new ConflictException('Email or username already exists')
+        try {
+            const [user] = await this.db
+                .insert(schema.UserSchema)
+                .values({
+                    email: dto.email,
+                    emailNormalized,
+                    passHash,
+                    username: dto.username,
+                    fullname: dto.fullname,
+                    avatarUrl: dto.avatarUrl,
+                })
+                .returning()
 
-        const [user] = await this.db
-            .insert(schema.UserSchema)
-            .values({
-                email: dto.email,
-                emailNormalized,
-                passHash,
-                username: dto.username,
-                fullname: dto.fullname,
-                avatarUrl: dto.avatarUrl,
-            })
-            .returning()
+            return this.toPublicDto(user)
+        } catch (err) {
+            if (isPgUniqueViolation(err)) {
+                throw new ConflictException('Email or username already exists')
+            }
 
-        return this.toPublicDto(user)
+            throw err
+        }
     }
 
     async findByIdOrFail(id: string): Promise<UserPublicDto> {
@@ -60,10 +61,11 @@ export class UserService {
     }
 
     async findByEmailOrFail(email: string): Promise<UserPublicDto> {
+        const emailNormalized = email.toLowerCase().trim()
         const [user] = await this.db
             .select()
             .from(schema.UserSchema)
-            .where(eq(schema.UserSchema.email, email))
+            .where(eq(schema.UserSchema.emailNormalized, emailNormalized))
             .limit(1)
 
         if (!user) throw new NotFoundException('UserNotFound')

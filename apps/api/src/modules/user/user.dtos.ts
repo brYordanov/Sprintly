@@ -1,7 +1,7 @@
 import { createSelectSchema } from 'drizzle-zod'
 import { ValidImgUrlSchema } from 'src/common/common-schemas'
 import z from 'zod'
-import { UserSchema, userStatusEnum } from './user.schema-entity'
+import { UserSchema, userStatusEnum } from './user.entity'
 
 export const CreateUserBodySchema = z
     .object({
