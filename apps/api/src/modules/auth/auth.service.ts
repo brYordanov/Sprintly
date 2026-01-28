@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import jwt from 'jsonwebtoken'
 import crypto from 'node:crypto'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from 'src/db/drizzle-entrypoint'
 import { UserService } from '../user/user.service'
 import { RegisterBodyDto, SessionMetaDto } from './auth.dtos'
-import jwt from 'jsonwebtoken'
 
 @Injectable()
 export class AuthService {
@@ -30,25 +30,26 @@ export class AuthService {
 
         return {
             user: userPublic,
-            accessToken: 
+            accessToken: this.signAccessToken(userPublic.id),
+            refreshToken: session.refreshTokenHash,
         }
     }
 
     private async createSession(userId: string, meta: SessionMetaDto) {
         const token = this.generateAccessToken()
-        const tokenHash = this.hashToken(token)
+        const refreshTokenHash = this.hashToken(token)
 
         const expiresAt = new Date(Date.now() + this.refreshTtlDays * 24 * 60 * 60 * 1000)
 
         await this.db.insert(schema.UserSessionSchema).values({
             userId,
-            tokenHash,
+            refreshTokenHash,
             userAgent: meta.userAgent,
             ip: meta.ip,
             expiresAt,
         })
 
-        return { tokenHash, expiresAt }
+        return { refreshTokenHash, expiresAt }
     }
 
     private generateAccessToken() {
@@ -60,8 +61,8 @@ export class AuthService {
         return crypto.createHmac('sha256', secret).update(token).digest('hex')
     }
 
-    private signAccessToken(payload:string) {
-        return jwt.sign(payload, this.accessSecret, {expiresIn: this.accessTtlSec})
+    private signAccessToken(payload: string) {
+        return jwt.sign(payload, this.accessSecret, { expiresIn: this.accessTtlSec })
     }
 
     private mustHave(key: string): string {

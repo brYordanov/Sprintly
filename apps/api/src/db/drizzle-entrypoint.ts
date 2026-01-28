@@ -1,1 +1,2 @@
-export * from '../modules/user/user.schema-entity'
+export * from '../modules/auth/auth.entity'
+export * from '../modules/user/user.entity'
