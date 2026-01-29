@@ -106,6 +106,11 @@ export class UserService {
         return argon2.verify(hashedPass, input)
     }
 
+    toPublicDto(user: any): UserPublicDto {
+        const { passHash, emailNormalized, ...publicUser } = user
+        return publicUser
+    }
+
     private async hashPassword(pass: string): Promise<string> {
         const input = this.generatePassString(pass)
 
@@ -119,10 +124,5 @@ export class UserService {
 
     private generatePassString(pass: string): string {
         return `${pass}\u0000${this.pepper}`
-    }
-
-    private toPublicDto(user: any): UserPublicDto {
-        const { passHash, emailNormalized, ...publicUser } = user
-        return publicUser
     }
 }

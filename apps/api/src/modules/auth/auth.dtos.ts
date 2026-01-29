@@ -26,6 +26,6 @@ export type LoginBodyDto = z.infer<typeof LoginBodySchema>
 
 export const SessionMetaSchema = z.object({
     userAgent: z.string().optional().nullable(),
-    ip: ValidImgUrlSchema.nullable().optional(),
+    ip: z.string().nullable().optional(),
 })
 export type SessionMetaDto = z.infer<typeof SessionMetaSchema>

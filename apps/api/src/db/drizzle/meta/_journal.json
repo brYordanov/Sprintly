@@ -36,6 +36,13 @@
       "when": 1769633104824,
       "tag": "0004_create-user-session-table",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769722792260,
+      "tag": "0005_add-unique-to-refreshtoken",
+      "breakpoints": true
     }
   ]
 }

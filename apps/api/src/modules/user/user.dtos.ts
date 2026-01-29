@@ -27,6 +27,7 @@ export const UpdateProfileSchema = z
 export type UpdateProfileDto = z.infer<typeof UpdateProfileSchema>
 
 export const UserSelectSchema = createSelectSchema(UserSchema)
+export type UserRow = z.infer<typeof UserSelectSchema>
 export const UserPublicSchema = UserSelectSchema.omit({
     passHash: true,
     emailNormalized: true,

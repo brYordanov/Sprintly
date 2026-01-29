@@ -9,7 +9,7 @@ export const UserSessionSchema = pgTable(
         userId: uuid('user_id')
             .notNull()
             .references(() => UserSchema.id, { onDelete: 'cascade' }),
-        refreshTokenHash: text('refresh_token_hash').notNull(),
+        refreshTokenHash: text('refresh_token_hash').notNull().unique(),
         userAgent: text('user_agent'),
         ip: text(),
         createdAt: timestamp('created_at', { withTimezone: true })
