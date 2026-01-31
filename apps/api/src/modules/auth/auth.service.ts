@@ -1,6 +1,6 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { and, eq, gt, isNull } from 'drizzle-orm'
+import { and, eq, gt, isNotNull, isNull, lt, or } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import jwt from 'jsonwebtoken'
 import crypto from 'node:crypto'
@@ -15,12 +15,14 @@ export class AuthService {
     private readonly accessSecret: string
     private readonly accessTtlSec: number
     private readonly refreshTtlDays: number
+    private readonly jwtHmacSecret: string
     constructor(
         @Inject(DRIZZLE_DB) private readonly db: NodePgDatabase<typeof schema>,
         private readonly config: ConfigService,
         private readonly userService: UserService,
     ) {
         this.accessSecret = this.mustHave('JWT_ACCESS_SECRET')
+        this.jwtHmacSecret = this.mustHave('JWT_REFRESH_HMAC_SECRET')
         this.accessTtlSec = Number(this.config.get('JWT_ACCESS_TTL_SECONDS') ?? 900)
         this.refreshTtlDays = Number(this.config.get('JWT_REFRESH_TTL_DAYS') ?? 30)
     }
@@ -32,8 +34,9 @@ export class AuthService {
 
         return {
             user: userPublic,
-            accessToken: this.signAccessToken(userPublic.id),
-            refreshToken: session.refreshTokenHash,
+            accessToken: this.signAccessToken(userPublic.id, session.id),
+            refreshToken: session.refreshToken,
+            expiresAt: session.expiresAt,
         }
     }
 
@@ -48,8 +51,9 @@ export class AuthService {
 
         return {
             user: this.userService.toPublicDto(user),
-            accessToken: this.signAccessToken(user.id),
-            refreshToken: session.refreshTokenHash,
+            accessToken: this.signAccessToken(user.id, session.id),
+            refreshToken: session.refreshToken,
+            expiresAt: session.expiresAt,
         }
     }
 
@@ -66,30 +70,34 @@ export class AuthService {
         const tokenHash = this.hashRefreshToken(refreshToken)
         const now = new Date()
 
-        const [session] = await this.db
-            .select()
-            .from(schema.UserSessionSchema)
-            .where(
-                and(
-                    eq(schema.UserSessionSchema.refreshTokenHash, tokenHash),
-                    isNull(schema.UserSessionSchema.revokedAt),
-                    gt(schema.UserSessionSchema.expiresAt, now),
-                ),
-            )
+        return await this.db.transaction(async tx => {
+            const [session] = await tx
+                .select()
+                .from(schema.UserSessionSchema)
+                .where(
+                    and(
+                        eq(schema.UserSessionSchema.refreshTokenHash, tokenHash),
+                        isNull(schema.UserSessionSchema.revokedAt),
+                        gt(schema.UserSessionSchema.expiresAt, now),
+                    ),
+                )
+                .limit(1)
 
-        if (!session) throw new UnauthorizedException('Invalid refresh token')
+            if (!session) throw new UnauthorizedException('Invalid refresh token')
 
-        await this.db
-            .update(schema.UserSessionSchema)
-            .set({ revokedAt: now, lastUsedAt: now })
-            .where(eq(schema.UserSessionSchema.id, session.id))
+            await tx
+                .update(schema.UserSessionSchema)
+                .set({ revokedAt: now, lastUsedAt: now })
+                .where(eq(schema.UserSessionSchema.id, session.id))
 
-        const newSession = await this.createSession(session.userId, meta)
+            const newSession = await this.createSession(session.userId, meta, tx)
 
-        return {
-            accessToken: this.signAccessToken(session.userId),
-            refreshToken: newSession.refreshTokenHash,
-        }
+            return {
+                accessToken: this.signAccessToken(session.userId, session.id),
+                refreshToken: newSession.refreshToken,
+                expiresAt: session.expiresAt,
+            }
+        })
     }
 
     async findUserForLogin(identifier: string): Promise<UserRow> {
@@ -102,41 +110,62 @@ export class AuthService {
             .where(
                 isEmail && emailNormalized
                     ? eq(schema.UserSchema.emailNormalized, emailNormalized)
-                    : eq(schema.UserSchema.username, identifier),
+                    : eq(schema.UserSchema.username, identifier.trim()),
             )
+            .limit(1)
 
         if (!user) throw new UnauthorizedException('Invalid credentials')
         return user
     }
 
-    private async createSession(userId: string, meta: SessionMetaDto) {
-        const token = this.generateAccessToken()
-        const refreshTokenHash = this.hashRefreshToken(token)
+    async cleanupExpiredSessions() {
+        await this.db
+            .delete(schema.UserSessionSchema)
+            .where(
+                or(
+                    lt(schema.UserSessionSchema.expiresAt, new Date()),
+                    isNotNull(schema.UserSessionSchema.revokedAt),
+                ),
+            )
+    }
+
+    private async createSession(
+        userId: string,
+        meta: SessionMetaDto,
+        tx?: NodePgDatabase<typeof schema>,
+    ) {
+        const db = tx ?? this.db
+        const refreshToken = this.generateRefreshToken()
+        const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
         const expiresAt = new Date(Date.now() + this.refreshTtlDays * 24 * 60 * 60 * 1000)
 
-        await this.db.insert(schema.UserSessionSchema).values({
-            userId,
-            refreshTokenHash,
-            userAgent: meta.userAgent,
-            ip: meta.ip,
-            expiresAt,
-        })
+        const [session] = await db
+            .insert(schema.UserSessionSchema)
+            .values({
+                userId,
+                refreshTokenHash,
+                userAgent: meta.userAgent,
+                ip: meta.ip,
+                expiresAt,
+            })
+            .returning()
 
-        return { refreshTokenHash, expiresAt }
+        return { refreshToken, expiresAt, id: session.id }
     }
 
-    private generateAccessToken() {
+    private generateRefreshToken() {
         return crypto.randomBytes(48).toString('base64url')
     }
 
     private hashRefreshToken(token: string): string {
-        const secret = this.mustHave('JWT_REFRESH_HMAC_SECRET')
-        return crypto.createHmac('sha256', secret).update(token).digest('hex')
+        return crypto.createHmac('sha256', this.jwtHmacSecret).update(token).digest('hex')
     }
 
-    private signAccessToken(payload: string) {
-        return jwt.sign(payload, this.accessSecret, { expiresIn: this.accessTtlSec })
+    private signAccessToken(userId: string, sessionId: string) {
+        return jwt.sign({ sub: userId, sid: sessionId }, this.accessSecret, {
+            expiresIn: this.accessTtlSec,
+        })
     }
 
     private mustHave(key: string): string {

@@ -1,5 +1,4 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
 import { type Request, type Response } from 'express'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
@@ -11,21 +10,17 @@ import {
 } from './auth.dtos'
 import { AuthService } from './auth.service'
 
-@Controller('auth')
-export class AuthController {
-    refreshMaxAgeMs: number
-    constructor(
-        private readonly service: AuthService,
-        private readonly config: ConfigService,
-    ) {
-        const days = Number(this.config.get('JWT_REFRESH_TTL_DAYS') ?? 30)
-        this.refreshMaxAgeMs = days * 24 * 60 * 60 * 1000
-    }
-
-    @Throttle({
+const AuthThrottler = () =>
+    Throttle({
         short: { limit: 5, ttl: 60000 },
         medium: { limit: 20, ttl: 3600000 },
     })
+
+@Controller('auth')
+export class AuthController {
+    constructor(private readonly service: AuthService) {}
+
+    @AuthThrottler()
     @Post('register')
     async register(
         @Body(new ZodValidationPipe(RegisterBodySchema)) dto: RegisterBodyDto,
@@ -33,14 +28,11 @@ export class AuthController {
         @Res({ passthrough: true }) res: Response,
     ) {
         const output = await this.service.register(dto, this.getMeta(req))
-        this.setRefreshCookie(res, output.refreshToken)
+        this.setRefreshCookie(res, output.refreshToken, output.expiresAt)
         return { user: output.user, accessToken: output.accessToken }
     }
 
-    @Throttle({
-        short: { limit: 5, ttl: 60000 },
-        medium: { limit: 20, ttl: 3600000 },
-    })
+    @AuthThrottler()
     @Post('login')
     async login(
         @Body(new ZodValidationPipe(LoginBodySchema)) dto: LoginBodyDto,
@@ -48,7 +40,7 @@ export class AuthController {
         @Res({ passthrough: true }) res: Response,
     ) {
         const out = await this.service.login(dto, this.getMeta(req))
-        this.setRefreshCookie(res, out.refreshToken)
+        this.setRefreshCookie(res, out.refreshToken, out.expiresAt)
         return { user: out.user, accessToken: out.accessToken }
     }
 
@@ -60,21 +52,23 @@ export class AuthController {
         return { ok: true }
     }
 
+    @AuthThrottler()
     @Post('refresh')
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const token = req.cookies?.refreshToken
+        if (!token) throw new UnauthorizedException('Refresh token required')
         const out = await this.service.refresh(token, this.getMeta(req))
-        this.setRefreshCookie(res, out.refreshToken)
+        this.setRefreshCookie(res, out.refreshToken, out.expiresAt)
         return { accessToken: out.accessToken }
     }
 
-    private setRefreshCookie(res: Response, token: string) {
+    private setRefreshCookie(res: Response, token: string, expiresAt: Date) {
         res.cookie('refreshToken', token, {
             ...this.getCookieBaseOptions(),
             httpOnly: true,
             sameSite: 'lax',
             path: '/auth',
-            maxAge: this.refreshMaxAgeMs,
+            maxAge: expiresAt.getTime() - Date.now(),
         })
     }
 
