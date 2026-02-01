@@ -93,9 +93,9 @@ export class AuthService {
             const newSession = await this.createSession(session.userId, meta, tx)
 
             return {
-                accessToken: this.signAccessToken(session.userId, session.id),
+                accessToken: this.signAccessToken(session.userId, newSession.id),
                 refreshToken: newSession.refreshToken,
-                expiresAt: session.expiresAt,
+                expiresAt: newSession.expiresAt,
             }
         })
     }

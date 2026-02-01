@@ -5,6 +5,7 @@ import { resolve } from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DbModule } from './db/db.module'
+import { AuthModule } from './modules/auth/auth.module'
 import { UserModule } from './modules/user/user.module'
 import { RedisModule } from './redis/redis.module'
 
@@ -29,6 +30,7 @@ import { RedisModule } from './redis/redis.module'
         DbModule,
         RedisModule,
         UserModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
