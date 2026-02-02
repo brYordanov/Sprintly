@@ -1,12 +1,12 @@
 packages:
-    - apps/*
-    - shared/*
+  - 'apps/*'
+  - 'shared/*'
 
 ignoredBuiltDependencies:
-    - '@nestjs/core'
-    - unrs-resolver
+  - '@nestjs/core'
+  - unrs-resolver
 
 onlyBuiltDependencies:
-    - argon2
-    - esbuild
-    - sharp
+  - argon2
+  - esbuild
+  - sharp
