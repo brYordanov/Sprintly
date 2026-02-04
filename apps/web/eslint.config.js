@@ -20,6 +20,13 @@ const eslintConfig = defineConfig([
         'build/**',
         'next-env.d.ts',
     ]),
+    {
+        // Target TS files and override the rule
+        files: ['**/*.ts', '**/*.tsx'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+        },
+    },
 ])
 
 export default eslintConfig
