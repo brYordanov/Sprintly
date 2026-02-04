@@ -1,4 +1,5 @@
 import z from 'zod'
+import { UserPublicSchema } from './user'
 
 export const RegisterBodySchema = z
     .object({
@@ -33,6 +34,18 @@ export const RegisterBodySchema = z
     })
     .strict()
 export type RegisterBodyDto = z.infer<typeof RegisterBodySchema>
+
+export const RegisterResponseSchema = z.object({
+    user: UserPublicSchema,
+    accessToken: z.string(),
+})
+export type RegisterResponseDto = z.infer<typeof RegisterResponseSchema>
+
+export const LoginResponseSchema = z.object({
+    user: UserPublicSchema,
+    accessToken: z.string(),
+})
+export type LoginResponseDto = z.infer<typeof LoginResponseSchema>
 
 export const LoginBodySchema = z
     .object({

@@ -23,3 +23,16 @@ export const UpdateProfileSchema = z
     })
     .strict()
 export type UpdateProfileDto = z.infer<typeof UpdateProfileSchema>
+
+export const UserPublicSchema = z.object({
+    id: z.uuid(),
+    email: z.string,
+    username: z.string,
+    fullname: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    emailVerifiedAt: z.date().nullable(),
+    status: z.enum(['active', 'deleted']),
+})
+export type UserPublicDto = z.infer<typeof UserPublicSchema>

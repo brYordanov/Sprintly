@@ -1,13 +1,8 @@
-import { createSelectSchema } from 'drizzle-zod'
+import { UserPublicSchema } from '@shared/validations'
 import z from 'zod'
-import { UserSchema, userStatusEnum } from './user.entity'
 
-export const UserSelectSchema = createSelectSchema(UserSchema)
-export type UserRow = z.infer<typeof UserSelectSchema>
-export const UserPublicSchema = UserSelectSchema.omit({
-    passHash: true,
-    emailNormalized: true,
-}).extend({
-    status: z.enum(userStatusEnum.enumValues),
+export const UserSchema = UserPublicSchema.extend({
+    passHash: z.string(),
+    emailNormalized: z.string(),
 })
-export type UserPublicDto = z.infer<typeof UserPublicSchema>
+export type UserRow = z.infer<typeof UserSchema>

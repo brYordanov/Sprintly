@@ -1,12 +1,11 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { CreateUserBodyDto, UpdateProfileDto } from '@shared/validations'
+import { CreateUserBodyDto, UpdateProfileDto, UserPublicDto } from '@shared/validations'
 import * as argon2 from 'argon2'
 import { eq } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from '../../db/drizzle-entrypoint'
-import { UserPublicDto } from './user.schemas'
 
 function isPgUniqueViolation(err: unknown): boolean {
     return typeof err === 'object' && err !== null && (err as any).code === '23505'

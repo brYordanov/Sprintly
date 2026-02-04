@@ -3,8 +3,10 @@ import { Throttle } from '@nestjs/throttler'
 import {
     type LoginBodyDto,
     LoginBodySchema,
+    LoginResponseDto,
     type RegisterBodyDto,
     RegisterBodySchema,
+    RegisterResponseDto,
 } from '@shared/validations'
 import { type Request, type Response } from 'express'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
@@ -26,7 +28,7 @@ export class AuthController {
         @Body(new ZodValidationPipe(RegisterBodySchema)) dto: RegisterBodyDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-    ) {
+    ): Promise<RegisterResponseDto> {
         const output = await this.service.register(dto, this.getMeta(req))
         this.setRefreshCookie(res, output.refreshToken, output.expiresAt)
         return { user: output.user, accessToken: output.accessToken }
@@ -38,7 +40,7 @@ export class AuthController {
         @Body(new ZodValidationPipe(LoginBodySchema)) dto: LoginBodyDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-    ) {
+    ): Promise<LoginResponseDto> {
         const out = await this.service.login(dto, this.getMeta(req))
         this.setRefreshCookie(res, out.refreshToken, out.expiresAt)
         return { user: out.user, accessToken: out.accessToken }
