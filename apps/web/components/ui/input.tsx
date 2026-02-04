@@ -1,6 +1,7 @@
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/shadcn/utils'
+import { Eye, EyeOff } from 'lucide-react'
 
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
     return (
@@ -32,4 +33,34 @@ function InputWithIcon({
     )
 }
 
-export { Input, InputWithIcon }
+function PassInput({
+    className,
+    Icon,
+    ...props
+}: React.ComponentProps<'input'> & { Icon?: React.ElementType }) {
+    const [showPass, setShowPass] = React.useState(false)
+    return (
+        <div className="relative">
+            {Icon && <Icon className="absolute left-2 top-[50%] -translate-y-1/2" />}
+            <Input
+                className={`pl-9 ${className}`}
+                type={showPass ? 'text' : 'password'}
+                placeholder={showPass ? 'password' : '••••••••'}
+                {...props}
+            ></Input>
+            <button
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                type="button"
+                onClick={() => {
+                    console.log(1111)
+
+                    setShowPass(state => !state)
+                }}
+            >
+                {showPass ? <EyeOff /> : <Eye />}
+            </button>
+        </div>
+    )
+}
+
+export { Input, InputWithIcon, PassInput }

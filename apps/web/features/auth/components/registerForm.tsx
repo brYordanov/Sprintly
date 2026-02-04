@@ -1,5 +1,6 @@
 'use client'
 
+import { FormField } from '@/components/forms/FormField'
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -9,13 +10,13 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { FieldGroup } from '@/components/ui/field'
 import { ProjectLogo } from '@/components/ui/icon'
-import { InputWithIcon } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RegisterBodySchema } from '@shared/validations'
 import { Lock, Mail, User, UserCircle } from 'lucide-react'
-import { Controller, useForm } from 'react-hook-form'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
 import z from 'zod'
 
 const RegisterFormSchema = RegisterBodySchema.extend({
@@ -27,8 +28,13 @@ const RegisterFormSchema = RegisterBodySchema.extend({
 type RegisterFormData = z.infer<typeof RegisterFormSchema>
 
 export function RegisterForm() {
-    const form = useForm<RegisterFormData>({
+    const onSubmit = () => {
+        console.log(123)
+    }
+
+    const { control, handleSubmit } = useForm<RegisterFormData>({
         resolver: zodResolver(RegisterFormSchema),
+        mode: 'onTouched',
         defaultValues: {
             username: '',
             email: '',
@@ -45,117 +51,62 @@ export function RegisterForm() {
                 <CardDescription>Start managing your projects like a pro</CardDescription>
             </CardHeader>
             <CardContent>
-                <form id="registerForm" action="" className="space-y-5">
+                <form
+                    id="register-form"
+                    action=""
+                    className="space-y-5"
+                    onSubmit={handleSubmit(onSubmit)}
+                >
                     <FieldGroup>
-                        <Controller
+                        <FormField
                             name="email"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                                    <InputWithIcon
-                                        {...field}
-                                        id="email"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter email"
-                                        autoComplete="off"
-                                        Icon={Mail}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
+                            control={control}
+                            label="Email*"
+                            placeholder="Enter email"
+                            Icon={Mail}
                         />
-                        <Controller
+                        <FormField
                             name="username"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel htmlFor="username">Username</FieldLabel>
-                                    <InputWithIcon
-                                        {...field}
-                                        id="username"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter username"
-                                        autoComplete="off"
-                                        Icon={User}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
+                            control={control}
+                            label="Username*"
+                            placeholder="Enter username"
+                            Icon={User}
                         />
-                        <Controller
+                        <FormField
                             name="fullname"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel htmlFor="fullname">Full Name</FieldLabel>
-                                    <InputWithIcon
-                                        {...field}
-                                        id="fullname"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter fullname"
-                                        autoComplete="off"
-                                        Icon={UserCircle}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
+                            control={control}
+                            label="Full Name"
+                            placeholder="Enter full name"
+                            Icon={UserCircle}
                         />
-                        <Controller
+                        <FormField
+                            className="pb-6"
                             name="password"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel htmlFor="password">Password</FieldLabel>
-                                    <InputWithIcon
-                                        {...field}
-                                        id="password"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter password"
-                                        autoComplete="off"
-                                        Icon={Lock}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
+                            control={control}
+                            label="Password*"
+                            Icon={Lock}
                         />
-                        <Controller
+                        <FormField
                             name="confirmPassword"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel htmlFor="confirmPassword">
-                                        Confirm Password
-                                    </FieldLabel>
-                                    <InputWithIcon
-                                        {...field}
-                                        id="confirmPassword"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter confirmPassword"
-                                        autoComplete="off"
-                                        Icon={Lock}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
+                            control={control}
+                            label=" Confirm Password*"
+                            Icon={Lock}
                         />
                     </FieldGroup>
-                    <Button type="submit" form="register-form" className="w-full min-h-11">
+                    <Button type="submit" form="register-form" className="w-full min-h-11 text-lg">
                         Create Account
                     </Button>
                 </form>
             </CardContent>
-            <CardFooter>Already have an account? Sign in</CardFooter>
+            <CardFooter className="text-xs text-muted-foreground justify-center">
+                Already have an account?{' '}
+                <Link
+                    href="/login"
+                    className="underline hover:text-foreground pl-1 text-primary font-medium"
+                >
+                    Sign in
+                </Link>
+            </CardFooter>
         </Card>
     )
 }

@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
+const inter = Inter({
     subsets: ['latin'],
+    variable: '--font-inter',
+    display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
+const spaceGrotesk = Space_Grotesk({
     subsets: ['latin'],
+    variable: '--font-space-grotesk',
+    display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -24,7 +26,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
                 {children}
             </body>
         </html>
