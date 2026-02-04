@@ -5,10 +5,9 @@
     "types": "./index.ts",
     "private": true,
     "exports": {
-        "./validations/*": "./validations/*.ts"
+        ".": "./index.ts"
     },
     "dependencies": {
         "zod": "^4.3.6"
     }
 }
-  

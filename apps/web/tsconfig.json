@@ -20,7 +20,8 @@
         ],
         "paths": {
             "@/*": ["./*"],
-            "@shared/validations/*": ["../shared/validation/*"]
+            "@shared/validations": ["../../shared/validations/index.ts"],
+            "@shared/validations/*": ["../../shared/validations/*"]
         }
     },
     "include": [
@@ -29,7 +30,8 @@
         "**/*.tsx",
         ".next/types/**/*.ts",
         ".next/dev/types/**/*.ts",
-        "**/*.mts"
+        "**/*.mts",
+        "../../shared/**/*.ts"
     ],
     "exclude": ["node_modules"]
 }

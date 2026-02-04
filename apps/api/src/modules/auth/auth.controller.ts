@@ -1,13 +1,13 @@
 import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
-import { type Request, type Response } from 'express'
-import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import {
     type LoginBodyDto,
     LoginBodySchema,
     type RegisterBodyDto,
     RegisterBodySchema,
-} from './auth.dtos'
+} from '@shared/validations'
+import { type Request, type Response } from 'express'
+import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { AuthService } from './auth.service'
 
 const AuthThrottler = () =>

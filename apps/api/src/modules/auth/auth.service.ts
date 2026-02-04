@@ -1,14 +1,15 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { LoginBodyDto, RegisterBodyDto } from '@shared/validations'
 import { and, eq, gt, isNotNull, isNull, lt, or } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import jwt from 'jsonwebtoken'
 import crypto from 'node:crypto'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from 'src/db/drizzle-entrypoint'
-import { UserRow } from '../user/user.dtos'
+import { UserRow } from '../user/user.schemas'
 import { UserService } from '../user/user.service'
-import { LoginBodyDto, RegisterBodyDto, SessionMetaDto } from './auth.dtos'
+import { SessionMetaDto } from './auth.schemas'
 
 @Injectable()
 export class AuthService {

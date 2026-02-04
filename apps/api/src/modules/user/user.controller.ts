@@ -1,6 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { type CreateUserBodyDto, CreateUserBodySchema } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
-import { CreateUserBodySchema, UserPublicDto, type CreateUserBodyDto } from './user.dtos'
+import { UserPublicDto } from './user.schemas'
 import { UserService } from './user.service'
 
 @Controller('user')
