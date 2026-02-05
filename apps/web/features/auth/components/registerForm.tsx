@@ -25,7 +25,7 @@ const RegisterFormSchema = RegisterBodySchema.extend({
     message: 'Passwords dont match',
     path: ['confirmPassword'],
 })
-type RegisterFormData = z.infer<typeof RegisterFormSchema>
+export type RegisterFormData = z.infer<typeof RegisterFormSchema>
 
 export function RegisterForm() {
     const onSubmit = () => {

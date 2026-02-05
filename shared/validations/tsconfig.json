@@ -1,18 +1,14 @@
 {
     "compilerOptions": {
-        "target": "ES2020",
+        "outDir": "./dist",
+        "rootDir": "./src",
         "module": "CommonJS",
-        "moduleResolution": "Node",
-
+        "target": "ES2020",
+        "declaration": true,
         "strict": true,
-        "strictNullChecks": true,
-        "noUncheckedIndexedAccess": true,
-        "exactOptionalPropertyTypes": true,
-
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "baseUrl": "./",
+        "esModuleInterop": true
     },
-    "include": ["**/*.ts"],
-    "exclude": ["node_modules"]
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "dist"]
 }

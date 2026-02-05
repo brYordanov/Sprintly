@@ -1,5 +1,5 @@
 import z from 'zod'
-import { ValidImgUrlSchema } from '../common'
+import { ValidImgUrlSchema } from './common'
 
 export const CreateUserBodySchema = z
     .object({
