@@ -1,16 +1,27 @@
-import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    Req,
+    Res,
+    UnauthorizedException,
+    UseGuards,
+} from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
 import {
     type LoginBodyDto,
     LoginBodySchema,
-    LoginResponseDto,
     type RegisterBodyDto,
     RegisterBodySchema,
-    RegisterResponseDto,
+    UserPublicDto,
 } from '@shared/validations'
 import { type Request, type Response } from 'express'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
+import { UserService } from '../user/user.service'
 import { AuthService } from './auth.service'
+import { User } from './decorators/user.decorator'
+import { AuthGuard } from './guards/auth.guard'
 
 const AuthThrottler = () =>
     Throttle({
@@ -20,7 +31,16 @@ const AuthThrottler = () =>
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly service: AuthService) {}
+    constructor(
+        private readonly service: AuthService,
+        private readonly userService: UserService,
+    ) {}
+
+    @Get('me')
+    @UseGuards(AuthGuard)
+    async me(@Req() req: Request, @User() userId: string): Promise<UserPublicDto> {
+        return this.userService.findByIdOrFail(userId)
+    }
 
     @AuthThrottler()
     @Post('register')
@@ -28,10 +48,11 @@ export class AuthController {
         @Body(new ZodValidationPipe(RegisterBodySchema)) dto: RegisterBodyDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-    ): Promise<RegisterResponseDto> {
-        const output = await this.service.register(dto, this.getMeta(req))
-        this.setRefreshCookie(res, output.refreshToken, output.expiresAt)
-        return { user: output.user, accessToken: output.accessToken }
+    ): Promise<UserPublicDto> {
+        const out = await this.service.register(dto, this.getMeta(req))
+        this.setRefreshCookie(res, out.refreshToken, out.expiresAt)
+        this.setAccessCookie(res, out.accessToken)
+        return out.user
     }
 
     @AuthThrottler()
@@ -40,10 +61,11 @@ export class AuthController {
         @Body(new ZodValidationPipe(LoginBodySchema)) dto: LoginBodyDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-    ): Promise<LoginResponseDto> {
+    ): Promise<UserPublicDto> {
         const out = await this.service.login(dto, this.getMeta(req))
         this.setRefreshCookie(res, out.refreshToken, out.expiresAt)
-        return { user: out.user, accessToken: out.accessToken }
+        this.setAccessCookie(res, out.accessToken)
+        return out.user
     }
 
     @Post('logout')
@@ -51,6 +73,7 @@ export class AuthController {
         const token = req.cookies?.refreshToken
         if (token) await this.service.logout(token)
         res.clearCookie('refreshToken', this.getCookieBaseOptions())
+        res.clearCookie('accessToken', this.getCookieBaseOptions())
         return { ok: true }
     }
 
@@ -71,6 +94,15 @@ export class AuthController {
             sameSite: 'lax',
             path: '/auth',
             maxAge: expiresAt.getTime() - Date.now(),
+        })
+    }
+
+    private setAccessCookie(res: Response, token: string) {
+        res.cookie('accessToken', token, {
+            ...this.getCookieBaseOptions(),
+            httpOnly: true,
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
         })
     }
 

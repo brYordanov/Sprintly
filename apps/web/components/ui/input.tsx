@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { cn } from '@/lib/shadcn/utils'
+import { cn } from '@/lib/utils'
 import { Eye, EyeOff } from 'lucide-react'
 
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {

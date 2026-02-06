@@ -26,10 +26,10 @@ export type UpdateProfileDto = z.infer<typeof UpdateProfileSchema>
 
 export const UserPublicSchema = z.object({
     id: z.uuid(),
-    email: z.string,
-    username: z.string,
+    email: z.string(),
+    username: z.string(),
     fullname: z.string().nullable(),
-    avatarUrl: z.string().nullable(),
+    avatarUrl: z.string().nullable().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
     emailVerifiedAt: z.date().nullable(),

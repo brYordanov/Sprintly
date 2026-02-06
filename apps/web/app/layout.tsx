@@ -1,3 +1,6 @@
+import { AuthenticatedHeader } from '@/components/layout/authenticatedHeader'
+import { Header } from '@/components/layout/header'
+import { getCurrentUser } from '@/lib/auth'
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
@@ -20,15 +23,19 @@ export const metadata: Metadata = {
     description: 'mini Jira',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode
 }>) {
+    const user = await getCurrentUser()
     return (
         <html lang="en">
-            <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
-                <Providers>{children}</Providers>
+            <body
+                className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-background`}
+            >
+                {!!user ? <AuthenticatedHeader /> : <Header />}
+                <Providers initialUser={user}>{children}</Providers>
             </body>
         </html>
     )

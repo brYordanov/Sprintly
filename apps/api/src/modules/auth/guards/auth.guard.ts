@@ -13,7 +13,7 @@ export class AuthGuard implements CanActivate {
 
     async canActivate(ctx: ExecutionContext): Promise<boolean> {
         const req = ctx.switchToHttp().getRequest<Request>()
-        const tkn = this.getTokenFromHeader(req)
+        const tkn = req.cookies?.accessToken
 
         if (!tkn) throw new UnauthorizedException('Access token required')
 
