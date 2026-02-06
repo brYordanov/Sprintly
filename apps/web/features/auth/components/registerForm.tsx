@@ -18,6 +18,7 @@ import { Lock, Mail, User, UserCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
+import { useRegister } from '../api/useRegisterUser'
 
 const RegisterFormSchema = RegisterBodySchema.extend({
     confirmPassword: z.string(),
@@ -28,8 +29,11 @@ const RegisterFormSchema = RegisterBodySchema.extend({
 export type RegisterFormData = z.infer<typeof RegisterFormSchema>
 
 export function RegisterForm() {
-    const onSubmit = () => {
-        console.log(123)
+    const { mutate, isPending } = useRegister()
+    const onSubmit = (data: RegisterFormData) => {
+        // eslint-disable-next-line
+        const { confirmPassword, ...send } = data
+        mutate(send)
     }
 
     const { control, handleSubmit } = useForm<RegisterFormData>({
@@ -85,16 +89,18 @@ export function RegisterForm() {
                             control={control}
                             label="Password*"
                             Icon={Lock}
+                            type="password"
                         />
                         <FormField
                             name="confirmPassword"
                             control={control}
                             label=" Confirm Password*"
                             Icon={Lock}
+                            type="password"
                         />
                     </FieldGroup>
                     <Button type="submit" form="register-form" className="w-full min-h-11 text-lg">
-                        Create Account
+                        {isPending ? 'Creating...' : 'Create Account'}
                     </Button>
                 </form>
             </CardContent>

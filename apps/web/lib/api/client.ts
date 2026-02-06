@@ -23,6 +23,7 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
         credentials: 'include',
     }
 
+    console.log(url, config)
     const response = await fetch(url, config)
 
     if (!response.ok) {

@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser'
 import { AppModule } from './app.module'
 
 const isProduction = process.env.NODE_ENV === 'prod'
-const allowedOrigins = isProduction ? ['https://your-domain.com'] : ['http://localhost:3001']
+const allowedOrigins = isProduction ? ['https://your-domain.com'] : ['http://localhost:3000']
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule)
