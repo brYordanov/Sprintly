@@ -17,7 +17,7 @@ import { LoginBodyDto, LoginBodySchema } from '@shared/validations'
 import { Lock, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
-import { useLogin } from '../api/useLoginUser'
+import { useLogin } from '../api/useLogin'
 
 export function LoginForm() {
     const { mutate, isPending } = useLogin()

@@ -18,7 +18,7 @@ import { Lock, Mail, User, UserCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
-import { useRegister } from '../api/useRegisterUser'
+import { useRegister } from '../api/useRegister'
 
 const RegisterFormSchema = RegisterBodySchema.extend({
     confirmPassword: z.string(),

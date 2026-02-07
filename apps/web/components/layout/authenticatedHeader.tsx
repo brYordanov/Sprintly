@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/authContext'
+import { useLogout } from '@/features/auth/api/useLogout'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import {
     DropdownMenu,
@@ -13,7 +14,11 @@ import {
 import { ProjectSymbol } from '../ui/icon'
 
 export function AuthenticatedHeader() {
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
+    const { mutate } = useLogout()
+    const some = () => {
+        mutate()
+    }
 
     return (
         <header className="bg-card border-accent pt-4 pb-4 pl-4 pr-4 flex items-center justify-between shadow-soft">
@@ -28,7 +33,7 @@ export function AuthenticatedHeader() {
                         <Avatar size="lg">
                             <AvatarImage src={user?.avatarUrl || ''} />
                             <AvatarFallback className="bg-primary text-primary-foreground">
-                                {user?.username?.charAt(0).toUpperCase()}
+                                {user?.username?.slice(0, 2).toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
                     </button>
@@ -39,7 +44,7 @@ export function AuthenticatedHeader() {
                     <DropdownMenuItem>Profile</DropdownMenuItem>
                     <DropdownMenuItem>Settings</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                    <DropdownMenuItem onClick={some}>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </header>

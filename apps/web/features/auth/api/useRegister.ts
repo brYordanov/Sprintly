@@ -9,7 +9,7 @@ export function useRegister() {
     const { login } = useAuth()
     const router = useRouter()
     return useMutation({
-        mutationFn: async (data: RegisterBodyDto) =>
+        mutationFn: (data: RegisterBodyDto) =>
             apiClient<UserPublicDto>('auth/register', {
                 method: 'POST',
                 body: JSON.stringify(data),
