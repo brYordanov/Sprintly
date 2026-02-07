@@ -38,8 +38,8 @@ export class AuthController {
 
     @Get('me')
     @UseGuards(AuthGuard)
-    async me(@Req() req: Request, @User() userId: string): Promise<UserPublicDto> {
-        return this.userService.findByIdOrFail(userId)
+    async me(@Req() req: Request, @User() user: { id: string }): Promise<UserPublicDto> {
+        return this.userService.findByIdOrFail(user.id)
     }
 
     @AuthThrottler()

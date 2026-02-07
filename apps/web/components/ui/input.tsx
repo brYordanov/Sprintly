@@ -52,8 +52,6 @@ function PassInput({
                 className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                 type="button"
                 onClick={() => {
-                    console.log(1111)
-
                     setShowPass(state => !state)
                 }}
             >

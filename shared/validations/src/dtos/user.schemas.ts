@@ -1,5 +1,5 @@
 import z from 'zod'
-import { ValidImgUrlSchema } from './common'
+import { ValidImgUrlSchema } from './common.schemas'
 
 export const CreateUserBodySchema = z
     .object({
@@ -30,8 +30,8 @@ export const UserPublicSchema = z.object({
     username: z.string(),
     fullname: z.string().nullable(),
     avatarUrl: z.string().nullable().optional(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
+    createdAt: z.coerce.date(),
+    updatedAt: z.coerce.date(),
     emailVerifiedAt: z.date().nullable(),
     status: z.enum(['active', 'deleted']),
 })

@@ -1,2 +1,2 @@
-export * from './dtos/auth'
-export * from './dtos/user'
+export * from './dtos/auth.schemas'
+export * from './dtos/user.schemas'

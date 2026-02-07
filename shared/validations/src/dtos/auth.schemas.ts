@@ -36,7 +36,7 @@ export type RegisterBodyDto = z.infer<typeof RegisterBodySchema>
 
 export const LoginBodySchema = z
     .object({
-        identifier: z.string().min(3).max(320),
+        identifier: z.string().min(3, 'Must be at least 3 characters').max(320),
         password: z
             .string()
             .min(8, 'Password must be at least 8 characters')

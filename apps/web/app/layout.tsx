@@ -29,13 +29,16 @@ export default async function RootLayout({
     children: React.ReactNode
 }>) {
     const user = await getCurrentUser()
+
     return (
         <html lang="en">
             <body
                 className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-background`}
             >
-                {!!user ? <AuthenticatedHeader /> : <Header />}
-                <Providers initialUser={user}>{children}</Providers>
+                <Providers initialUser={user}>
+                    {!!user ? <AuthenticatedHeader /> : <Header />}
+                    {children}
+                </Providers>
             </body>
         </html>
     )

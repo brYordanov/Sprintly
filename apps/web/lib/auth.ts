@@ -9,7 +9,7 @@ export async function getCurrentUser(): Promise<UserPublicDto | null> {
 
         if (!accessToken) return null
 
-        const data = await apiClient<UserPublicDto>('/auth/me', {
+        const data = await apiClient<UserPublicDto>('auth/me', {
             headers: {
                 Cookie: `accessToken=${accessToken.value}`,
             },
