@@ -1,2 +1,6 @@
 export * from '../modules/auth/auth.entity'
+export * from '../modules/company/company.entity'
+export * from '../modules/permission/permission.entity'
+export * from '../modules/project/project.entity'
 export * from '../modules/user/user.entity'
+export * from '../modules/workspace/workspace.entity'
