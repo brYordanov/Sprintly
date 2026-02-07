@@ -1,16 +1,20 @@
+import { HeaderWrapper } from '@/components/layout/headerWrapper'
+import { getCurrentUser } from '@/lib/auth'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
+const inter = Inter({
     subsets: ['latin'],
+    variable: '--font-inter',
+    display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
+const spaceGrotesk = Space_Grotesk({
     subsets: ['latin'],
+    variable: '--font-space-grotesk',
+    display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -18,15 +22,22 @@ export const metadata: Metadata = {
     description: 'mini Jira',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode
 }>) {
+    const user = await getCurrentUser()
+
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <Providers>{children}</Providers>
+            <body
+                className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-background`}
+            >
+                <Providers initialUser={user}>
+                    <HeaderWrapper />
+                    {children}
+                </Providers>
             </body>
         </html>
     )

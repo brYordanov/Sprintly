@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common'
-import { Pool } from 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
+import * as schema from './drizzle-entrypoint'
 
 export const PG_POOL = Symbol('PG_POOL')
 export const DRIZZLE_DB = Symbol('DRIZZLE_DB')
@@ -22,7 +23,7 @@ export const DRIZZLE_DB = Symbol('DRIZZLE_DB')
         {
             provide: DRIZZLE_DB,
             useFactory: (pool: Pool) => {
-                return drizzle(pool)
+                return drizzle(pool, { schema })
             },
             inject: [PG_POOL],
         },

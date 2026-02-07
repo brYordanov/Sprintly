@@ -1,6 +1,6 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import nextTs from 'eslint-config-next/typescript'
+import { defineConfig, globalIgnores } from 'eslint/config'
 
 const eslintConfig = defineConfig([
     {
@@ -20,6 +20,13 @@ const eslintConfig = defineConfig([
         'build/**',
         'next-env.d.ts',
     ]),
+    {
+        // Target TS files and override the rule
+        files: ['**/*.ts', '**/*.tsx'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+        },
+    },
 ])
 
 export default eslintConfig
