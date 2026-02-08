@@ -1,5 +1,6 @@
 'use client'
 
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { AuthProvider } from '@/contexts/authContext'
 import { UserPublicDto } from '@shared/validations'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -16,9 +17,11 @@ export function Providers({
 }) {
     return (
         <AuthProvider initialUser={initialUser}>
-            <QueryClientProvider client={queryClient}>
-                {children} <Toaster />
-            </QueryClientProvider>
+            <SidebarProvider>
+                <QueryClientProvider client={queryClient}>
+                    {children} <Toaster />
+                </QueryClientProvider>
+            </SidebarProvider>
         </AuthProvider>
     )
 }

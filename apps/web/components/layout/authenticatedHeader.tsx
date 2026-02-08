@@ -1,52 +1,48 @@
-'use client'
-
-import { useAuth } from '@/contexts/authContext'
-import { useLogout } from '@/features/auth/api/useLogout'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { usePathname } from 'next/navigation'
+import { Fragment } from 'react/jsx-runtime'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
-import { ProjectSymbol } from '../ui/icon'
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from '../ui/breadcrumb'
+import { Separator } from '../ui/separator'
+import { SidebarTrigger } from '../ui/sidebar'
 
 export function AuthenticatedHeader() {
-    const { user } = useAuth()
-    const { mutate } = useLogout()
-    const some = () => {
-        mutate()
-    }
+    const pathname = usePathname()
+    const pathSegments = pathname.split('/')
+
+    const breadcrumbs = pathSegments.map((segment, index) => {
+        const href = '/' + pathSegments.slice(0, index + 1).join('/')
+        const label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
+        const isLast = index === pathSegments.length - 1
+
+        return { href, label, isLast }
+    })
 
     return (
-        <header className="bg-card border-accent pt-4 pb-4 pl-4 pr-4 flex items-center justify-between shadow-soft">
-            <div className="flex items-center gap-3">
-                <ProjectSymbol width={60} height={60} />
-                <h1>Sprintly</h1>
-            </div>
-
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 hover:opacity-80 outline-0">
-                        <Avatar size="lg">
-                            <AvatarImage src={user?.avatarUrl || ''} />
-                            <AvatarFallback className="bg-primary text-primary-foreground">
-                                {user?.username?.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                    </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Settings</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={some}>Log out</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1 hover:text-white" />
+            <Separator orientation="vertical" className="h-6" />
+            <Breadcrumb>
+                <BreadcrumbList>
+                    {breadcrumbs.map(crumb => (
+                        <Fragment key={crumb.href}>
+                            <BreadcrumbItem>
+                                {crumb.isLast ? (
+                                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                                ) : (
+                                    <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                                )}
+                            </BreadcrumbItem>
+                            {!crumb.isLast && <BreadcrumbSeparator />}
+                        </Fragment>
+                    ))}
+                </BreadcrumbList>
+            </Breadcrumb>
         </header>
     )
 }

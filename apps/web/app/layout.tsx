@@ -1,4 +1,6 @@
 import { HeaderWrapper } from '@/components/layout/headerWrapper'
+import { AppSidebar } from '@/components/layout/sidebar'
+import { SidebarInset } from '@/components/ui/sidebar'
 import { getCurrentUser } from '@/lib/auth'
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
@@ -35,8 +37,11 @@ export default async function RootLayout({
                 className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-background`}
             >
                 <Providers initialUser={user}>
-                    <HeaderWrapper />
-                    {children}
+                    <AppSidebar />
+                    <SidebarInset>
+                        <HeaderWrapper />
+                        {children}
+                    </SidebarInset>
                 </Providers>
             </body>
         </html>
