@@ -18,6 +18,7 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/contexts/authContext'
 import {
     Building2,
     ChevronDown,
@@ -60,16 +61,8 @@ const projects = [
     { title: 'API Integration', url: '/projects/api-integration' },
 ]
 
-interface AppSidebarProps {
-    user?: {
-        name?: string
-        email?: string
-        avatar?: string
-    }
-    onLogout?: () => void
-}
-
-export function AppSidebar({ user, onLogout }: AppSidebarProps) {
+export function AppSidebar() {
+    const { user, logout } = useAuth()
     const { state } = useSidebar()
     const pathname = usePathname()
     const collapsed = state === 'collapsed'
@@ -170,15 +163,15 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
                                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                                 >
                                     <Avatar className="h-8 w-8 rounded-lg">
-                                        <AvatarImage src={user?.avatar} alt={user?.name} />
+                                        <AvatarImage src={user?.avatarUrl || undefined} alt={user?.fullname || user?.username} />
                                         <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-xs font-semibold">
-                                            {getInitials(user?.name)}
+                                            {getInitials(user?.fullname || user?.username)}
                                         </AvatarFallback>
                                     </Avatar>
                                     {!collapsed && (
                                         <div className="grid flex-1 text-left text-sm leading-tight">
                                             <span className="truncate font-semibold">
-                                                {user?.name || 'User'}
+                                                {user?.fullname || user?.username || 'User'}
                                             </span>
                                             <span className="truncate text-xs text-muted-foreground">
                                                 {user?.email || 'user@example.com'}
@@ -207,7 +200,7 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    onClick={onLogout}
+                                    onClick={logout}
                                     className="cursor-pointer group"
                                 >
                                     <LogOut className="group-hover:text-white" />
