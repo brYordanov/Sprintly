@@ -25,11 +25,7 @@ interface CreateCompanyDialogProps {
 
 export function CreateCompanyDialog({ open, onOpenChange }: CreateCompanyDialogProps) {
     const { mutate: createCompany, isPending } = useCreateCompany()
-    const {
-        control,
-        handleSubmit,
-        reset,
-    } = useForm<CreateCompanyDto>({
+    const { control, handleSubmit, reset } = useForm<CreateCompanyDto>({
         resolver: zodResolver(CreateCompanySchema),
         mode: 'onTouched',
         defaultValues: {
@@ -56,7 +52,11 @@ export function CreateCompanyDialog({ open, onOpenChange }: CreateCompanyDialogP
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-125">
+            <DialogContent
+                className="sm:max-w-125"
+                showCloseButton={true}
+                onNativeClose={handleCancel}
+            >
                 <DialogHeader>
                     <DialogTitle>Create Company</DialogTitle>
                     <DialogDescription>

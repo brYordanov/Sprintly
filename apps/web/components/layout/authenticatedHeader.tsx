@@ -25,7 +25,7 @@ export function AuthenticatedHeader() {
 
     return (
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1 hover:text-white" />
+            <SidebarTrigger className="-ml-1 group" iconClassName="group-hover:text-card" />
             <Separator orientation="vertical" className="h-6" />
             <Breadcrumb>
                 <BreadcrumbList>
