@@ -6,6 +6,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DbModule } from './db/db.module'
 import { AuthModule } from './modules/auth/auth.module'
+import { CompanyModule } from './modules/company/company.module'
 import { UserModule } from './modules/user/user.module'
 import { RedisModule } from './redis/redis.module'
 
@@ -31,6 +32,7 @@ import { RedisModule } from './redis/redis.module'
         RedisModule,
         UserModule,
         AuthModule,
+        CompanyModule,
     ],
     controllers: [AppController],
     providers: [AppService],
