@@ -1,4 +1,3 @@
-import { LayoutContent } from '@/components/layout/layoutContent'
 import { getCurrentUser } from '@/lib/auth'
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
@@ -35,7 +34,7 @@ export default async function RootLayout({
                 className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-background`}
             >
                 <Providers initialUser={user}>
-                    <LayoutContent>{children}</LayoutContent>
+                    {children}
                 </Providers>
             </body>
         </html>

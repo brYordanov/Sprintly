@@ -17,7 +17,6 @@ export function useLogout() {
             toast.success('Successfuly logged out')
             logout()
             router.replace('/')
-            router.refresh()
         },
         onError: err => {
             console.error(`Log out failed: ${err}`)

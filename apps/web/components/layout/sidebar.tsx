@@ -17,8 +17,10 @@ import {
     SidebarSeparator,
     useSidebar,
 } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/authContext'
+import { useLogout } from '@/features/auth/api/useLogout'
+import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
+import { cn } from '@/lib/utils'
 import {
     Building2,
     ChevronDown,
@@ -42,7 +44,6 @@ import {
     DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { ProjectSymbol } from '../ui/icon'
-import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
 
 const dashboardItems = [{ title: 'Overview', url: '/dashboard', icon: LayoutDashboard }]
 
@@ -64,7 +65,8 @@ const projects = [
 ]
 
 export function AppSidebar() {
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
+    const { mutate: logout } = useLogout()
     const { state } = useSidebar()
     const pathname = usePathname()
     const collapsed = state === 'collapsed'
@@ -167,7 +169,10 @@ export function AppSidebar() {
                                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                                 >
                                     <Avatar className="h-8 w-8 rounded-lg">
-                                        <AvatarImage src={user?.avatarUrl || undefined} alt={user?.fullname || user?.username} />
+                                        <AvatarImage
+                                            src={user?.avatarUrl || undefined}
+                                            alt={user?.fullname || user?.username}
+                                        />
                                         <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-xs font-semibold">
                                             {getInitials(user?.fullname || user?.username)}
                                         </AvatarFallback>
@@ -204,7 +209,7 @@ export function AppSidebar() {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    onClick={logout}
+                                    onClick={() => logout()}
                                     className="cursor-pointer group"
                                 >
                                     <LogOut className="group-hover:text-white" />
