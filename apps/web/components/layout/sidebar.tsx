@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import {
     DropdownMenu,
@@ -41,6 +42,7 @@ import {
     DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { ProjectSymbol } from '../ui/icon'
+import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
 
 const dashboardItems = [{ title: 'Overview', url: '/dashboard', icon: LayoutDashboard }]
 
@@ -66,6 +68,7 @@ export function AppSidebar() {
     const { state } = useSidebar()
     const pathname = usePathname()
     const collapsed = state === 'collapsed'
+    const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
 
     const getInitials = (name?: string) => {
         if (!name) return 'U'
@@ -128,6 +131,7 @@ export function AppSidebar() {
                     items={companies}
                     pathname={pathname}
                     defaultOpen
+                    onAddClick={() => setIsCreateCompanyOpen(true)}
                 />
 
                 <SidebarSeparator className="m-0" />
@@ -211,6 +215,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
+
+            <CreateCompanyDialog open={isCreateCompanyOpen} onOpenChange={setIsCreateCompanyOpen} />
         </Sidebar>
     )
 }
@@ -221,6 +227,7 @@ interface CollapsibleSectionProps {
     items: { title: string; url: string }[]
     pathname: string
     defaultOpen?: boolean
+    onAddClick?: () => void
 }
 
 function CollapsibleSection({
@@ -229,6 +236,7 @@ function CollapsibleSection({
     items,
     pathname,
     defaultOpen = false,
+    onAddClick,
 }: CollapsibleSectionProps) {
     return (
         <Collapsible defaultOpen={defaultOpen} className="group/collapsible">
@@ -270,6 +278,7 @@ function CollapsibleSection({
                                     <Button
                                         variant="ghost"
                                         className="w-full justify-start h-8 text-muted-foreground hover:text-foreground"
+                                        onClick={onAddClick}
                                     >
                                         <Plus className="h-3.5 w-3.5" />
                                         <span className="text-xs">Add new</span>

@@ -20,9 +20,9 @@ import { useForm } from 'react-hook-form'
 import { useLogin } from '../api/useLogin'
 
 export function LoginForm() {
-    const { mutate, isPending } = useLogin()
+    const { mutate: loginUser, isPending } = useLogin()
     const onSubmit = (data: LoginBodyDto) => {
-        mutate(data)
+        loginUser(data)
     }
 
     const { control, handleSubmit } = useForm<LoginBodyDto>({
