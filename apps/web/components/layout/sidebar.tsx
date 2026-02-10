@@ -48,11 +48,6 @@ import { ProjectSymbol } from '../ui/icon'
 
 const dashboardItems = [{ title: 'Overview', url: '/dashboard', icon: LayoutDashboard }]
 
-const companies = [
-    { title: 'Acme Corp', url: '/companies/acme' },
-    { title: 'Globex Inc', url: '/companies/globex' },
-]
-
 const workspaces = [
     { title: 'Engineering', url: '/workspaces/engineering' },
     { title: 'Design', url: '/workspaces/design' },
@@ -72,7 +67,7 @@ export function AppSidebar() {
     const pathname = usePathname()
     const collapsed = state === 'collapsed'
     const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
-    const { data } = useGetUserCompanies()
+    const { data: userCompanies } = useGetUserCompanies()
 
     const getInitials = (name?: string) => {
         if (!name) return 'U'
@@ -132,7 +127,12 @@ export function AppSidebar() {
                 <CollapsibleSection
                     label="My Companies"
                     icon={Building2}
-                    items={companies}
+                    items={
+                        userCompanies?.map(c => ({
+                            title: c.name,
+                            url: `/companies/${c.slug}`,
+                        })) ?? []
+                    }
                     pathname={pathname}
                     defaultOpen
                     onAddClick={() => setIsCreateCompanyOpen(true)}
