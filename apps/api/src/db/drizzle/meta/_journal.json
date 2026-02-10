@@ -92,6 +92,13 @@
       "when": 1770676937260,
       "tag": "0012_add-mtm-rel-btw-company-user",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1770740468274,
+      "tag": "0013_add-mtm-rel-btw-user-workspace",
+      "breakpoints": true
     }
   ]
 }

@@ -21,6 +21,8 @@ import { useAuth } from '@/contexts/authContext'
 import { useLogout } from '@/features/auth/api/useLogout'
 import { useGetUserCompanies } from '@/features/company/api/useGetUserCompanies'
 import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
+import { useGetUserWorkspaces } from '@/features/workspace/api/useGetUserWorkspaces'
+import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
 import { cn } from '@/lib/utils'
 import {
     Building2,
@@ -48,12 +50,6 @@ import { ProjectSymbol } from '../ui/icon'
 
 const dashboardItems = [{ title: 'Overview', url: '/dashboard', icon: LayoutDashboard }]
 
-const workspaces = [
-    { title: 'Engineering', url: '/workspaces/engineering' },
-    { title: 'Design', url: '/workspaces/design' },
-    { title: 'Marketing', url: '/workspaces/marketing' },
-]
-
 const projects = [
     { title: 'Website Redesign', url: '/projects/website-redesign' },
     { title: 'Mobile App v2', url: '/projects/mobile-app' },
@@ -67,7 +63,9 @@ export function AppSidebar() {
     const pathname = usePathname()
     const collapsed = state === 'collapsed'
     const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
+    const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false)
     const { data: userCompanies } = useGetUserCompanies()
+    const { data: userWorkspaces } = useGetUserWorkspaces()
 
     const getInitials = (name?: string) => {
         if (!name) return 'U'
@@ -143,9 +141,15 @@ export function AppSidebar() {
                 <CollapsibleSection
                     label="My Workspaces"
                     icon={Layers}
-                    items={workspaces}
+                    items={
+                        userWorkspaces?.map(w => ({
+                            title: w.name,
+                            url: `/workspaces/${w.slug}`,
+                        })) ?? []
+                    }
                     pathname={pathname}
                     defaultOpen
+                    onAddClick={() => setIsCreateWorkspaceOpen(true)}
                 />
 
                 <SidebarSeparator className="m-0" />
@@ -224,6 +228,7 @@ export function AppSidebar() {
             </SidebarFooter>
 
             <CreateCompanyDialog open={isCreateCompanyOpen} onOpenChange={setIsCreateCompanyOpen} />
+            <CreateWorkspaceDialog open={isCreateWorkspaceOpen} onOpenChange={setIsCreateWorkspaceOpen} />
         </Sidebar>
     )
 }

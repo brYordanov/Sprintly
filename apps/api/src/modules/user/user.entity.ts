@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm'
 import { pgEnum, pgTable, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core'
 import { CompanyMemberSchema } from '../company-members/company-members.entity'
+import { WorkspaceMemberSchema } from '../workspace-members/workspace-members.entity'
 
 export const userStatusEnum = pgEnum('user_status', ['active', 'deleted'])
 
@@ -27,4 +28,5 @@ export const UserSchema = pgTable(
 
 export const UserRelations = relations(UserSchema, ({ many }) => ({
     companyMemberships: many(CompanyMemberSchema),
+    workspaceMemberships: many(WorkspaceMemberSchema),
 }))
