@@ -89,7 +89,7 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                                         </SelectTrigger>
                                         <SelectContent>
                                             {userCompanies?.map(c => (
-                                                <SelectItem key={c.slug} value={c.slug}>
+                                                <SelectItem key={c.id} value={c.id}>
                                                     {c.name}
                                                 </SelectItem>
                                             ))}

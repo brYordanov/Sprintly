@@ -41,4 +41,4 @@ export const EditCompanySchema = z.object({
 })
 export type EditCompany = z.infer<typeof EditCompanySchema>
 
-export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug'>
+export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>

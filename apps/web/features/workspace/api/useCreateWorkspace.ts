@@ -1,9 +1,12 @@
 import { apiClient } from '@/lib/api/client'
 import { CreateWorkspaceDto, WorkspaceRowDto } from '@shared/validations'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { USER_WORKSPACES } from './useGetUserWorkspaces'
 
 export function useCreateWorkspace() {
+    const queryClient = useQueryClient()
+
     return useMutation({
         mutationFn: async (data: CreateWorkspaceDto) =>
             apiClient<WorkspaceRowDto>('workspace', {
@@ -12,6 +15,7 @@ export function useCreateWorkspace() {
             }),
         onSuccess: () => {
             toast.success('Workspace created')
+            queryClient.invalidateQueries({ queryKey: [USER_WORKSPACES] })
         },
         onError: err => {
             console.error(`Workspace creation failed: ${err}`)

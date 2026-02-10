@@ -29,6 +29,7 @@ export class CompanyService {
             .select({
                 name: schema.CompanySchema.name,
                 slug: schema.CompanySchema.slug,
+                id: schema.CompanySchema.id,
             })
             .from(schema.CompanyMemberSchema)
             .innerJoin(
