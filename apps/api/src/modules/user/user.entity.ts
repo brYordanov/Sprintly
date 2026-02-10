@@ -1,4 +1,6 @@
+import { relations } from 'drizzle-orm'
 import { pgEnum, pgTable, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core'
+import { CompanyMemberSchema } from '../company-members/company-members.entity'
 
 export const userStatusEnum = pgEnum('user_status', ['active', 'deleted'])
 
@@ -22,3 +24,7 @@ export const UserSchema = pgTable(
         uniqueIndex('users_username_uq').on(t.username),
     ],
 )
+
+export const UserRelations = relations(UserSchema, ({ many }) => ({
+    companyMemberships: many(CompanyMemberSchema),
+}))

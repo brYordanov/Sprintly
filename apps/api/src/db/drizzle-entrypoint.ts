@@ -1,4 +1,5 @@
 export * from '../modules/auth/auth.entity'
+export * from '../modules/company-members/company-members.entity'
 export * from '../modules/company/company.entity'
 export * from '../modules/permission/permission.entity'
 export * from '../modules/project/project.entity'

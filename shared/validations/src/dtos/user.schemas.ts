@@ -32,7 +32,7 @@ export const UserPublicSchema = z.object({
     avatarUrl: z.string().nullable().optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
-    emailVerifiedAt: z.date().nullable(),
+    emailVerifiedAt: z.coerce.date().nullable(),
     status: z.enum(['active', 'deleted']),
 })
 export type UserPublicDto = z.infer<typeof UserPublicSchema>

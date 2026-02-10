@@ -40,3 +40,5 @@ export const EditCompanySchema = z.object({
     logoUrl: ValidImgUrlSchema.nullable().optional(),
 })
 export type EditCompany = z.infer<typeof EditCompanySchema>
+
+export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug'>

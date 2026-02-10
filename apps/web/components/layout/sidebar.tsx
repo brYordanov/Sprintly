@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/contexts/authContext'
 import { useLogout } from '@/features/auth/api/useLogout'
+import { useGetUserCompanies } from '@/features/company/api/useGetUserCompanies'
 import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
 import { cn } from '@/lib/utils'
 import {
@@ -71,6 +72,7 @@ export function AppSidebar() {
     const pathname = usePathname()
     const collapsed = state === 'collapsed'
     const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
+    const { data } = useGetUserCompanies()
 
     const getInitials = (name?: string) => {
         if (!name) return 'U'
