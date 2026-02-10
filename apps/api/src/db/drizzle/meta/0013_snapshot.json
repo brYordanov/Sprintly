@@ -1,5 +1,5 @@
 {
-  "id": "54233cbd-7262-4178-9de6-89dc9b7eabbd",
+  "id": "eb556fbb-c54c-433b-9f1f-c9ca80e8cb85",
   "prevId": "0f88acab-9f86-48f6-b8ea-502f90303e1f",
   "version": "7",
   "dialect": "postgresql",
@@ -621,8 +621,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "key": {
-          "name": "key",
+        "slug": {
+          "name": "slug",
           "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true
@@ -655,8 +655,8 @@
         }
       },
       "indexes": {
-        "projects_company_key_uq": {
-          "name": "projects_company_key_uq",
+        "projects_company_slug_uq": {
+          "name": "projects_company_slug_uq",
           "columns": [
             {
               "expression": "company_id",
@@ -665,7 +665,7 @@
               "nulls": "last"
             },
             {
-              "expression": "key",
+              "expression": "slug",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -821,73 +821,6 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.workspace_members": {
-      "name": "workspace_members",
-      "schema": "",
-      "columns": {
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "joined_at": {
-          "name": "joined_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "workspace_members_workspace_id_workspaces_id_fk": {
-          "name": "workspace_members_workspace_id_workspaces_id_fk",
-          "tableFrom": "workspace_members",
-          "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "workspace_members_user_id_users_id_fk": {
-          "name": "workspace_members_user_id_users_id_fk",
-          "tableFrom": "workspace_members",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "workspace_members_workspace_id_user_id_pk": {
-          "name": "workspace_members_workspace_id_user_id_pk",
-          "columns": [
-            "workspace_id",
-            "user_id"
-          ]
-        }
-      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

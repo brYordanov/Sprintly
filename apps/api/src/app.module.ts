@@ -8,6 +8,7 @@ import { DbModule } from './db/db.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { CompanyModule } from './modules/company/company.module'
 import { UserModule } from './modules/user/user.module'
+import { ProjectModule } from './modules/project/project.module'
 import { WorkspaceModule } from './modules/workspace/workspace.module'
 import { RedisModule } from './redis/redis.module'
 
@@ -34,6 +35,7 @@ import { RedisModule } from './redis/redis.module'
         UserModule,
         AuthModule,
         CompanyModule,
+        ProjectModule,
         WorkspaceModule,
     ],
     controllers: [AppController],

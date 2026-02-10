@@ -18,9 +18,8 @@ export class WorkspaceController {
     @Post()
     async create(
         @Body(new ZodValidationPipe(CreateWorkspaceSchema)) dto: CreateWorkspaceDto,
-        @User() user: { id: string },
     ): Promise<WorkspaceRowDto> {
-        return this.service.createWorkspace(user.id, dto)
+        return this.service.createWorkspace(dto)
     }
 
     @Get()

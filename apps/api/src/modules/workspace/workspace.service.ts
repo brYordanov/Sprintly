@@ -9,17 +9,9 @@ import * as schema from 'src/db/drizzle-entrypoint'
 export class WorkspaceService {
     constructor(@Inject(DRIZZLE_DB) private readonly db: NodePgDatabase<typeof schema>) {}
 
-    async createWorkspace(userId: string, dto: CreateWorkspaceDto): Promise<WorkspaceRowDto> {
-        return this.db.transaction(async tx => {
-            const [workspace] = await tx.insert(schema.WorkspaceSchema).values(dto).returning()
-
-            await tx.insert(schema.WorkspaceMemberSchema).values({
-                workspaceId: workspace.id,
-                userId: userId,
-            })
-
-            return workspace
-        })
+    async createWorkspace(dto: CreateWorkspaceDto): Promise<WorkspaceRowDto> {
+        const [workspace] = await this.db.insert(schema.WorkspaceSchema).values(dto).returning()
+        return workspace
     }
 
     async getUserWorkspaces(userId: string) {
@@ -29,11 +21,11 @@ export class WorkspaceService {
                 slug: schema.WorkspaceSchema.slug,
                 id: schema.WorkspaceSchema.id,
             })
-            .from(schema.WorkspaceMemberSchema)
+            .from(schema.CompanyMemberSchema)
             .innerJoin(
                 schema.WorkspaceSchema,
-                eq(schema.WorkspaceSchema.id, schema.WorkspaceMemberSchema.workspaceId),
+                eq(schema.WorkspaceSchema.companyId, schema.CompanyMemberSchema.companyId),
             )
-            .where(eq(schema.WorkspaceMemberSchema.userId, userId))
+            .where(eq(schema.CompanyMemberSchema.userId, userId))
     }
 }
