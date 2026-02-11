@@ -1,5 +1,5 @@
 CREATE TABLE "permissions" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" integer PRIMARY KEY NOT NULL,
 	"name" varchar NOT NULL,
 	"level" integer NOT NULL,
 	CONSTRAINT "permissions_name_unique" UNIQUE("name")
@@ -8,7 +8,7 @@ CREATE TABLE "permissions" (
 CREATE TABLE "users_company_permissions" (
 	"user_id" uuid NOT NULL,
 	"company_id" uuid NOT NULL,
-	"permission_id" uuid NOT NULL,
+	"permission_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_company_permissions_user_id_company_id_pk" PRIMARY KEY("user_id","company_id")
 );
@@ -16,7 +16,7 @@ CREATE TABLE "users_company_permissions" (
 CREATE TABLE "users_project_permissions" (
 	"user_id" uuid NOT NULL,
 	"project_id" uuid NOT NULL,
-	"permission_id" uuid NOT NULL,
+	"permission_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_project_permissions_user_id_project_id_pk" PRIMARY KEY("user_id","project_id")
 );
@@ -24,7 +24,7 @@ CREATE TABLE "users_project_permissions" (
 CREATE TABLE "users_workspace_permissions" (
 	"user_id" uuid NOT NULL,
 	"workspace_id" uuid NOT NULL,
-	"permission_id" uuid NOT NULL,
+	"permission_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_workspace_permissions_user_id_workspace_id_pk" PRIMARY KEY("user_id","workspace_id")
 );

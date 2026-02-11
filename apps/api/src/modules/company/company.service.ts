@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { CompanyRowDto, CreateCompanyDto } from '@shared/validations'
+import { CompanyRowDto, CreateCompanyDto, PERMISSION_IDS } from '@shared/validations'
 import { eq, or } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -19,6 +19,12 @@ export class CompanyService {
             await tx.insert(schema.CompanyMemberSchema).values({
                 companyId: company.id,
                 userId: userId,
+            })
+
+            await tx.insert(schema.UserCompanyPermissionSchema).values({
+                userId: userId,
+                companyId: company.id,
+                permissionId: PERMISSION_IDS.OWNER,
             })
             return company
         })

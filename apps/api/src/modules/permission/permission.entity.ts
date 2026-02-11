@@ -5,7 +5,7 @@ import { UserSchema } from '../user/user.entity'
 import { WorkspaceSchema } from '../workspace/workspace.entity'
 
 export const PermissionSchema = pgTable('permissions', {
-    id: uuid().primaryKey().defaultRandom(),
+    id: integer().primaryKey(),
     name: varchar().notNull().unique(),
     level: integer().notNull(),
 })
@@ -19,7 +19,7 @@ export const UserCompanyPermissionSchema = pgTable(
         companyId: uuid('company_id')
             .notNull()
             .references(() => CompanySchema.id, { onDelete: 'cascade' }),
-        permissionId: uuid('permission_id')
+        permissionId: integer('permission_id')
             .notNull()
             .references(() => PermissionSchema.id, { onDelete: 'cascade' }),
         createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -36,7 +36,7 @@ export const UserWorkspacePermissionSchema = pgTable(
         workspaceId: uuid('workspace_id')
             .notNull()
             .references(() => WorkspaceSchema.id, { onDelete: 'cascade' }),
-        permissionId: uuid('permission_id')
+        permissionId: integer('permission_id')
             .notNull()
             .references(() => PermissionSchema.id, { onDelete: 'cascade' }),
         createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -53,7 +53,7 @@ export const UserProjectPermissionSchema = pgTable(
         projectId: uuid('project_id')
             .notNull()
             .references(() => ProjectSchema.id, { onDelete: 'cascade' }),
-        permissionId: uuid('permission_id')
+        permissionId: integer('permission_id')
             .notNull()
             .references(() => PermissionSchema.id, { onDelete: 'cascade' }),
         createdAt: timestamp('created_at').notNull().defaultNow(),
