@@ -35,10 +35,7 @@ export class CompanyService {
         })
     }
 
-    async getUserCompanies(
-        userId: string,
-        minPermissionLevel: number = 0,
-    ): Promise<UserCompanySummary[]> {
+    async getManageableCompaniesForUser(userId: string): Promise<UserCompanySummary[]> {
         return this.db
             .select({
                 name: schema.CompanySchema.name,
@@ -57,16 +54,27 @@ export class CompanyService {
             .where(
                 and(
                     eq(schema.CompanyMemberSchema.userId, userId),
-                    gte(schema.PermissionSchema.level, minPermissionLevel),
+                    gte(schema.PermissionSchema.level, PERMISSION.ADMIN.level),
                 ),
             )
     }
 
     async getViewableCompaniesForUser(userId: string): Promise<UserCompanySummary[]> {
-        return this.getUserCompanies(userId, PERMISSION.GUEST.level)
-    }
-
-    async getManageableCompaniesForUser(userId: string): Promise<UserCompanySummary[]> {
-        return this.getUserCompanies(userId, PERMISSION.ADMIN.level)
+        return this.db
+            .select({
+                name: schema.CompanySchema.name,
+                slug: schema.CompanySchema.slug,
+                id: schema.CompanySchema.id,
+            })
+            .from(schema.CompanyMemberSchema)
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.CompanySchema.id, schema.CompanyMemberSchema.companyId),
+            )
+            .innerJoin(
+                schema.UserCompanyPermissionSchema,
+                eq(schema.CompanySchema.id, schema.UserCompanyPermissionSchema.companyId),
+            )
+            .where(eq(schema.CompanyMemberSchema.userId, userId))
     }
 }

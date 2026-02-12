@@ -23,4 +23,4 @@ export const CreateWorkspaceSchema = z.object({
 })
 export type CreateWorkspaceDto = z.infer<typeof CreateWorkspaceSchema>
 
-export type UserWorkspaceSummary = Pick<WorkspaceRowDto, 'name' | 'slug'>
+export type UserWorkspaceSummary = Pick<WorkspaceRowDto, 'name' | 'slug' | 'id'>

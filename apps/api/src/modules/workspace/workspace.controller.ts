@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import {
     CreateWorkspaceSchema,
-    type CreateWorkspaceDto,
-    WorkspaceRowDto,
     UserWorkspaceSummary,
+    WorkspaceRowDto,
+    type CreateWorkspaceDto,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { User } from '../auth/decorators/user.decorator'
@@ -18,12 +18,22 @@ export class WorkspaceController {
     @Post()
     async create(
         @Body(new ZodValidationPipe(CreateWorkspaceSchema)) dto: CreateWorkspaceDto,
+        @User() user: { id: string },
     ): Promise<WorkspaceRowDto> {
-        return this.service.createWorkspace(dto)
+        return this.service.createWorkspace(dto, user.id)
     }
 
-    @Get()
-    async getWorkspacesForUser(@User() user: { id: string }): Promise<UserWorkspaceSummary[]> {
-        return this.service.getUserWorkspaces(user.id)
+    @Get('viewable')
+    async getViewableWorkspacesForUser(
+        @User() user: { id: string },
+    ): Promise<UserWorkspaceSummary[]> {
+        return this.service.getViewableUserWorkspaces(user.id)
+    }
+
+    @Get('manageable')
+    async getManageableWorkspacesForUser(
+        @User() user: { id: string },
+    ): Promise<UserWorkspaceSummary[]> {
+        return this.service.getManageableUserWorkspaces(user.id)
     }
 }
