@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/contexts/authContext'
 import { useLogout } from '@/features/auth/api/useLogout'
-import { useGetUserCompanies } from '@/features/company/api/useGetUserCompanies'
+import { useGetViewableUserCompanies } from '@/features/company/api/useGetViewableUserCompanies'
 import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
 import { useGetUserWorkspaces } from '@/features/workspace/api/useGetUserWorkspaces'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
@@ -64,7 +64,7 @@ export function AppSidebar() {
     const collapsed = state === 'collapsed'
     const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
     const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false)
-    const { data: userCompanies } = useGetUserCompanies()
+    const { data: userCompanies } = useGetViewableUserCompanies()
     const { data: userWorkspaces } = useGetUserWorkspaces()
 
     const getInitials = (name?: string) => {
@@ -228,7 +228,10 @@ export function AppSidebar() {
             </SidebarFooter>
 
             <CreateCompanyDialog open={isCreateCompanyOpen} onOpenChange={setIsCreateCompanyOpen} />
-            <CreateWorkspaceDialog open={isCreateWorkspaceOpen} onOpenChange={setIsCreateWorkspaceOpen} />
+            <CreateWorkspaceDialog
+                open={isCreateWorkspaceOpen}
+                onOpenChange={setIsCreateWorkspaceOpen}
+            />
         </Sidebar>
     )
 }

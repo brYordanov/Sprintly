@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { useGetUserCompanies } from '@/features/company/api/useGetUserCompanies'
+import { useGetManageableUserCompanies } from '@/features/company/api/useGetManageableUserCompanies'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateWorkspaceDto, CreateWorkspaceSchema } from '@shared/validations'
 import { Hash, Layers } from 'lucide-react'
@@ -33,7 +33,7 @@ interface CreateWorkspaceDialogProps {
 
 export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
     const { mutate: createWorkspace, isPending } = useCreateWorkspace()
-    const { data: userCompanies } = useGetUserCompanies()
+    const { data: userCompanies } = useGetManageableUserCompanies()
     const { control, handleSubmit, reset } = useForm<CreateWorkspaceDto>({
         resolver: zodResolver(CreateWorkspaceSchema),
         mode: 'onTouched',

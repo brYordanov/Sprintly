@@ -1,6 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { CompanyRowDto, CreateCompanyDto, PERMISSION_IDS } from '@shared/validations'
-import { eq, or } from 'drizzle-orm'
+import {
+    CompanyRowDto,
+    CreateCompanyDto,
+    PERMISSION,
+    UserCompanySummary,
+} from '@shared/validations'
+import { and, eq, gte } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from 'src/db/drizzle-entrypoint'
@@ -24,13 +29,16 @@ export class CompanyService {
             await tx.insert(schema.UserCompanyPermissionSchema).values({
                 userId: userId,
                 companyId: company.id,
-                permissionId: PERMISSION_IDS.OWNER,
+                permissionId: PERMISSION.OWNER.id,
             })
             return company
         })
     }
 
-    async getUserCompanies(userId: string) {
+    async getUserCompanies(
+        userId: string,
+        minPermissionLevel: number = 0,
+    ): Promise<UserCompanySummary[]> {
         return this.db
             .select({
                 name: schema.CompanySchema.name,
@@ -42,11 +50,23 @@ export class CompanyService {
                 schema.CompanySchema,
                 eq(schema.CompanySchema.id, schema.CompanyMemberSchema.companyId),
             )
+            .innerJoin(
+                schema.UserCompanyPermissionSchema,
+                eq(schema.CompanySchema.id, schema.UserCompanyPermissionSchema.companyId),
+            )
             .where(
-                or(
+                and(
                     eq(schema.CompanyMemberSchema.userId, userId),
-                    eq(schema.CompanySchema.ownerId, userId),
+                    gte(schema.PermissionSchema.level, minPermissionLevel),
                 ),
             )
+    }
+
+    async getViewableCompaniesForUser(userId: string): Promise<UserCompanySummary[]> {
+        return this.getUserCompanies(userId, PERMISSION.GUEST.level)
+    }
+
+    async getManageableCompaniesForUser(userId: string): Promise<UserCompanySummary[]> {
+        return this.getUserCompanies(userId, PERMISSION.ADMIN.level)
     }
 }

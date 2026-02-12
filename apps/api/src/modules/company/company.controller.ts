@@ -23,8 +23,15 @@ export class CompanyController {
         return this.service.createCompany(user.id, dto)
     }
 
-    @Get()
-    async getCompaniesForUser(@User() user: { id: string }): Promise<UserCompanySummary[]> {
-        return this.service.getUserCompanies(user.id)
+    @Get('viewable')
+    async getViewableCompaniesForUser(@User() user: { id: string }): Promise<UserCompanySummary[]> {
+        return this.service.getViewableCompaniesForUser(user.id)
+    }
+
+    @Get('manageable')
+    async getManageableCompaniesForUser(
+        @User() user: { id: string },
+    ): Promise<UserCompanySummary[]> {
+        return this.service.getManageableCompaniesForUser(user.id)
     }
 }
