@@ -21,7 +21,7 @@ import { useAuth } from '@/contexts/authContext'
 import { useLogout } from '@/features/auth/api/useLogout'
 import { useGetViewableUserCompanies } from '@/features/company/api/useGetViewableUserCompanies'
 import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
-import { useGetUserWorkspaces } from '@/features/workspace/api/useGetUserWorkspaces'
+import { useGetViewableUserWorkspaces } from '@/features/workspace/api/useGetViewableUserWorkspaces'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
 import { cn } from '@/lib/utils'
 import {
@@ -65,7 +65,7 @@ export function AppSidebar() {
     const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
     const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false)
     const { data: userCompanies } = useGetViewableUserCompanies()
-    const { data: userWorkspaces } = useGetUserWorkspaces()
+    const { data: userWorkspaces } = useGetViewableUserWorkspaces()
 
     const getInitials = (name?: string) => {
         if (!name) return 'U'

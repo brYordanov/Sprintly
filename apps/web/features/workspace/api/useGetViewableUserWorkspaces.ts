@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 
 export const USER_WORKSPACES = 'userWorkspaces' as const
 
-export function useGetUserWorkspaces() {
+export function useGetViewableUserWorkspaces() {
     return useQuery({
         queryKey: [USER_WORKSPACES],
-        queryFn: async () => apiClient<UserWorkspaceSummary[]>(`workspace`),
+        queryFn: async () => apiClient<UserWorkspaceSummary[]>(`workspace/viewable`),
     })
 }
