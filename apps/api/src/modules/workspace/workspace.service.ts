@@ -10,16 +10,18 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from 'src/db/drizzle-entrypoint'
+import { CompanyService } from '../company/company.service'
 
 @Injectable()
 export class WorkspaceService {
-    constructor(@Inject(DRIZZLE_DB) private readonly db: NodePgDatabase<typeof schema>) {}
+    constructor(
+        @Inject(DRIZZLE_DB) private readonly db: NodePgDatabase<typeof schema>,
+        private readonly companyService: CompanyService,
+    ) {}
 
     async createWorkspace(dto: CreateWorkspaceDto, userId: string): Promise<WorkspaceRowDto> {
-        const userCompanyLevelPermissionLevel = await this.getUserCompanyLevelPermissionLevel(
-            userId,
-            dto.companyId,
-        )
+        const userCompanyLevelPermissionLevel =
+            await this.companyService.getUserCompanyLevelPermissionLevel(userId, dto.companyId)
 
         if (!userCompanyLevelPermissionLevel || userCompanyLevelPermissionLevel < 3)
             throw new ForbiddenException('Insufficient permissions')
@@ -61,7 +63,7 @@ export class WorkspaceService {
                 ),
             )
             .leftJoin(
-                alias(schema.PermissionSchema, 'workspacePerm'),
+                workspacePerm,
                 eq(schema.UserWorkspacePermissionSchema.permissionId, schema.PermissionSchema.id),
             )
             .leftJoin(
@@ -75,7 +77,7 @@ export class WorkspaceService {
                 ),
             )
             .leftJoin(
-                alias(schema.PermissionSchema, 'companyPerm'),
+                companyPerm,
                 eq(schema.UserCompanyPermissionSchema.permissionId, schema.PermissionSchema.id),
             )
             .where(
@@ -86,27 +88,53 @@ export class WorkspaceService {
             )
     }
 
-    async getUserCompanyLevelPermissionLevel(
+    async getUserWorkspaceLevelPermissionsLevel(
         userId: string,
-        companyId: string,
+        workspaceId: string,
     ): Promise<number | null> {
-        const [permission] = await this.db
+        const workspacePerm = alias(schema.PermissionSchema, 'workspacePerm')
+        const companyPerm = alias(schema.PermissionSchema, 'companyPerm')
+
+        const [result] = await this.db
             .select({
-                level: schema.PermissionSchema.level,
+                workspacePermLevel: workspacePerm.level,
+                companyPermLevel: companyPerm.level,
             })
-            .from(schema.PermissionSchema)
-            .innerJoin(
-                schema.UserCompanyPermissionSchema,
-                eq(schema.UserCompanyPermissionSchema.permissionId, schema.PermissionSchema.id),
-            )
-            .where(
+            .from(schema.WorkspaceSchema)
+            .leftJoin(
+                schema.UserWorkspacePermissionSchema,
                 and(
-                    eq(schema.UserCompanyPermissionSchema.companyId, companyId),
-                    eq(schema.UserCompanyPermissionSchema.userId, userId),
+                    eq(schema.UserWorkspacePermissionSchema.userId, userId),
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
                 ),
             )
+            .leftJoin(
+                workspacePerm,
+                eq(schema.UserWorkspacePermissionSchema.permissionId, workspacePerm.id),
+            )
+            .leftJoin(
+                schema.UserCompanyPermissionSchema,
+                and(
+                    eq(schema.UserCompanyPermissionSchema.userId, userId),
+                    eq(
+                        schema.UserCompanyPermissionSchema.companyId,
+                        schema.WorkspaceSchema.companyId,
+                    ),
+                ),
+            )
+            .leftJoin(
+                companyPerm,
+                eq(schema.UserCompanyPermissionSchema.permissionId, companyPerm.id),
+            )
+            .where(eq(schema.WorkspaceSchema.id, workspaceId))
             .limit(1)
 
-        return permission?.level ?? null
+        if (!result) return null
+
+        const { workspacePermLevel, companyPermLevel } = result
+        if (!workspacePermLevel) return companyPermLevel
+        if (!companyPermLevel) return workspacePermLevel
+
+        return Math.max(workspacePermLevel, companyPermLevel)
     }
 }

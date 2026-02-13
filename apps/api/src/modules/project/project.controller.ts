@@ -18,8 +18,9 @@ export class ProjectController {
     @Post()
     async create(
         @Body(new ZodValidationPipe(CreateProjectSchema)) dto: CreateProjectDto,
+        @User() user: { id: string },
     ): Promise<ProjectRowDto> {
-        return this.service.createProject(dto)
+        return this.service.createProject(user.id, dto)
     }
 
     @Get()

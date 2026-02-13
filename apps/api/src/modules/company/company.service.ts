@@ -81,4 +81,28 @@ export class CompanyService {
             )
             .where(eq(schema.CompanyMemberSchema.userId, userId))
     }
+
+    async getUserCompanyLevelPermissionLevel(
+        userId: string,
+        companyId: string,
+    ): Promise<number | null> {
+        const [permission] = await this.db
+            .select({
+                level: schema.PermissionSchema.level,
+            })
+            .from(schema.PermissionSchema)
+            .innerJoin(
+                schema.UserCompanyPermissionSchema,
+                eq(schema.UserCompanyPermissionSchema.permissionId, schema.PermissionSchema.id),
+            )
+            .where(
+                and(
+                    eq(schema.UserCompanyPermissionSchema.companyId, companyId),
+                    eq(schema.UserCompanyPermissionSchema.userId, userId),
+                ),
+            )
+            .limit(1)
+
+        return permission?.level ?? null
+    }
 }
