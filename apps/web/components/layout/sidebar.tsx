@@ -78,7 +78,7 @@ export function AppSidebar() {
     }
 
     return (
-        <Sidebar>
+        <Sidebar collapsible="icon">
             <SidebarHeader>
                 <Link href="/dashboard" className="flex items-center">
                     {collapsed ? (
@@ -133,6 +133,7 @@ export function AppSidebar() {
                     }
                     pathname={pathname}
                     defaultOpen
+                    isMenuCollapsed={collapsed}
                     onAddClick={() => setIsCreateCompanyOpen(true)}
                 />
 
@@ -149,6 +150,7 @@ export function AppSidebar() {
                     }
                     pathname={pathname}
                     defaultOpen
+                    isMenuCollapsed={collapsed}
                     onAddClick={() => setIsCreateWorkspaceOpen(true)}
                 />
 
@@ -160,6 +162,7 @@ export function AppSidebar() {
                     items={projects}
                     pathname={pathname}
                     defaultOpen
+                    isMenuCollapsed={collapsed}
                 />
             </SidebarContent>
 
@@ -241,6 +244,7 @@ interface CollapsibleSectionProps {
     icon: React.ComponentType<{ className?: string }>
     items: { title: string; url: string }[]
     pathname: string
+    isMenuCollapsed: boolean
     defaultOpen?: boolean
     onAddClick?: () => void
 }
@@ -250,6 +254,7 @@ function CollapsibleSection({
     icon: Icon,
     items,
     pathname,
+    isMenuCollapsed,
     defaultOpen = false,
     onAddClick,
 }: CollapsibleSectionProps) {
@@ -270,7 +275,11 @@ function CollapsibleSection({
                         <SidebarMenu>
                             {items.map(item => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild tooltip={item.title}>
+                                    <SidebarMenuButton
+                                        asChild
+                                        tooltip={item.title}
+                                        className={isMenuCollapsed ? 'gap-0' : ''}
+                                    >
                                         <Link
                                             href={item.url}
                                             className={cn(
