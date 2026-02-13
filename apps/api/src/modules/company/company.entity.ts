@@ -9,7 +9,7 @@ export const CompanySchema = pgTable('companies', {
     slug: varchar({ length: 100 }).notNull().unique(),
     description: text(),
     logoUrl: text('logo_url'),
-    ownerId: uuid('owner_id')
+    createdBy: uuid('created_by')
         .notNull()
         .references(() => UserSchema.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -18,7 +18,7 @@ export const CompanySchema = pgTable('companies', {
 
 export const CompanyRelations = relations(CompanySchema, ({ one, many }) => ({
     owner: one(UserSchema, {
-        fields: [CompanySchema.ownerId],
+        fields: [CompanySchema.createdBy],
         references: [UserSchema.id],
     }),
     members: many(CompanyMemberSchema),

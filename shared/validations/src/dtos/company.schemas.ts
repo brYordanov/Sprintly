@@ -7,6 +7,7 @@ export const CompanyRowSchema = z.object({
     slug: z.string().min(1).max(100),
     description: z.string().nullable(),
     logoUrl: ValidImgUrlSchema.nullable(),
+    createdBy: z.uuid(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 })

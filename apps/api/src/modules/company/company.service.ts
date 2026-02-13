@@ -18,7 +18,7 @@ export class CompanyService {
         return this.db.transaction(async tx => {
             const [company] = await tx
                 .insert(schema.CompanySchema)
-                .values({ ...dto, ownerId: userId })
+                .values({ ...dto, createdBy: userId })
                 .returning()
 
             await tx.insert(schema.CompanyMemberSchema).values({

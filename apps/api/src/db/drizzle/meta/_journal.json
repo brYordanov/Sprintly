@@ -82,13 +82,6 @@
         {
             "idx": 11,
             "version": "7",
-            "when": 1770676713366,
-            "tag": "0011_add-ownerid-to-company",
-            "breakpoints": true
-        },
-        {
-            "idx": 12,
-            "version": "7",
             "when": 1770676937260,
             "tag": "0012_add-mtm-rel-btw-company-user",
             "breakpoints": true
