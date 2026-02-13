@@ -2,7 +2,7 @@ import { apiClient } from '@/lib/api/client'
 import { CreateWorkspaceDto, WorkspaceRowDto } from '@shared/validations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { USER_WORKSPACES } from './useGetViewableUserWorkspaces'
+import { VIEWABLE_USER_WORKSPACES } from './useGetViewableUserWorkspaces'
 
 export function useCreateWorkspace() {
     const queryClient = useQueryClient()
@@ -15,7 +15,7 @@ export function useCreateWorkspace() {
             }),
         onSuccess: () => {
             toast.success('Workspace created')
-            queryClient.invalidateQueries({ queryKey: [USER_WORKSPACES] })
+            queryClient.invalidateQueries({ queryKey: [VIEWABLE_USER_WORKSPACES] })
         },
         onError: err => {
             console.error(`Workspace creation failed: ${err}`)

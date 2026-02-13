@@ -67,7 +67,7 @@ export class WorkspaceService {
             )
             .leftJoin(
                 workspacePerm,
-                eq(schema.UserWorkspacePermissionSchema.permissionId, schema.PermissionSchema.id),
+                eq(schema.UserWorkspacePermissionSchema.permissionId, workspacePerm.id),
             )
             .leftJoin(
                 schema.UserCompanyPermissionSchema,
@@ -81,7 +81,7 @@ export class WorkspaceService {
             )
             .leftJoin(
                 companyPerm,
-                eq(schema.UserCompanyPermissionSchema.permissionId, schema.PermissionSchema.id),
+                eq(schema.UserCompanyPermissionSchema.permissionId, companyPerm.id),
             )
             .where(
                 or(

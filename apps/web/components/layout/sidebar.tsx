@@ -22,6 +22,8 @@ import { useLogout } from '@/features/auth/api/useLogout'
 import { useGetViewableUserCompanies } from '@/features/company/api/useGetViewableUserCompanies'
 import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
 import { useGetViewableUserWorkspaces } from '@/features/workspace/api/useGetViewableUserWorkspaces'
+import { useGetUserProjects } from '@/features/project/api/useGetUserProjects'
+import { CreateProjectDialog } from '@/features/project/components/CreateProjectDialog'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
 import { cn } from '@/lib/utils'
 import {
@@ -50,12 +52,6 @@ import { ProjectSymbol } from '../ui/icon'
 
 const dashboardItems = [{ title: 'Overview', url: '/dashboard', icon: LayoutDashboard }]
 
-const projects = [
-    { title: 'Website Redesign', url: '/projects/website-redesign' },
-    { title: 'Mobile App v2', url: '/projects/mobile-app' },
-    { title: 'API Integration', url: '/projects/api-integration' },
-]
-
 export function AppSidebar() {
     const { user } = useAuth()
     const { mutate: logout } = useLogout()
@@ -64,8 +60,10 @@ export function AppSidebar() {
     const collapsed = state === 'collapsed'
     const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false)
     const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false)
+    const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false)
     const { data: userCompanies } = useGetViewableUserCompanies()
     const { data: userWorkspaces } = useGetViewableUserWorkspaces()
+    const { data: userProjects } = useGetUserProjects()
 
     const getInitials = (name?: string) => {
         if (!name) return 'U'
@@ -159,10 +157,16 @@ export function AppSidebar() {
                 <CollapsibleSection
                     label="My Projects"
                     icon={FolderKanban}
-                    items={projects}
+                    items={
+                        userProjects?.map(p => ({
+                            title: p.name,
+                            url: `/projects/${p.slug}`,
+                        })) ?? []
+                    }
                     pathname={pathname}
                     defaultOpen
                     isMenuCollapsed={collapsed}
+                    onAddClick={() => setIsCreateProjectOpen(true)}
                 />
             </SidebarContent>
 
@@ -234,6 +238,10 @@ export function AppSidebar() {
             <CreateWorkspaceDialog
                 open={isCreateWorkspaceOpen}
                 onOpenChange={setIsCreateWorkspaceOpen}
+            />
+            <CreateProjectDialog
+                open={isCreateProjectOpen}
+                onOpenChange={setIsCreateProjectOpen}
             />
         </Sidebar>
     )
