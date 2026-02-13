@@ -17,7 +17,10 @@ export class ProjectService {
 
     async createProject(userId: string, dto: CreateProjectDto): Promise<ProjectRowDto> {
         await this.checkForPermissions(userId, dto.companyId, dto.workspaceId)
-        const [project] = await this.db.insert(schema.ProjectSchema).values(dto).returning()
+        const [project] = await this.db
+            .insert(schema.ProjectSchema)
+            .values({ ...dto, createdBy: userId })
+            .returning()
         return project
     }
 

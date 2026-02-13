@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core'
 import { CompanySchema } from '../company/company.entity'
+import { UserSchema } from '../user/user.entity'
 import { WorkspaceSchema } from '../workspace/workspace.entity'
 
 export const ProjectSchema = pgTable(
@@ -16,6 +17,9 @@ export const ProjectSchema = pgTable(
         slug: varchar({ length: 10 }).notNull(),
         description: text(),
         iconUrl: text('icon_url'),
+        createdBy: uuid('created_by')
+            .notNull()
+            .references(() => UserSchema.id, { onDelete: 'set null' }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },

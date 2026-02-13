@@ -9,6 +9,7 @@ export const ProjectRowSchema = z.object({
     slug: z.string().min(1).max(10),
     description: z.string().nullable(),
     iconUrl: ValidImgUrlSchema.nullable(),
+    createdBy: z.uuid(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 })

@@ -17,7 +17,7 @@ export const CompanySchema = pgTable('companies', {
 })
 
 export const CompanyRelations = relations(CompanySchema, ({ one, many }) => ({
-    owner: one(UserSchema, {
+    createdBy: one(UserSchema, {
         fields: [CompanySchema.createdBy],
         references: [UserSchema.id],
     }),

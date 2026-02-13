@@ -6,6 +6,7 @@ export const WorkspaceRowSchema = z.object({
     name: z.string().min(1).max(100),
     slug: z.string().min(1).max(100),
     description: z.string().nullable(),
+    createdBy: z.uuid(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 })

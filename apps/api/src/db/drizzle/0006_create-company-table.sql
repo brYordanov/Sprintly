@@ -3,8 +3,8 @@ CREATE TABLE "companies" (
 	"name" varchar(100) NOT NULL,
 	"slug" varchar(100) NOT NULL,
 	"description" text,
-	"created_by" uuid NOT NULL
 	"logo_url" text,
+	"created_by" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "companies_slug_unique" UNIQUE("slug")

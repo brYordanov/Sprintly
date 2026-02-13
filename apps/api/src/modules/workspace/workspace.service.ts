@@ -26,7 +26,10 @@ export class WorkspaceService {
         if (!userCompanyLevelPermissionLevel || userCompanyLevelPermissionLevel < 3)
             throw new ForbiddenException('Insufficient permissions')
 
-        const [workspace] = await this.db.insert(schema.WorkspaceSchema).values(dto).returning()
+        const [workspace] = await this.db
+            .insert(schema.WorkspaceSchema)
+            .values({ ...dto, createdBy: userId })
+            .returning()
         return workspace
     }
 
