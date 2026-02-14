@@ -84,7 +84,8 @@ export class AuthController {
         if (!token) throw new UnauthorizedException('Refresh token required')
         const out = await this.service.refresh(token, this.getMeta(req))
         this.setRefreshCookie(res, out.refreshToken, out.expiresAt)
-        return { accessToken: out.accessToken }
+        this.setAccessCookie(res, out.accessToken)
+        return { ok: true }
     }
 
     private setRefreshCookie(res: Response, token: string, expiresAt: Date) {
