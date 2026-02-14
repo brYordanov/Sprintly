@@ -2,6 +2,7 @@ import { ForbiddenException, Inject, Injectable } from '@nestjs/common'
 import {
     CreateWorkspaceDto,
     PERMISSION,
+    UserWorkspaceNavigationSummary,
     UserWorkspaceSummary,
     WorkspaceRowDto,
 } from '@shared/validations'
@@ -33,17 +34,22 @@ export class WorkspaceService {
         return workspace
     }
 
-    async getViewableUserWorkspaces(userId: string): Promise<UserWorkspaceSummary[]> {
+    async getViewableUserWorkspaces(userId: string): Promise<UserWorkspaceNavigationSummary[]> {
         return this.db
             .select({
                 name: schema.WorkspaceSchema.name,
                 slug: schema.WorkspaceSchema.slug,
                 id: schema.WorkspaceSchema.id,
+                companySlug: schema.CompanySchema.slug,
             })
             .from(schema.WorkspaceSchema)
             .innerJoin(
                 schema.CompanyMemberSchema,
                 eq(schema.WorkspaceSchema.companyId, schema.CompanyMemberSchema.companyId),
+            )
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.CompanySchema.id, schema.WorkspaceSchema.companyId),
             )
             .where(eq(schema.CompanyMemberSchema.userId, userId))
     }

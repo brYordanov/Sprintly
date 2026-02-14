@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import {
     CreateWorkspaceSchema,
+    UserWorkspaceNavigationSummary,
     UserWorkspaceSummary,
     WorkspaceRowDto,
     type CreateWorkspaceDto,
@@ -26,7 +27,7 @@ export class WorkspaceController {
     @Get('viewable')
     async getViewableWorkspacesForUser(
         @User() user: { id: string },
-    ): Promise<UserWorkspaceSummary[]> {
+    ): Promise<UserWorkspaceNavigationSummary[]> {
         return this.service.getViewableUserWorkspaces(user.id)
     }
 

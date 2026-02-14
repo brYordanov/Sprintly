@@ -126,7 +126,7 @@ export function AppSidebar() {
                     items={
                         userCompanies?.map(c => ({
                             title: c.name,
-                            url: `/companies/${c.slug}`,
+                            url: `/company/${c.slug}`,
                         })) ?? []
                     }
                     pathname={pathname}
@@ -143,7 +143,7 @@ export function AppSidebar() {
                     items={
                         userWorkspaces?.map(w => ({
                             title: w.name,
-                            url: `/workspaces/${w.slug}`,
+                            url: `company/${w.companySlug}/workspace/${w.slug}`,
                         })) ?? []
                     }
                     pathname={pathname}
