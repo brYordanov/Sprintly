@@ -25,6 +25,7 @@ import { useGetUserProjects } from '@/features/project/api/useGetUserProjects'
 import { CreateProjectDialog } from '@/features/project/components/CreateProjectDialog'
 import { useGetViewableUserWorkspaces } from '@/features/workspace/api/useGetViewableUserWorkspaces'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
+import { getInitials } from '@/helpers'
 import { cn } from '@/lib/utils'
 import {
     Building2,
@@ -64,16 +65,6 @@ export function AppSidebar() {
     const { data: userCompanies } = useGetViewableUserCompanies()
     const { data: userWorkspaces } = useGetViewableUserWorkspaces()
     const { data: userProjects } = useGetUserProjects()
-
-    const getInitials = (name?: string) => {
-        if (!name) return 'U'
-        return name
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2)
-    }
 
     return (
         <Sidebar collapsible="icon">
