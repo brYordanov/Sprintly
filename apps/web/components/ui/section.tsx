@@ -15,7 +15,7 @@ export function Section({
     return (
         <section
             className={cn(
-                'py-12 md:py-24',
+                'pt-12 md:pt-24',
                 container && 'mx-auto max-w-7xl px-4',
                 centered && 'flex flex-col items-center justify-center text-center',
                 className,
