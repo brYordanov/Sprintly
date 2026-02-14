@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import cookieParser from 'cookie-parser'
+import helmet from 'helmet'
 import { AppModule } from './app.module'
 
 const isProduction = process.env.NODE_ENV === 'prod'
@@ -8,7 +9,7 @@ const allowedOrigins = isProduction ? ['https://your-domain.com'] : ['http://loc
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule)
-
+    app.use(helmet())
     app.use(cookieParser())
 
     app.set('trust proxy', 1)
