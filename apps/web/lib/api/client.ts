@@ -20,7 +20,7 @@ async function refreshAccessToken(): Promise<void> {
 
     refreshPromise = (async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            const response = await fetch(`${API_BASE_URL}auth/refresh`, {
                 method: 'POST',
                 credentials: 'include',
             })
