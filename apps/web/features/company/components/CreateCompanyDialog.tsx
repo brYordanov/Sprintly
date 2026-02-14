@@ -10,12 +10,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Textarea } from '@/components/ui/textarea'
+import { FieldGroup } from '@/components/ui/field'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateCompanyDto, CreateCompanySchema } from '@shared/validations'
 import { Building2, Hash, Image } from 'lucide-react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useCreateCompany } from '../api/useCreateCompany'
 
 interface CreateCompanyDialogProps {
@@ -79,27 +78,12 @@ export function CreateCompanyDialog({ open, onOpenChange }: CreateCompanyDialogP
                             placeholder="company-slug"
                             Icon={Hash}
                         />
-                        <Controller
+                        <FormField
                             name="description"
                             control={control}
-                            render={({ field, fieldState }) => (
-                                <Field className="relative pb-5">
-                                    <FieldLabel htmlFor="description">Description</FieldLabel>
-                                    <Textarea
-                                        {...field}
-                                        id="description"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter company description"
-                                        autoComplete="off"
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError
-                                            className="max-h-6 absolute bottom-0 left-0"
-                                            errors={[fieldState.error]}
-                                        />
-                                    )}
-                                </Field>
-                            )}
+                            label="Description"
+                            placeholder="Enter company description"
+                            type="description"
                         />
                         <FormField
                             name="logoUrl"

@@ -1,14 +1,10 @@
 'use client'
 
-import { AuthenticatedHeader } from '@/components/layout/authenticatedHeader'
-import { AppSidebar } from '@/components/layout/sidebar'
+import { AuthenticatedHeader } from '@/components/layout/AuthenticatedHeader'
+import { AppSidebar } from '@/components/layout/Sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
-export default function AppLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <SidebarProvider>
             <AppSidebar />

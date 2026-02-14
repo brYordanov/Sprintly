@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/authContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api/client'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'

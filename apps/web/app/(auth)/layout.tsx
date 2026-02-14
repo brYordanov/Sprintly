@@ -1,10 +1,6 @@
-import { Header } from '@/components/layout/header'
+import { Header } from '@/components/layout/Header'
 
-export default function AuthLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             <Header />

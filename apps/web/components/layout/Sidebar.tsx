@@ -17,13 +17,13 @@ import {
     SidebarSeparator,
     useSidebar,
 } from '@/components/ui/sidebar'
-import { useAuth } from '@/contexts/authContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { useLogout } from '@/features/auth/api/useLogout'
 import { useGetViewableUserCompanies } from '@/features/company/api/useGetViewableUserCompanies'
 import { CreateCompanyDialog } from '@/features/company/components/CreateCompanyDialog'
-import { useGetViewableUserWorkspaces } from '@/features/workspace/api/useGetViewableUserWorkspaces'
 import { useGetUserProjects } from '@/features/project/api/useGetUserProjects'
 import { CreateProjectDialog } from '@/features/project/components/CreateProjectDialog'
+import { useGetViewableUserWorkspaces } from '@/features/workspace/api/useGetViewableUserWorkspaces'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
 import { cn } from '@/lib/utils'
 import {
@@ -239,10 +239,7 @@ export function AppSidebar() {
                 open={isCreateWorkspaceOpen}
                 onOpenChange={setIsCreateWorkspaceOpen}
             />
-            <CreateProjectDialog
-                open={isCreateProjectOpen}
-                onOpenChange={setIsCreateProjectOpen}
-            />
+            <CreateProjectDialog open={isCreateProjectOpen} onOpenChange={setIsCreateProjectOpen} />
         </Sidebar>
     )
 }

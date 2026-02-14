@@ -1,6 +1,7 @@
 'use client'
 
 import { FormField } from '@/components/forms/FormField'
+import { FormSelect } from '@/components/forms/FormSelect'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -10,20 +11,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { FieldGroup } from '@/components/ui/field'
 import { useGetManageableUserCompanies } from '@/features/company/api/useGetManageableUserCompanies'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateWorkspaceDto, CreateWorkspaceSchema } from '@shared/validations'
 import { Hash, Layers } from 'lucide-react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useCreateWorkspace } from '../api/useCreateWorkspace'
 
 interface CreateWorkspaceDialogProps {
@@ -74,35 +67,14 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <FieldGroup>
-                        <Controller
+                        <FormSelect
                             name="companyId"
                             control={control}
-                            render={({ field, fieldState }) => (
-                                <Field className="relative pb-5">
-                                    <FieldLabel htmlFor="companyId">Company*</FieldLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <SelectTrigger
-                                            id="companyId"
-                                            aria-invalid={fieldState.invalid}
-                                        >
-                                            <SelectValue placeholder="Select a company" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {userCompanies?.map(c => (
-                                                <SelectItem key={c.id} value={c.id}>
-                                                    {c.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.invalid && (
-                                        <FieldError
-                                            className="max-h-6 absolute bottom-0 left-0"
-                                            errors={[fieldState.error]}
-                                        />
-                                    )}
-                                </Field>
-                            )}
+                            placeholder="Select a company"
+                            label="Company*"
+                            options={
+                                userCompanies?.map(c => ({ value: c.id, label: c.name })) || []
+                            }
                         />
                         <FormField
                             name="name"
@@ -118,27 +90,12 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                             placeholder="workspace-slug"
                             Icon={Hash}
                         />
-                        <Controller
+                        <FormField
                             name="description"
                             control={control}
-                            render={({ field, fieldState }) => (
-                                <Field className="relative pb-5">
-                                    <FieldLabel htmlFor="description">Description</FieldLabel>
-                                    <Textarea
-                                        {...field}
-                                        id="description"
-                                        aria-invalid={fieldState.invalid}
-                                        placeholder="Enter workspace description"
-                                        autoComplete="off"
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError
-                                            className="max-h-6 absolute bottom-0 left-0"
-                                            errors={[fieldState.error]}
-                                        />
-                                    )}
-                                </Field>
-                            )}
+                            label="Description"
+                            placeholder="Enter workspace description"
+                            type="description"
                         />
                     </FieldGroup>
 
