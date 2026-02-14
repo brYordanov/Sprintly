@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import {
     CreateProjectSchema,
+    ProjectNavigationSummary,
     type CreateProjectDto,
     type ProjectRowDto,
-    type ProjectSummary,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { User } from '../auth/decorators/user.decorator'
@@ -24,7 +24,7 @@ export class ProjectController {
     }
 
     @Get()
-    async getProjectsForUser(@User() user: { id: string }): Promise<ProjectSummary[]> {
+    async getProjectsForUser(@User() user: { id: string }): Promise<ProjectNavigationSummary[]> {
         return this.service.getUserProjects(user.id)
     }
 }

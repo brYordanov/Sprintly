@@ -160,7 +160,9 @@ export function AppSidebar() {
                     items={
                         userProjects?.map(p => ({
                             title: p.name,
-                            url: `/projects/${p.slug}`,
+                            url: p.workspaceSlug
+                                ? `company/${p.companySlug}/workspace/${p.workspaceSlug}/project/${p.slug}`
+                                : `company/${p.companySlug}/project/${p.slug}`,
                         })) ?? []
                     }
                     pathname={pathname}

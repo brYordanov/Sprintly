@@ -48,3 +48,7 @@ export const EditProjectSchema = z.object({
 export type EditProjectDto = z.infer<typeof EditProjectSchema>
 
 export type ProjectSummary = Pick<ProjectRowDto, 'name' | 'slug' | 'id'>
+export type ProjectNavigationSummary = ProjectSummary & {
+    companySlug: string
+    workspaceSlug: string | null
+}

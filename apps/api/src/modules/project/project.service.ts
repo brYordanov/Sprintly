@@ -1,5 +1,10 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common'
-import { CreateProjectDto, PERMISSION, ProjectRowDto } from '@shared/validations'
+import {
+    CreateProjectDto,
+    PERMISSION,
+    ProjectNavigationSummary,
+    ProjectRowDto,
+} from '@shared/validations'
 import { eq } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -24,17 +29,27 @@ export class ProjectService {
         return project
     }
 
-    async getUserProjects(userId: string) {
+    async getUserProjects(userId: string): Promise<ProjectNavigationSummary[]> {
         return this.db
             .select({
                 name: schema.ProjectSchema.name,
                 slug: schema.ProjectSchema.slug,
                 id: schema.ProjectSchema.id,
+                companySlug: schema.CompanySchema.slug,
+                workspaceSlug: schema.WorkspaceSchema.slug,
             })
             .from(schema.ProjectSchema)
             .innerJoin(
                 schema.CompanyMemberSchema,
                 eq(schema.ProjectSchema.companyId, schema.CompanyMemberSchema.companyId),
+            )
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.CompanySchema.id, schema.ProjectSchema.companyId),
+            )
+            .leftJoin(
+                schema.WorkspaceSchema,
+                eq(schema.WorkspaceSchema.id, schema.ProjectSchema.workspaceId),
             )
             .where(eq(schema.CompanyMemberSchema.userId, userId))
     }
