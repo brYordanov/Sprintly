@@ -1,11 +1,10 @@
 'use client'
 
-import { AuthProvider } from '@/contexts/authContext'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { getQueryClient } from '@/lib/get-query-client'
 import { UserPublicDto } from '@shared/validations'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
-
-const queryClient = new QueryClient()
 
 export function Providers({
     children,
@@ -14,6 +13,7 @@ export function Providers({
     children: React.ReactNode
     initialUser: UserPublicDto | null
 }) {
+    const queryClient = getQueryClient()
     return (
         <AuthProvider initialUser={initialUser}>
             <QueryClientProvider client={queryClient}>

@@ -14,15 +14,15 @@ import { FieldGroup } from '@/components/ui/field'
 import { ProjectLogo } from '@/components/ui/icon'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginBodyDto, LoginBodySchema } from '@shared/validations'
-import { Lock, Mail } from 'lucide-react'
+import { Lock, User } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { useLogin } from '../api/useLogin'
 
 export function LoginForm() {
-    const { mutate, isPending } = useLogin()
+    const { mutate: loginUser, isPending } = useLogin()
     const onSubmit = (data: LoginBodyDto) => {
-        mutate(data)
+        loginUser(data)
     }
 
     const { control, handleSubmit } = useForm<LoginBodyDto>({
@@ -53,7 +53,7 @@ export function LoginForm() {
                             control={control}
                             label="Email or username*"
                             placeholder="Enter email or username"
-                            Icon={Mail}
+                            Icon={User}
                         />
                         <FormField
                             className="pb-6"

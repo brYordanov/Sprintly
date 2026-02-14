@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/authContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api/client'
 import { RegisterBodyDto, UserPublicDto } from '@shared/validations'
 import { useMutation } from '@tanstack/react-query'

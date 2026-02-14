@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/authContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api/client'
 import { LoginBodyDto, UserPublicDto } from '@shared/validations'
 import { useMutation } from '@tanstack/react-query'
@@ -16,13 +16,12 @@ export function useLogin() {
                 body: JSON.stringify(data),
             }),
         onSuccess: user => {
-            toast.success('Successfuly registered', { description: 'Welcome aboard!' })
             login(user)
             router.replace('/dashboard')
         },
         onError: err => {
-            console.error(`Registration failed: ${err}`)
-            toast.error('Registration failed')
+            console.error(`Login failed: ${err}`)
+            toast.error('Login failed')
         },
     })
 }

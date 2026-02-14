@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/authContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api/client'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
@@ -17,7 +17,6 @@ export function useLogout() {
             toast.success('Successfuly logged out')
             logout()
             router.replace('/')
-            router.refresh()
         },
         onError: err => {
             console.error(`Log out failed: ${err}`)

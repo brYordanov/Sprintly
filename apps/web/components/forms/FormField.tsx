@@ -2,6 +2,7 @@ import React from 'react'
 import { Control, Controller, FieldValues, Path } from 'react-hook-form'
 import { Field, FieldError, FieldLabel } from '../ui/field'
 import { InputWithIcon, PassInput } from '../ui/input'
+import { Textarea } from '../ui/textarea'
 
 type FormFieldProps<TFormData extends FieldValues> = {
     name: Path<TFormData>
@@ -9,8 +10,14 @@ type FormFieldProps<TFormData extends FieldValues> = {
     label?: string
     placeholder?: string
     Icon?: React.ElementType
-    type?: string
+    type?: 'password' | 'description' | 'text'
     className?: string
+}
+
+const INPUT_TYPE_MAP = {
+    password: PassInput,
+    description: Textarea,
+    text: InputWithIcon,
 }
 
 export function FormField<TFormData extends FieldValues>({
@@ -22,7 +29,7 @@ export function FormField<TFormData extends FieldValues>({
     type = 'text',
     className,
 }: FormFieldProps<TFormData>) {
-    const InputComponent = type === 'password' ? PassInput : InputWithIcon
+    const InputComponent = INPUT_TYPE_MAP[type]
 
     return (
         <Controller
@@ -31,14 +38,25 @@ export function FormField<TFormData extends FieldValues>({
             render={({ field, fieldState }) => (
                 <Field className={`relative pb-5 ${className}`}>
                     <FieldLabel htmlFor={name}>{label}</FieldLabel>
-                    <InputComponent
-                        {...field}
-                        id={name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder={placeholder}
-                        autoComplete="off"
-                        Icon={Icon}
-                    />
+                    {/* preventing invalid DOM prop err */}
+                    {Icon ? (
+                        <InputComponent
+                            {...field}
+                            id={name}
+                            aria-invalid={fieldState.invalid}
+                            placeholder={placeholder}
+                            autoComplete="off"
+                            Icon={Icon}
+                        />
+                    ) : (
+                        <InputComponent
+                            {...field}
+                            id={name}
+                            aria-invalid={fieldState.invalid}
+                            placeholder={placeholder}
+                            autoComplete="off"
+                        />
+                    )}
                     {fieldState.invalid && (
                         <FieldError
                             className="max-h-6 absolute bottom-0 left-0"

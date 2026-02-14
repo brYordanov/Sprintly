@@ -1,48 +1,90 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1769453534455,
-      "tag": "0000_create-user-table",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1769453652870,
-      "tag": "0001_create-updated-at-function",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1769453683647,
-      "tag": "0002_set-user-updated-at-trigger",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1769633019629,
-      "tag": "0003_make-user-username-notnull",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1769633104824,
-      "tag": "0004_create-user-session-table",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1769722792260,
-      "tag": "0005_add-unique-to-refreshtoken",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "postgresql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "7",
+            "when": 1769453534455,
+            "tag": "0000_create-user-table",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "7",
+            "when": 1769453652870,
+            "tag": "0001_create-updated-at-function",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "7",
+            "when": 1769453683647,
+            "tag": "0002_set-user-updated-at-trigger",
+            "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "7",
+            "when": 1769633019629,
+            "tag": "0003_make-user-username-notnull",
+            "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "7",
+            "when": 1769633104824,
+            "tag": "0004_create-user-session-table",
+            "breakpoints": true
+        },
+        {
+            "idx": 5,
+            "version": "7",
+            "when": 1769722792260,
+            "tag": "0005_add-unique-to-refreshtoken",
+            "breakpoints": true
+        },
+        {
+            "idx": 6,
+            "version": "7",
+            "when": 1770504819534,
+            "tag": "0006_create-company-table",
+            "breakpoints": true
+        },
+        {
+            "idx": 7,
+            "version": "7",
+            "when": 1770504863135,
+            "tag": "0007_create-workspace-table",
+            "breakpoints": true
+        },
+        {
+            "idx": 8,
+            "version": "7",
+            "when": 1770504888352,
+            "tag": "0008_create-project-table",
+            "breakpoints": true
+        },
+        {
+            "idx": 9,
+            "version": "7",
+            "when": 1770505631992,
+            "tag": "0009_create-permissions-tables",
+            "breakpoints": true
+        },
+        {
+            "idx": 10,
+            "version": "7",
+            "when": 1770505675960,
+            "tag": "0010_seed-permissions",
+            "breakpoints": true
+        },
+        {
+            "idx": 11,
+            "version": "7",
+            "when": 1770676937260,
+            "tag": "0011_add-mtm-rel-btw-company-user",
+            "breakpoints": true
+        }
+    ]
 }

@@ -29,11 +29,11 @@ const RegisterFormSchema = RegisterBodySchema.extend({
 export type RegisterFormData = z.infer<typeof RegisterFormSchema>
 
 export function RegisterForm() {
-    const { mutate, isPending } = useRegister()
+    const { mutate: registerUser, isPending } = useRegister()
     const onSubmit = (data: RegisterFormData) => {
         // eslint-disable-next-line
         const { confirmPassword, ...send } = data
-        mutate(send)
+        registerUser(send)
     }
 
     const { control, handleSubmit } = useForm<RegisterFormData>({

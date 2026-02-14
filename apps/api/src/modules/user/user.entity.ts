@@ -1,5 +1,6 @@
-import { sql } from 'drizzle-orm'
+import { relations } from 'drizzle-orm'
 import { pgEnum, pgTable, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core'
+import { CompanyMemberSchema } from '../company-members/company-members.entity'
 
 export const userStatusEnum = pgEnum('user_status', ['active', 'deleted'])
 
@@ -14,12 +15,8 @@ export const UserSchema = pgTable(
         username: varchar('username', { length: 32 }).notNull(),
         fullname: varchar('fullname', { length: 120 }),
         avatarUrl: text('avatar_url'),
-        createdAt: timestamp('created_at', { withTimezone: true })
-            .notNull()
-            .default(sql`now()`),
-        updatedAt: timestamp('updated_at', { withTimezone: true })
-            .notNull()
-            .default(sql`now()`),
+        createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
         emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
     },
     t => [
@@ -27,3 +24,7 @@ export const UserSchema = pgTable(
         uniqueIndex('users_username_uq').on(t.username),
     ],
 )
+
+export const UserRelations = relations(UserSchema, ({ many }) => ({
+    companyMemberships: many(CompanyMemberSchema),
+}))
