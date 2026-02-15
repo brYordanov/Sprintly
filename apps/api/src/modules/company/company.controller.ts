@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     CompanyRowDto,
     type CreateCompanyDto,
     CreateCompanySchema,
+    type EditCompanyDto,
+    EditCompanySchema,
     UserCompanySummary,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
@@ -33,5 +35,14 @@ export class CompanyController {
         @User() user: { id: string },
     ): Promise<UserCompanySummary[]> {
         return this.service.getManageableCompaniesForUser(user.id)
+    }
+
+    @Patch(':companyId')
+    async editCompany(
+        @Body(new ZodValidationPipe(EditCompanySchema)) dto: EditCompanyDto,
+        @User() user: { id: string },
+        @Param('companyId') companyId: string,
+    ): Promise<CompanyRowDto> {
+        return this.service.editCompany(user.id, companyId, dto)
     }
 }

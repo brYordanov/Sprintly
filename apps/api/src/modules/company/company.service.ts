@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import {
     CompanyRowDto,
     CreateCompanyDto,
+    EditCompanyDto,
     PERMISSION,
     UserCompanySummary,
 } from '@shared/validations'
@@ -33,6 +34,40 @@ export class CompanyService {
             })
             return company
         })
+    }
+
+    async editCompany(
+        userId: string,
+        companyId: string,
+        dto: EditCompanyDto,
+    ): Promise<CompanyRowDto> {
+        const [member] = await this.db
+            .select({
+                permissionLevel: schema.PermissionSchema.level,
+            })
+            .from(schema.UserCompanyPermissionSchema)
+            .innerJoin(
+                schema.PermissionSchema,
+                eq(schema.PermissionSchema.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
+            .where(
+                and(
+                    eq(schema.UserCompanyPermissionSchema.companyId, companyId),
+                    eq(schema.UserCompanyPermissionSchema.userId, userId),
+                ),
+            )
+
+        if (!member) throw new NotFoundException('Company not found')
+        if (member.permissionLevel < 3)
+            throw new ForbiddenException('Only admins/owners can edit company details')
+
+        const [updated] = await this.db
+            .update(schema.CompanySchema)
+            .set({ ...dto })
+            .where(eq(schema.CompanySchema.id, companyId))
+            .returning()
+
+        return updated
     }
 
     async getManageableCompaniesForUser(userId: string): Promise<UserCompanySummary[]> {

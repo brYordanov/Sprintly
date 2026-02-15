@@ -40,6 +40,6 @@ export const EditCompanySchema = z.object({
     description: z.string().nullable().optional(),
     logoUrl: ValidImgUrlSchema.nullable().optional(),
 })
-export type EditCompany = z.infer<typeof EditCompanySchema>
+export type EditCompanyDto = z.infer<typeof EditCompanySchema>
 
 export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>
