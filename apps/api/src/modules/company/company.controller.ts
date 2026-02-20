@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
+    CompanyDetails,
     CompanyRowDto,
     type CreateCompanyDto,
     CreateCompanySchema,
@@ -35,6 +36,14 @@ export class CompanyController {
         @User() user: { id: string },
     ): Promise<UserCompanySummary[]> {
         return this.service.getManageableCompaniesForUser(user.id)
+    }
+
+    @Get(':companyId/details')
+    async getCompanyDetails(
+        @Param('companyId') companyId: string,
+        @User() user: { id: string },
+    ): Promise<CompanyDetails> {
+        return this.service.getCompanyDetails(companyId, user.id)
     }
 
     @Patch(':companyId')

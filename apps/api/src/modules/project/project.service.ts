@@ -66,14 +66,14 @@ export class ProjectService {
                     workspaceId,
                 )
 
-            if (!workspaceLevelPermission || workspaceLevelPermission < PERMISSION.ADMIN.level)
+            if (!workspaceLevelPermission || workspaceLevelPermission < PERMISSION.admin.level)
                 throw new ForbiddenException('Not high enough permission to use workspace')
         }
         const companyLevelPermission = await this.companyService.getUserCompanyLevelPermissionLevel(
             userId,
             companyId,
         )
-        if (!companyLevelPermission || companyLevelPermission < PERMISSION.ADMIN.level)
+        if (!companyLevelPermission || companyLevelPermission < PERMISSION.admin.level)
             throw new ForbiddenException('Not high enough permission to use workspace')
     }
 }

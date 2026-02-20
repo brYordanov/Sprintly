@@ -28,3 +28,7 @@ export type UserWorkspaceSummary = Pick<WorkspaceRowDto, 'name' | 'slug' | 'id'>
 export type UserWorkspaceNavigationSummary = UserWorkspaceSummary & {
     companySlug?: string
 }
+export type WorkspaceSummary = Pick<WorkspaceRowDto, 'name' | 'slug' | 'id'> & {
+    projectCount: number
+    memberCount: number
+}

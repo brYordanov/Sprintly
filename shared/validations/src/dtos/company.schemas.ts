@@ -1,5 +1,8 @@
 import z from 'zod'
 import { ValidImgUrlSchema } from './common.schemas'
+import { ProjectSummary } from './project.schemas'
+import { UserPublicDto } from './user.schemas'
+import { WorkspaceSummary } from './workspace.schemas'
 
 export const CompanyRowSchema = z.object({
     id: z.uuid(),
@@ -43,3 +46,17 @@ export const EditCompanySchema = z.object({
 export type EditCompanyDto = z.infer<typeof EditCompanySchema>
 
 export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>
+
+export type CompanyStats = { memberCount: number; workspaceCount: number; projectCount: number }
+export type CompanyMembers = Pick<UserPublicDto, 'id' | 'fullname' | 'username' | 'email'> & {
+    permissionName: string | null
+    permissionId: number | null
+}
+
+export type CompanyDetails = {
+    company: CompanyRowDto
+    stats: CompanyStats
+    workspaces: WorkspaceSummary[]
+    members: CompanyMembers[]
+    companyProjects: ProjectSummary[]
+}

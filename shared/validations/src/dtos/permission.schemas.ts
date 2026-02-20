@@ -1,18 +1,20 @@
 export const PERMISSION = {
-    OWNER: {
+    owner: {
         id: 4,
         level: 4,
     },
-    ADMIN: {
+    admin: {
         id: 3,
         level: 3,
     },
-    MAINTAINER: {
+    maintainer: {
         id: 2,
         level: 2,
     },
-    GUEST: {
+    guest: {
         id: 1,
         level: 1,
     },
 } as const
+
+export type PermissionName = keyof typeof PERMISSION

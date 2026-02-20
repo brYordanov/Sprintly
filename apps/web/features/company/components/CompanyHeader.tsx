@@ -1,63 +1,84 @@
+'use client'
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { getInitials } from '@/helpers'
 import { Building2, FolderKanban, Layers, Settings, Users } from 'lucide-react'
+import { useState } from 'react'
+import { EditCompanyDialog } from './EditCompanyDialog'
 
 interface CompanyHeaderProps {
+    companyId: string
     name: string
+    slug: string
     memberCount: number
     workspaceCount: number
     projectCount: number
-    description?: string
+    description?: string | null
+    logoUrl?: string | null
 }
 
 export function CompanyHeader({
+    companyId,
     name,
+    slug,
     memberCount,
     workspaceCount,
     projectCount,
     description,
+    logoUrl,
 }: CompanyHeaderProps) {
+    const [editOpen, setEditOpen] = useState(false)
+
     return (
-        <div className="flex items-start justify-between p-6 bg-white rounded-lg border">
-            <div className="flex gap-6">
-                <Avatar className="h-20 w-20 rounded-xl">
-                    <AvatarFallback className="bg-blue-600 text-white text-2xl font-semibold rounded-xl">
-                        {getInitials(name)}
-                    </AvatarFallback>
-                </Avatar>
+        <>
+            <div className="flex items-start justify-between p-6 bg-white rounded-lg border">
+                <div className="flex gap-6">
+                    <Avatar className="h-20 w-20 rounded-xl">
+                        <AvatarFallback className="bg-blue-600 text-white text-2xl font-semibold rounded-xl">
+                            {getInitials(name)}
+                        </AvatarFallback>
+                    </Avatar>
 
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold">{name}</h1>
-                        <div className="flex items-center gap-1 text-sm text-foreground py-1 px-2 rounded-xl bg-border">
-                            <Building2 className="h-4 w-4" />
-                            <span>Company</span>
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-2xl font-bold">{name}</h1>
+                            <div className="flex items-center gap-1 text-sm text-foreground py-1 px-2 rounded-xl bg-border">
+                                <Building2 className="h-4 w-4" />
+                                <span>Company</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <p className="text-sm text-muted-foreground max-w-2xl">{description}</p>
+                        <p className="text-sm text-muted-foreground max-w-2xl">{description}</p>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                            <Users className="h-4 w-4" />
-                            <span>{memberCount} members</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <Layers className="h-4 w-4" />
-                            <span>{workspaceCount} workspaces</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <FolderKanban className="h-4 w-4" />
-                            <span>{projectCount} projects</span>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                                <Users className="h-4 w-4" />
+                                <span>{memberCount} members</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <Layers className="h-4 w-4" />
+                                <span>{workspaceCount} workspaces</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <FolderKanban className="h-4 w-4" />
+                                <span>{projectCount} projects</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <Button variant="ghost" className="gap-2 group" onClick={() => setEditOpen(true)}>
+                    <Settings className="h-4 w-4 group-hover:text-card transition-all" />
+                    Settings
+                </Button>
             </div>
-            <Button variant="ghost" className="gap-2 group">
-                <Settings className="h-4 w-4 group-hover:text-card transition-all" />
-                Settings
-            </Button>
-        </div>
+
+            <EditCompanyDialog
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                companyId={companyId}
+                defaultValues={{ name, slug, description, logoUrl }}
+            />
+        </>
     )
 }
