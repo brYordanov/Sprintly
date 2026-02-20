@@ -38,12 +38,12 @@ export class CompanyController {
         return this.service.getManageableCompaniesForUser(user.id)
     }
 
-    @Get(':companyId/details')
+    @Get(':companySlug/details')
     async getCompanyDetails(
-        @Param('companyId') companyId: string,
+        @Param('companySlug') companySlug: string,
         @User() user: { id: string },
     ): Promise<CompanyDetails> {
-        return this.service.getCompanyDetails(companyId, user.id)
+        return this.service.getCompanyDetails(companySlug, user.id)
     }
 
     @Patch(':companyId')

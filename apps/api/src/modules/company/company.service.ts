@@ -29,8 +29,20 @@ export class CompanyService {
             .limit(1)
 
         if (!company) {
-            throw new NotFoundException('Company not found')
+            throw new NotFoundException('Company Not Found')
         }
+
+        return company
+    }
+
+    async getCompanyBySlugOrFail(companySlug: string): Promise<CompanyRowDto> {
+        const [company] = await this.db
+            .select()
+            .from(schema.CompanySchema)
+            .where(eq(schema.CompanySchema.slug, companySlug))
+            .limit(1)
+
+        if (!company) throw new NotFoundException('Company Not Found')
 
         return company
     }
@@ -72,15 +84,15 @@ export class CompanyService {
         return updated
     }
 
-    async getCompanyDetails(companyId: string, userId: string): Promise<CompanyDetails> {
-        await this.doesUserHavePermissionOrFail(companyId, userId, PERMISSION.maintainer.level)
+    async getCompanyDetails(companySlug: string, userId: string): Promise<CompanyDetails> {
+        const company = await this.getCompanyBySlugOrFail(companySlug)
+        await this.doesUserHavePermissionOrFail(company.id, userId, PERMISSION.maintainer.level)
 
-        const [company, stats, workspaces, members, companyProjects] = await Promise.all([
-            this.getCompanyByIdOrFail(companyId),
-            this.getCompanyStats(companyId),
-            this.getCompanyWorkspaces(companyId),
-            this.getCompanyMembers(companyId),
-            this.getCompanyProjects(companyId),
+        const [stats, workspaces, members, companyProjects] = await Promise.all([
+            this.getCompanyStats(company.id),
+            this.getCompanyWorkspaces(company.id),
+            this.getCompanyMembers(company.id),
+            this.getCompanyProjects(company.id),
         ])
 
         return {
