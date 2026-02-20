@@ -2,6 +2,7 @@ import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nest
 import {
     CompanyDetails,
     CompanyMembers,
+    CompanyNonMember,
     CompanyRowDto,
     CompanyStats,
     CreateCompanyDto,
@@ -11,7 +12,7 @@ import {
     UserCompanySummary,
     WorkspaceSummary,
 } from '@shared/validations'
-import { and, eq, gte, sql } from 'drizzle-orm'
+import { and, eq, gte, ilike, isNull, or, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -271,6 +272,7 @@ export class CompanyService {
                 fullname: schema.UserSchema.fullname,
                 username: schema.UserSchema.username,
                 email: schema.UserSchema.email,
+                avatarUrl: schema.UserSchema.avatarUrl,
                 permissionName: schema.PermissionSchema.name,
                 permissionId: schema.PermissionSchema.id,
             })
@@ -299,6 +301,35 @@ export class CompanyService {
             .where(eq(schema.CompanyMemberSchema.companyId, companyId))
 
         return members
+    }
+
+    async searchNonMembers(companyId: string, query: string): Promise<CompanyNonMember[]> {
+        const q = `%${query}%`
+        return this.db
+            .select({
+                id: schema.UserSchema.id,
+                fullname: schema.UserSchema.fullname,
+                username: schema.UserSchema.username,
+                email: schema.UserSchema.email,
+            })
+            .from(schema.UserSchema)
+            .leftJoin(
+                schema.CompanyMemberSchema,
+                and(
+                    eq(schema.CompanyMemberSchema.userId, schema.UserSchema.id),
+                    eq(schema.CompanyMemberSchema.companyId, companyId),
+                ),
+            )
+            .where(
+                and(
+                    isNull(schema.CompanyMemberSchema.userId),
+                    or(
+                        ilike(schema.UserSchema.fullname, q),
+                        ilike(schema.UserSchema.username, q),
+                        ilike(schema.UserSchema.email, q),
+                    ),
+                ),
+            )
     }
 
     async getCompanyProjects(companyId: string): Promise<ProjectSummary[]> {

@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import {
     CompanyDetails,
+    CompanyNonMember,
     CompanyRowDto,
     type CreateCompanyDto,
     CreateCompanySchema,
@@ -44,6 +45,14 @@ export class CompanyController {
         @User() user: { id: string },
     ): Promise<CompanyDetails> {
         return this.service.getCompanyDetails(companySlug, user.id)
+    }
+
+    @Get(':companyId/invitable/search')
+    async searchNonMembers(
+        @Param('companyId') companyId: string,
+        @Query('q') query: string,
+    ): Promise<CompanyNonMember[]> {
+        return this.service.searchNonMembers(companyId, query)
     }
 
     @Patch(':companyId')

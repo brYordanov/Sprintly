@@ -48,7 +48,11 @@ export type EditCompanyDto = z.infer<typeof EditCompanySchema>
 export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>
 
 export type CompanyStats = { memberCount: number; workspaceCount: number; projectCount: number }
-export type CompanyMembers = Pick<UserPublicDto, 'id' | 'fullname' | 'username' | 'email'> & {
+export type CompanyNonMember = Pick<
+    UserPublicDto,
+    'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
+>
+export type CompanyMembers = CompanyNonMember & {
     permissionName: string | null
     permissionId: number | null
 }
