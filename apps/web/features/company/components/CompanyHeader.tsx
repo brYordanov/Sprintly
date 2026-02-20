@@ -1,6 +1,6 @@
 'use client'
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { getInitials } from '@/helpers'
 import { Building2, FolderKanban, Layers, Settings, Users } from 'lucide-react'
@@ -29,12 +29,20 @@ export function CompanyHeader({
     logoUrl,
 }: CompanyHeaderProps) {
     const [editOpen, setEditOpen] = useState(false)
+    console.log(logoUrl)
 
     return (
         <>
             <div className="flex items-start justify-between p-6 bg-white rounded-lg border">
                 <div className="flex gap-6">
                     <Avatar className="h-20 w-20 rounded-xl">
+                        {logoUrl && (
+                            <AvatarImage
+                                src={logoUrl}
+                                alt={name}
+                                className="object-cover rounded-xl"
+                            />
+                        )}
                         <AvatarFallback className="bg-blue-600 text-white text-2xl font-semibold rounded-xl">
                             {getInitials(name)}
                         </AvatarFallback>

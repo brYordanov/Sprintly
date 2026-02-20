@@ -16,6 +16,7 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
             companyId={data.company.id}
             name={data.company.name}
             slug={data.company.slug}
+            logoUrl={data.company.logoUrl}
             description={data.company.description}
             memberCount={data.stats.memberCount}
             workspaceCount={data.stats.workspaceCount}
