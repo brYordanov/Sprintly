@@ -1,7 +1,8 @@
 import { apiClient } from '@/lib/api/client'
-import { CompanyRowDto, EditCompanyDto } from '@shared/validations'
+import { CompanyDetails, CompanyRowDto, EditCompanyDto } from '@shared/validations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { COMPANY_DETAILS } from './useGetCompanyDetails'
 import { VIEWABLE_USER_COMPANIES } from './useGetViewableUserCompanies'
 
 export function useEditCompany(companyId: string) {
@@ -12,9 +13,13 @@ export function useEditCompany(companyId: string) {
                 method: 'PATCH',
                 body: JSON.stringify(data),
             }),
-        onSuccess: () => {
+        onSuccess: updatedCompany => {
             toast.success('Company updated')
             queryClient.invalidateQueries({ queryKey: [VIEWABLE_USER_COMPANIES] })
+            queryClient.setQueriesData<CompanyDetails>(
+                { queryKey: [COMPANY_DETAILS] },
+                old => old && { ...old, company: updatedCompany },
+            )
         },
         onError: err => {
             console.error(`Company update failed: ${err}`)
