@@ -1,17 +1,15 @@
-import { CompanyHeader } from '@/features/company/components/CompanyHeader'
+import { CompanyDetailsView } from '@/features/company/components/CompanyDetailsView'
 
-export default function CompanyDetailPage() {
+export default async function CompanyDetailPage({
+    params,
+}: {
+    params: Promise<{ companySlug: string }>
+}) {
+    const { companySlug } = await params
+
     return (
         <div className="p-8 space-y-6">
-            <CompanyHeader
-                companyId="placeholder-id"
-                name="Acme Corp"
-                slug="acme-corp"
-                description="A leading technology company specializing in innovative software solutions for enterprise clients. We build tools that empower teams to ship faster."
-                memberCount={5}
-                workspaceCount={3}
-                projectCount={4}
-            />
+            <CompanyDetailsView companySlug={companySlug} />
         </div>
     )
 }

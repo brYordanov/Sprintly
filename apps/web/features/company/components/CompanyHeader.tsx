@@ -54,15 +54,22 @@ export function CompanyHeader({
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1.5">
                                 <Users className="h-4 w-4" />
-                                <span>{memberCount} members</span>
+                                <span>
+                                    {memberCount} {memberCount <= 1 ? 'member' : 'members'}
+                                </span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Layers className="h-4 w-4" />
-                                <span>{workspaceCount} workspaces</span>
+                                <span>
+                                    {workspaceCount}{' '}
+                                    {workspaceCount <= 1 ? 'workspace' : 'workspaces'}
+                                </span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <FolderKanban className="h-4 w-4" />
-                                <span>{projectCount} projects</span>
+                                <span>
+                                    {projectCount} {projectCount <= 1 ? 'project' : 'projects'}
+                                </span>
                             </div>
                         </div>
                     </div>

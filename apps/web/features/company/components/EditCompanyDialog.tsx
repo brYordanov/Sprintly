@@ -35,8 +35,6 @@ export function EditCompanyDialog({
     companyId,
     defaultValues,
 }: EditCompanyDialogProps) {
-    console.log(123)
-
     const { mutate: editCompany, isPending } = useEditCompany(companyId)
     const { control, handleSubmit, reset } = useForm<EditCompanyDto>({
         resolver: zodResolver(EditCompanySchema),
