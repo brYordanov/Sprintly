@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { COMPANY_DETAILS } from './useGetCompanyDetails'
 import { VIEWABLE_USER_COMPANIES } from './useGetViewableUserCompanies'
 
-export function useEditCompany(companyId: string) {
+export function useEditCompany(companyId: string, slug: string) {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async (data: EditCompanyDto) =>
@@ -17,7 +17,7 @@ export function useEditCompany(companyId: string) {
             toast.success('Company updated')
             queryClient.invalidateQueries({ queryKey: [VIEWABLE_USER_COMPANIES] })
             queryClient.setQueriesData<CompanyDetails>(
-                { queryKey: [COMPANY_DETAILS] },
+                { queryKey: [COMPANY_DETAILS, slug] },
                 old => old && { ...old, company: updatedCompany },
             )
         },

@@ -21,6 +21,7 @@ interface EditCompanyDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     companyId: string
+    slug: string
     defaultValues: {
         name: string
         slug: string
@@ -33,9 +34,10 @@ export function EditCompanyDialog({
     open,
     onOpenChange,
     companyId,
+    slug,
     defaultValues,
 }: EditCompanyDialogProps) {
-    const { mutate: editCompany, isPending } = useEditCompany(companyId)
+    const { mutate: editCompany, isPending } = useEditCompany(companyId, slug)
     const { control, handleSubmit, reset } = useForm<EditCompanyDto>({
         resolver: zodResolver(EditCompanySchema),
         mode: 'onTouched',

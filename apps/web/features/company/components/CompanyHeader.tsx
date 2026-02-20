@@ -92,6 +92,7 @@ export function CompanyHeader({
                 open={editOpen}
                 onOpenChange={setEditOpen}
                 companyId={companyId}
+                slug={slug}
                 defaultValues={{ name, slug, description, logoUrl }}
             />
         </>
