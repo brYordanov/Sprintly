@@ -6,7 +6,8 @@ import { CompanyHeaderSkeleton } from './CompanyHeaderSkeleton'
 import { MembersSection } from './MembersSection'
 
 export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
-    const { data, isLoading } = useGetCompanyDetails(companySlug)
+    const { data, isLoading, error } = useGetCompanyDetails(companySlug)
+    console.log(error)
 
     if (isLoading || !data) {
         return <CompanyHeaderSkeleton />
@@ -24,7 +25,11 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 workspaceCount={data.stats.workspaceCount}
                 projectCount={data.stats.projectCount}
             />
-            <MembersSection members={data.members} companyId={data.company.id} />
+            <MembersSection
+                members={data.members}
+                companyId={data.company.id}
+                companySlug={data.company.slug}
+            />
         </>
     )
 }

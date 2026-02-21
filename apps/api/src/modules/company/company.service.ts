@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import {
     CompanyDetails,
-    CompanyMembers,
+    CompanyMember,
     CompanyNonMember,
     CompanyRowDto,
     CompanyStats,
@@ -23,10 +23,14 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from 'src/db/drizzle-entrypoint'
+import { UserService } from '../user/user.service'
 
 @Injectable()
 export class CompanyService {
-    constructor(@Inject(DRIZZLE_DB) private readonly db: NodePgDatabase<typeof schema>) {}
+    constructor(
+        @Inject(DRIZZLE_DB) private readonly db: NodePgDatabase<typeof schema>,
+        private readonly userService: UserService,
+    ) {}
 
     async getCompanyByIdOrFail(companyId: string): Promise<CompanyRowDto> {
         const [company] = await this.db
@@ -199,7 +203,7 @@ export class CompanyService {
                 ),
             )
 
-        if (!member) throw new NotFoundException('Company not found')
+        if (!member) throw new ForbiddenException('Company not found')
         if (member.permissionLevel < permissionLevel)
             throw new ForbiddenException('Not high enough permission')
     }
@@ -271,7 +275,7 @@ export class CompanyService {
         return workspaces
     }
 
-    async getCompanyMembers(companyId: string): Promise<CompanyMembers[]> {
+    async getCompanyMembers(companyId: string): Promise<CompanyMember[]> {
         const members = await this.db
             .select({
                 id: schema.UserSchema.id,
@@ -353,7 +357,9 @@ export class CompanyService {
 
     async getCompanyMemberById(companyId: string, userId: string) {
         return this.db
-            .select()
+            .select({
+                id: schema.CompanyMemberSchema.userId,
+            })
             .from(schema.CompanyMemberSchema)
             .where(
                 and(
@@ -363,12 +369,20 @@ export class CompanyService {
             )
     }
 
-    async addMember(companyId: string, userId: string): Promise<void> {
+    async addMember(companyId: string, userId: string): Promise<CompanyMember> {
         const [member] = await this.getCompanyMemberById(companyId, userId)
         if (member) {
             throw new ConflictException('User is already a member of this company')
         }
 
         await this.db.insert(schema.CompanyMemberSchema).values({ companyId, userId })
+
+        const user = await this.userService.findByIdOrFail(userId)
+
+        return {
+            ...user,
+            permissionId: null,
+            permissionName: null,
+        }
     }
 }

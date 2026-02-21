@@ -3,6 +3,7 @@ import {
     type AddMemberDto,
     AddMemberSchema,
     CompanyDetails,
+    CompanyMember,
     CompanyNonMember,
     CompanyRowDto,
     type CreateCompanyDto,
@@ -70,7 +71,7 @@ export class CompanyController {
     async addMember(
         @Body(new ZodValidationPipe(AddMemberSchema)) dto: AddMemberDto,
         @Param('companyId') companyId: string,
-    ): Promise<void> {
+    ): Promise<CompanyMember> {
         return this.service.addMember(companyId, dto.id)
     }
 }

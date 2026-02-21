@@ -8,16 +8,17 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { getInitials } from '@/helpers'
-import { CompanyMembers, PERMISSION } from '@shared/validations'
+import { CompanyMember, PERMISSION } from '@shared/validations'
 import { useState } from 'react'
 import { InviteMemberDialog } from './InviteMemberDialog'
 
 interface MembersSectionProps {
-    members: CompanyMembers[]
+    members: CompanyMember[]
     companyId: string
+    companySlug: string
 }
 
-export function MembersSection({ members, companyId }: MembersSectionProps) {
+export function MembersSection({ members, companyId, companySlug }: MembersSectionProps) {
     const [isInviteOpen, setIsInviteOpen] = useState(false)
 
     return (
@@ -40,6 +41,7 @@ export function MembersSection({ members, companyId }: MembersSectionProps) {
                     isOpen={isInviteOpen}
                     onOpenChange={setIsInviteOpen}
                     companyId={companyId}
+                    companySlug={companySlug}
                 />
             </div>
             <div className="overflow-y-auto max-h-96">

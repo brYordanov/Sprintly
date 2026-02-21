@@ -57,7 +57,7 @@ export type CompanyNonMember = Pick<
     UserPublicDto,
     'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
 >
-export type CompanyMembers = CompanyNonMember & {
+export type CompanyMember = CompanyNonMember & {
     permissionName: string | null
     permissionId: number | null
 }
@@ -66,6 +66,6 @@ export type CompanyDetails = {
     company: CompanyRowDto
     stats: CompanyStats
     workspaces: WorkspaceSummary[]
-    members: CompanyMembers[]
+    members: CompanyMember[]
     companyProjects: ProjectSummary[]
 }

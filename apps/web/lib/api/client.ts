@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './constants'
 
-class ApiError extends Error {
+export class ApiError extends Error {
     constructor(
         message: string,
         public status: number,
