@@ -24,7 +24,7 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 workspaceCount={data.stats.workspaceCount}
                 projectCount={data.stats.projectCount}
             />
-            <MembersSection members={data.members} />
+            <MembersSection members={data.members} companyId={data.company.id} />
         </>
     )
 }

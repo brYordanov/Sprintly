@@ -27,7 +27,7 @@ function InputWithIcon({
 }: React.ComponentProps<'input'> & { Icon?: React.ElementType }) {
     return (
         <div className="relative">
-            {Icon && <Icon className="absolute left-2 top-[50%] -translate-y-1/2" />}
+            {Icon && <Icon className="absolute left-2 top-1/2 -translate-y-1/2" />}
             <Input className={`pl-9 ${className}`} type={type} {...props}></Input>
         </div>
     )

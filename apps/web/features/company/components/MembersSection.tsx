@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
     Select,
@@ -8,8 +9,17 @@ import {
 } from '@/components/ui/select'
 import { getInitials } from '@/helpers'
 import { CompanyMembers, PERMISSION } from '@shared/validations'
+import { useState } from 'react'
+import { InviteMemberDialog } from './InviteMemberDialog'
 
-export function MembersSection({ members }: { members: CompanyMembers[] }) {
+interface MembersSectionProps {
+    members: CompanyMembers[]
+    companyId: string
+}
+
+export function MembersSection({ members, companyId }: MembersSectionProps) {
+    const [isInviteOpen, setIsInviteOpen] = useState(false)
+
     return (
         <div className="bg-card rounded-xl border border-border p-6 space-y-4">
             <div className="flex items-start justify-between">
@@ -20,12 +30,17 @@ export function MembersSection({ members }: { members: CompanyMembers[] }) {
                     </p>
                 </div>
                 <Button
-                    onClick={() => console.log(123)}
+                    onClick={() => setIsInviteOpen(true)}
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                     {' '}
                     + Invite
                 </Button>
+                <InviteMemberDialog
+                    isOpen={isInviteOpen}
+                    onOpenChange={setIsInviteOpen}
+                    companyId={companyId}
+                />
             </div>
             <div className="overflow-y-auto max-h-96">
                 <table className="w-full">
@@ -44,25 +59,32 @@ export function MembersSection({ members }: { members: CompanyMembers[] }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                        {members.map(member => (
-                            <tr key={member.id}>
+                        {members.map(m => (
+                            <tr key={m.id}>
                                 <td className="py-3 pr-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground text-xs font-medium shrink-0">
-                                            {getInitials(member.fullname ?? member.username)}
-                                        </div>
+                                        <Avatar className="h-20 w-20" size="lg">
+                                            {m.avatarUrl && (
+                                                <AvatarImage
+                                                    src={m.avatarUrl}
+                                                    alt={m.username}
+                                                    className="object-cover"
+                                                />
+                                            )}
+                                            <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                                                {getInitials(m.fullname ?? m.username)}
+                                            </AvatarFallback>
+                                        </Avatar>
                                         <span className="text-sm text-foreground">
-                                            {member.fullname ?? member.username}
+                                            {m.fullname ?? m.username}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="py-3 pr-4">
-                                    <span className="text-sm text-muted-foreground">
-                                        {member.email}
-                                    </span>
+                                    <span className="text-sm text-muted-foreground">{m.email}</span>
                                 </td>
                                 <td className="py-3 pr-4">
-                                    <Select defaultValue={member.permissionName ?? undefined}>
+                                    <Select defaultValue={m.permissionName ?? undefined}>
                                         <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
                                             <SelectValue placeholder="" />
                                         </SelectTrigger>
