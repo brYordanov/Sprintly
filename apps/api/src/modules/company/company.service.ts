@@ -1,4 +1,10 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+    ConflictException,
+    ForbiddenException,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common'
 import {
     CompanyDetails,
     CompanyMembers,
@@ -343,5 +349,26 @@ export class CompanyService {
             .where(eq(schema.ProjectSchema.companyId, companyId))
 
         return projects
+    }
+
+    async getCompanyMemberById(companyId: string, userId: string) {
+        return this.db
+            .select()
+            .from(schema.CompanyMemberSchema)
+            .where(
+                and(
+                    eq(schema.CompanyMemberSchema.userId, userId),
+                    eq(schema.CompanyMemberSchema.companyId, companyId),
+                ),
+            )
+    }
+
+    async addMember(companyId: string, userId: string): Promise<void> {
+        const [member] = await this.getCompanyMemberById(companyId, userId)
+        if (member) {
+            throw new ConflictException('User is already a member of this company')
+        }
+
+        await this.db.insert(schema.CompanyMemberSchema).values({ companyId, userId })
     }
 }

@@ -45,6 +45,11 @@ export const EditCompanySchema = z.object({
 })
 export type EditCompanyDto = z.infer<typeof EditCompanySchema>
 
+export const AddMemberSchema = z.object({
+    id: z.uuid(),
+})
+export type AddMemberDto = z.infer<typeof AddMemberSchema>
+
 export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>
 
 export type CompanyStats = { memberCount: number; workspaceCount: number; projectCount: number }

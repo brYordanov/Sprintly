@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import {
+    type AddMemberDto,
+    AddMemberSchema,
     CompanyDetails,
     CompanyNonMember,
     CompanyRowDto,
@@ -62,5 +64,13 @@ export class CompanyController {
         @Param('companyId') companyId: string,
     ): Promise<CompanyRowDto> {
         return this.service.editCompany(user.id, companyId, dto)
+    }
+
+    @Post(':companyId/add-member')
+    async addMember(
+        @Body(new ZodValidationPipe(AddMemberSchema)) dto: AddMemberDto,
+        @Param('companyId') companyId: string,
+    ): Promise<void> {
+        return this.service.addMember(companyId, dto.id)
     }
 }
