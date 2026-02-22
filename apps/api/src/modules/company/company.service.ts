@@ -437,6 +437,38 @@ export class CompanyService {
         return updatedMember
     }
 
+    async removeMember(requestingUserId: string, companyId: string, targetUserId: string): Promise<void> {
+        await this.doesUserHavePermissionOrFail(companyId, requestingUserId, PERMISSION.admin.level)
+
+        const [member] = await this.getCompanyMemberById(companyId, targetUserId)
+        if (!member) throw new NotFoundException('User is not a member of this company')
+
+        const targetLevel = await this.getUserCompanyLevelPermissionLevel(targetUserId, companyId)
+        if (targetLevel !== null && targetLevel >= PERMISSION.owner.level) {
+            throw new ForbiddenException('Cannot remove an owner from the company')
+        }
+
+        await this.db.transaction(async tx => {
+            await tx
+                .delete(schema.UserCompanyPermissionSchema)
+                .where(
+                    and(
+                        eq(schema.UserCompanyPermissionSchema.userId, targetUserId),
+                        eq(schema.UserCompanyPermissionSchema.companyId, companyId),
+                    ),
+                )
+
+            await tx
+                .delete(schema.CompanyMemberSchema)
+                .where(
+                    and(
+                        eq(schema.CompanyMemberSchema.userId, targetUserId),
+                        eq(schema.CompanyMemberSchema.companyId, companyId),
+                    ),
+                )
+        })
+    }
+
     async addMember(companyId: string, userId: string): Promise<CompanyMember> {
         const [member] = await this.getCompanyMemberById(companyId, userId)
         if (member) {

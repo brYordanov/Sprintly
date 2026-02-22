@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseGuards,
+} from '@nestjs/common'
 import {
     type AddMemberDto,
     AddMemberSchema,
@@ -25,6 +37,7 @@ export class CompanyController {
     constructor(private readonly service: CompanyService) {}
 
     @Post()
+    @HttpCode(HttpStatus.CREATED)
     async create(
         @Body(new ZodValidationPipe(CreateCompanySchema)) dto: CreateCompanyDto,
         @User() user: { id: string },
@@ -75,6 +88,16 @@ export class CompanyController {
         @Param('companyId') companyId: string,
     ): Promise<CompanyMember> {
         return this.service.addMember(companyId, dto.id)
+    }
+
+    @Delete(':companyId/user/:userId')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async removeMember(
+        @User() user: { id: string },
+        @Param('companyId') companyId: string,
+        @Param('userId') userId: string,
+    ): Promise<void> {
+        return this.service.removeMember(user.id, companyId, userId)
     }
 
     @Patch(':companyId/user/:userId')
