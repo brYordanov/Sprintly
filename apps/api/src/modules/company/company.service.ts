@@ -369,6 +369,71 @@ export class CompanyService {
             )
     }
 
+    async changePermission(
+        requestingUserId: string,
+        companyId: string,
+        targetUserId: string,
+        permissionId: number,
+    ): Promise<CompanyMember> {
+        await this.doesUserHavePermissionOrFail(companyId, requestingUserId, PERMISSION.admin.level)
+
+        const [member] = await this.getCompanyMemberById(companyId, targetUserId)
+        if (!member) throw new NotFoundException('User is not a member of this company')
+
+        await this.db
+            .insert(schema.UserCompanyPermissionSchema)
+            .values({ userId: targetUserId, companyId, permissionId })
+            .onConflictDoUpdate({
+                target: [
+                    schema.UserCompanyPermissionSchema.userId,
+                    schema.UserCompanyPermissionSchema.companyId,
+                ],
+                set: { permissionId },
+            })
+
+        const [updatedMember] = await this.db
+            .select({
+                id: schema.UserSchema.id,
+                fullname: schema.UserSchema.fullname,
+                username: schema.UserSchema.username,
+                email: schema.UserSchema.email,
+                avatarUrl: schema.UserSchema.avatarUrl,
+                permissionName: schema.PermissionSchema.name,
+                permissionId: schema.PermissionSchema.id,
+            })
+            .from(schema.CompanyMemberSchema)
+            .innerJoin(
+                schema.UserSchema,
+                eq(schema.UserSchema.id, schema.CompanyMemberSchema.userId),
+            )
+            .leftJoin(
+                schema.UserCompanyPermissionSchema,
+                and(
+                    eq(
+                        schema.UserCompanyPermissionSchema.userId,
+                        schema.CompanyMemberSchema.userId,
+                    ),
+                    eq(
+                        schema.UserCompanyPermissionSchema.companyId,
+                        schema.CompanyMemberSchema.companyId,
+                    ),
+                ),
+            )
+            .leftJoin(
+                schema.PermissionSchema,
+                eq(schema.PermissionSchema.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
+            .where(
+                and(
+                    eq(schema.CompanyMemberSchema.companyId, companyId),
+                    eq(schema.CompanyMemberSchema.userId, targetUserId),
+                ),
+            )
+            .limit(1)
+
+        return updatedMember
+    }
+
     async addMember(companyId: string, userId: string): Promise<CompanyMember> {
         const [member] = await this.getCompanyMemberById(companyId, userId)
         if (member) {

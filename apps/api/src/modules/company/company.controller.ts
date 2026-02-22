@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@ne
 import {
     type AddMemberDto,
     AddMemberSchema,
+    type ChangePermissionDto,
+    ChangePermissionSchema,
     CompanyDetails,
     CompanyMember,
     CompanyNonMember,
@@ -73,5 +75,15 @@ export class CompanyController {
         @Param('companyId') companyId: string,
     ): Promise<CompanyMember> {
         return this.service.addMember(companyId, dto.id)
+    }
+
+    @Patch(':companyId/user/:userId')
+    async changePermission(
+        @Body(new ZodValidationPipe(ChangePermissionSchema)) dto: ChangePermissionDto,
+        @User() user: { id: string },
+        @Param('companyId') companyId: string,
+        @Param('userId') userId: string,
+    ): Promise<CompanyMember> {
+        return this.service.changePermission(user.id, companyId, userId, dto.permissionId)
     }
 }
