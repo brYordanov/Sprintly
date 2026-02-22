@@ -1,16 +1,24 @@
 'use client'
 
+import { InsufficientPermissionDialog } from '@/components/dialogs/InsufficientPermissionDialog'
 import { useGetCompanyDetails } from '@/features/company/api/useGetCompanyDetails'
 import { CompanyHeader } from './CompanyHeader'
 import { CompanyHeaderSkeleton } from './CompanyHeaderSkeleton'
 import { MembersSection } from './MembersSection'
+import { MembersSectionSkeleton } from './MembersSectionSkeleton'
 
 export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
     const { data, isLoading, error } = useGetCompanyDetails(companySlug)
-    console.log(error)
+    console.log(error?.status)
 
     if (isLoading || !data) {
-        return <CompanyHeaderSkeleton />
+        return (
+            <>
+                <CompanyHeaderSkeleton />
+                <MembersSectionSkeleton />
+                <InsufficientPermissionDialog open={error?.status === 403} />
+            </>
+        )
     }
 
     return (
