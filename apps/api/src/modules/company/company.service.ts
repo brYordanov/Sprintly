@@ -14,7 +14,7 @@ import {
     CreateCompanyDto,
     EditCompanyDto,
     PERMISSION,
-    ProjectSummary,
+    ProjectNavigationSummary,
     UserCompanySummary,
     WorkspaceSummary,
 } from '@shared/validations'
@@ -345,14 +345,24 @@ export class CompanyService {
             )
     }
 
-    async getCompanyProjects(companyId: string): Promise<ProjectSummary[]> {
+    async getCompanyProjects(companyId: string): Promise<ProjectNavigationSummary[]> {
         const projects = await this.db
             .select({
                 id: schema.ProjectSchema.id,
                 name: schema.ProjectSchema.name,
                 slug: schema.ProjectSchema.slug,
+                companySlug: schema.CompanySchema.slug,
+                workspaceSlug: schema.WorkspaceSchema.slug,
             })
             .from(schema.ProjectSchema)
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.CompanySchema.id, schema.ProjectSchema.companyId),
+            )
+            .leftJoin(
+                schema.WorkspaceSchema,
+                eq(schema.WorkspaceSchema.id, schema.ProjectSchema.workspaceId),
+            )
             .where(eq(schema.ProjectSchema.companyId, companyId))
 
         return projects

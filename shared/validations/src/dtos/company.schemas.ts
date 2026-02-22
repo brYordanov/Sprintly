@@ -1,6 +1,6 @@
 import z from 'zod'
 import { ValidImgUrlSchema } from './common.schemas'
-import { ProjectSummary } from './project.schemas'
+import { ProjectNavigationSummary } from './project.schemas'
 import { UserPublicDto } from './user.schemas'
 import { WorkspaceSummary } from './workspace.schemas'
 
@@ -67,5 +67,5 @@ export type CompanyDetails = {
     stats: CompanyStats
     workspaces: WorkspaceSummary[]
     members: CompanyMember[]
-    companyProjects: ProjectSummary[]
+    companyProjects: ProjectNavigationSummary[]
 }
