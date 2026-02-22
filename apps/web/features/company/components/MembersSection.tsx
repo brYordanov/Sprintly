@@ -86,7 +86,10 @@ export function MembersSection({ members, companyId, companySlug }: MembersSecti
                                     <span className="text-sm text-muted-foreground">{m.email}</span>
                                 </td>
                                 <td className="py-3 pr-4">
-                                    <Select defaultValue={m.permissionName ?? undefined}>
+                                    <Select
+                                        defaultValue={m.permissionName ?? undefined}
+                                        disabled={m.permissionId === PERMISSION.owner.id}
+                                    >
                                         <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
                                             <SelectValue placeholder="" />
                                         </SelectTrigger>
