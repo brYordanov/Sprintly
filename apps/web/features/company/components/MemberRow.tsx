@@ -1,3 +1,14 @@
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     Select,
@@ -11,6 +22,7 @@ import { CompanyMember, PERMISSION, PermissionName } from '@shared/validations'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useChangePermission } from '../api/useChangePermission'
+import { useRemoveMember } from '../api/useRemoveMember'
 
 export function MemberRow({
     member,
@@ -24,6 +36,11 @@ export function MemberRow({
     const [currentPermission, setCurrentPermission] = useState(member.permissionName)
     const previousPermissionRef = useRef<string | null>(null)
     const { mutate: changePermission } = useChangePermission(companyId, member.id, companySlug)
+    const { mutate: removeMember, isPending: isRemoving } = useRemoveMember(
+        companyId,
+        member.id,
+        companySlug,
+    )
 
     const onPermissionChange = (newPermission: PermissionName) => {
         previousPermissionRef.current = currentPermission
@@ -82,12 +99,32 @@ export function MemberRow({
                 </Select>
             </td>
             <td className="py-3 text-right">
-                <button
-                    onClick={() => {}}
-                    className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer"
-                >
-                    Remove
-                </button>
+                <AlertDialog>
+                    <AlertDialogTrigger
+                        disabled={isRemoving || member.permissionId === PERMISSION.owner.id}
+                        className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Remove
+                    </AlertDialogTrigger>
+                    <AlertDialogContent size="sm">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Remove member</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to remove{' '}
+                                <span className="font-medium text-foreground">
+                                    {member.fullname ?? member.username}
+                                </span>{' '}
+                                from this company?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction variant="destructive" onClick={() => removeMember()}>
+                                Remove
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </td>
         </tr>
     )

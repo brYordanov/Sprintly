@@ -3,6 +3,7 @@ import { AddMemberDto, CompanyDetails, CompanyMember } from '@shared/validations
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { COMPANY_DETAILS } from './useGetCompanyDetails'
+import { INVITABLE_USERS } from './useGetInvitableUsers'
 
 export function useAddMember(companyId: string, companySlug: string) {
     const queryClient = useQueryClient()
@@ -18,6 +19,8 @@ export function useAddMember(companyId: string, companySlug: string) {
                 [COMPANY_DETAILS, companySlug],
                 old => old && { ...old, members: [...old.members, addedMember] },
             )
+
+            queryClient.invalidateQueries({ queryKey: [INVITABLE_USERS, companyId] })
         },
         onError: err => {
             console.error(`Adding member failed: ${err}`)

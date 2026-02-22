@@ -61,5 +61,7 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
         throw new ApiError(err.message || 'An error occured', response.status, err)
     }
 
+    if (response.status === 204) return undefined as T
+
     return response.json()
 }
