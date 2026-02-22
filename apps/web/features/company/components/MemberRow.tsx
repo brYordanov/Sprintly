@@ -98,34 +98,39 @@ export function MemberRow({
                     </SelectContent>
                 </Select>
             </td>
-            <td className="py-3 text-right">
-                <AlertDialog>
-                    <AlertDialogTrigger
-                        disabled={isRemoving || member.permissionId === PERMISSION.owner.id}
-                        className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Remove
-                    </AlertDialogTrigger>
-                    <AlertDialogContent size="sm">
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Remove member</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Are you sure you want to remove{' '}
-                                <span className="font-medium text-foreground">
-                                    {member.fullname ?? member.username}
-                                </span>{' '}
-                                from this company?
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction variant="destructive" onClick={() => removeMember()}>
-                                Remove
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </td>
+            {member.permissionId !== PERMISSION.owner.id && (
+                <td className="py-3 text-right">
+                    <AlertDialog>
+                        <AlertDialogTrigger
+                            disabled={isRemoving}
+                            className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Remove
+                        </AlertDialogTrigger>
+                        <AlertDialogContent size="sm">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Remove member</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to remove{' '}
+                                    <span className="font-medium text-foreground">
+                                        {member.fullname ?? member.username}
+                                    </span>{' '}
+                                    from this company?
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                    variant="destructive"
+                                    onClick={() => removeMember()}
+                                >
+                                    Remove
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </td>
+            )}
         </tr>
     )
 }
