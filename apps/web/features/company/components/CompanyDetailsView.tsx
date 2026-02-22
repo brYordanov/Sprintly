@@ -9,7 +9,6 @@ import { MembersSectionSkeleton } from './MembersSectionSkeleton'
 
 export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
     const { data, isLoading, error } = useGetCompanyDetails(companySlug)
-    console.log(error?.status)
 
     if (isLoading || !data) {
         return (

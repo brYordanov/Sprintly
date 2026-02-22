@@ -1,16 +1,8 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { getInitials } from '@/helpers'
-import { CompanyMember, PERMISSION } from '@shared/validations'
+import { CompanyMember } from '@shared/validations'
 import { useState } from 'react'
 import { InviteMemberDialog } from './InviteMemberDialog'
+import { MemberRow } from './MemberRow'
 
 interface MembersSectionProps {
     members: CompanyMember[]
@@ -62,59 +54,12 @@ export function MembersSection({ members, companyId, companySlug }: MembersSecti
                     </thead>
                     <tbody className="divide-y divide-border">
                         {members.map(m => (
-                            <tr key={m.id}>
-                                <td className="py-3 pr-4">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-20 w-20" size="lg">
-                                            {m.avatarUrl && (
-                                                <AvatarImage
-                                                    src={m.avatarUrl}
-                                                    alt={m.username}
-                                                    className="object-cover"
-                                                />
-                                            )}
-                                            <AvatarFallback className="bg-blue-600 text-white font-semibold">
-                                                {getInitials(m.fullname ?? m.username)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <span className="text-sm text-foreground">
-                                            {m.fullname ?? m.username}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="py-3 pr-4">
-                                    <span className="text-sm text-muted-foreground">{m.email}</span>
-                                </td>
-                                <td className="py-3 pr-4">
-                                    <Select
-                                        defaultValue={m.permissionName ?? undefined}
-                                        disabled={m.permissionId === PERMISSION.owner.id}
-                                    >
-                                        <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
-                                            <SelectValue placeholder="" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {Object.entries(PERMISSION).map(([name]) => (
-                                                <SelectItem
-                                                    key={name}
-                                                    value={name}
-                                                    className="text-sm"
-                                                >
-                                                    {name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </td>
-                                <td className="py-3 text-right">
-                                    <button
-                                        onClick={() => {}}
-                                        className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer"
-                                    >
-                                        Remove
-                                    </button>
-                                </td>
-                            </tr>
+                            <MemberRow
+                                key={m.id}
+                                member={m}
+                                companyId={companyId}
+                                companySlug={companySlug}
+                            />
                         ))}
                     </tbody>
                 </table>
