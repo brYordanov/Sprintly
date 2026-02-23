@@ -6,6 +6,8 @@ import { CompanyHeader } from './CompanyHeader'
 import { CompanyHeaderSkeleton } from './CompanyHeaderSkeleton'
 import { MembersSection } from './MembersSection'
 import { MembersSectionSkeleton } from './MembersSectionSkeleton'
+import { ProjectsSection } from './ProjectsSection'
+import { WorkspacesSection } from './WorkspacesSection'
 
 export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
     const { data, isLoading, error } = useGetCompanyDetails(companySlug)
@@ -37,6 +39,10 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 companyId={data.company.id}
                 companySlug={data.company.slug}
             />
+            <div className="grid grid-cols-2 gap-6">
+                <WorkspacesSection workspaces={data.workspaces} companySlug={data.company.slug} />
+                <ProjectsSection projects={data.companyProjects} />
+            </div>
         </>
     )
 }
