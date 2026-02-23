@@ -22,16 +22,25 @@ import { useCreateWorkspace } from '../api/useCreateWorkspace'
 interface CreateWorkspaceDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    companyId?: string
+    companyName?: string
+    companySlug?: string
 }
 
-export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
-    const { mutate: createWorkspace, isPending } = useCreateWorkspace()
+export function CreateWorkspaceDialog({
+    open,
+    onOpenChange,
+    companyId,
+    companyName,
+    companySlug,
+}: CreateWorkspaceDialogProps) {
+    const { mutate: createWorkspace, isPending } = useCreateWorkspace(companySlug)
     const { data: userCompanies } = useGetManageableUserCompanies()
     const { control, handleSubmit, reset } = useForm<CreateWorkspaceDto>({
         resolver: zodResolver(CreateWorkspaceSchema),
         mode: 'onTouched',
         defaultValues: {
-            companyId: '',
+            companyId: companyId ?? '',
             name: '',
             slug: '',
             description: '',
@@ -72,6 +81,8 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                             control={control}
                             placeholder="Select a company"
                             label="Company*"
+                            disabled={!!companyId}
+                            displayValue={companyName}
                             options={
                                 userCompanies?.map(c => ({ value: c.id, label: c.name })) || []
                             }
