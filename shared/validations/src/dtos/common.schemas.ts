@@ -17,3 +17,8 @@ export const ValidImgUrlSchema = z.union([
             },
         ),
 ])
+
+export const ChangePermissionSchema = z.object({
+    permissionId: z.number().int(),
+})
+export type ChangePermissionDto = z.infer<typeof ChangePermissionSchema>

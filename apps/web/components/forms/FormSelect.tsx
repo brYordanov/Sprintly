@@ -15,6 +15,7 @@ type FormSelectProps<TFormData extends FieldValues> = {
     Icon?: React.ElementType
     className?: string
     disabled?: boolean
+    displayValue?: string
 }
 
 export function FormSelect<TFormData extends FieldValues>({
@@ -26,6 +27,7 @@ export function FormSelect<TFormData extends FieldValues>({
     Icon,
     className,
     disabled = false,
+    displayValue,
 }: FormSelectProps<TFormData>) {
     return (
         <Controller
@@ -41,7 +43,9 @@ export function FormSelect<TFormData extends FieldValues>({
                             className={className}
                         >
                             {Icon && <Icon className="mr-2 h-4 w-4" />}
-                            <SelectValue placeholder={placeholder} />
+                            <SelectValue placeholder={placeholder}>
+                                {displayValue}
+                            </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                             {options.map(option => (

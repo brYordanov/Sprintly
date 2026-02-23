@@ -17,23 +17,31 @@ import { useGetManageableUserWorkspaces } from '@/features/workspace/api/useGetM
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateProjectDto, CreateProjectSchema } from '@shared/validations'
 import { FolderKanban, Hash, Image } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useCreateProject } from '../api/useCreateProject'
 
 interface CreateProjectDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    companyId?: string
+    companyName?: string
+    companySlug?: string
 }
 
-export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogProps) {
-    const { mutate: createProject, isPending } = useCreateProject()
+export function CreateProjectDialog({
+    open,
+    onOpenChange,
+    companyId,
+    companyName,
+    companySlug,
+}: CreateProjectDialogProps) {
     const { data: userCompanies } = useGetManageableUserCompanies()
     const { data: userWorkspaces } = useGetManageableUserWorkspaces()
     const { control, handleSubmit, reset } = useForm<CreateProjectDto>({
         resolver: zodResolver(CreateProjectSchema),
         mode: 'onTouched',
         defaultValues: {
-            companyId: '',
+            companyId: companyId ?? '',
             workspaceId: undefined,
             name: '',
             slug: '',
@@ -41,6 +49,13 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
             iconUrl: '',
         },
     })
+    const selectedWorkspaceId = useWatch({ control, name: 'workspaceId' })
+    const selectedWorkspace = userWorkspaces?.find(w => w.id === selectedWorkspaceId)
+    const { mutate: createProject, isPending } = useCreateProject(
+        companySlug,
+        selectedWorkspace?.slug,
+        selectedWorkspace?.name,
+    )
 
     const onSubmit = (data: CreateProjectDto) => {
         createProject(data, {
@@ -76,6 +91,8 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
                             control={control}
                             placeholder="Select a company"
                             label="Company*"
+                            disabled={!!companyId}
+                            displayValue={companyName}
                             options={
                                 userCompanies?.map(c => ({ value: c.id, label: c.name })) || []
                             }

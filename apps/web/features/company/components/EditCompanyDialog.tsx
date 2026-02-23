@@ -1,7 +1,6 @@
 'use client'
 
 import { FormField } from '@/components/forms/FormField'
-import { FormSelect } from '@/components/forms/FormSelect'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -12,45 +11,47 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { FieldGroup } from '@/components/ui/field'
-import { useGetManageableUserCompanies } from '@/features/company/api/useGetManageableUserCompanies'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CreateWorkspaceDto, CreateWorkspaceSchema } from '@shared/validations'
-import { Hash, Layers } from 'lucide-react'
+import { EditCompanyDto, EditCompanySchema } from '@shared/validations'
+import { Building2, Hash, Image } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useCreateWorkspace } from '../api/useCreateWorkspace'
+import { useEditCompany } from '../api/useEditCompany'
 
-interface CreateWorkspaceDialogProps {
+interface EditCompanyDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    companyId?: string
-    companyName?: string
-    companySlug?: string
+    companyId: string
+    slug: string
+    defaultValues: {
+        name: string
+        slug: string
+        description?: string | null
+        logoUrl?: string | null
+    }
 }
 
-export function CreateWorkspaceDialog({
+export function EditCompanyDialog({
     open,
     onOpenChange,
     companyId,
-    companyName,
-    companySlug,
-}: CreateWorkspaceDialogProps) {
-    const { mutate: createWorkspace, isPending } = useCreateWorkspace(companySlug)
-    const { data: userCompanies } = useGetManageableUserCompanies()
-    const { control, handleSubmit, reset } = useForm<CreateWorkspaceDto>({
-        resolver: zodResolver(CreateWorkspaceSchema),
+    slug,
+    defaultValues,
+}: EditCompanyDialogProps) {
+    const { mutate: editCompany, isPending } = useEditCompany(companyId, slug)
+    const { control, handleSubmit, reset } = useForm<EditCompanyDto>({
+        resolver: zodResolver(EditCompanySchema),
         mode: 'onTouched',
         defaultValues: {
-            companyId: companyId ?? '',
-            name: '',
-            slug: '',
-            description: '',
+            name: defaultValues.name,
+            slug: defaultValues.slug,
+            description: defaultValues.description ?? '',
+            logoUrl: defaultValues.logoUrl ?? '',
         },
     })
 
-    const onSubmit = (data: CreateWorkspaceDto) => {
-        createWorkspace(data, {
+    const onSubmit = (data: EditCompanyDto) => {
+        editCompany(data, {
             onSuccess: () => {
-                reset()
                 onOpenChange(false)
             },
         })
@@ -69,44 +70,38 @@ export function CreateWorkspaceDialog({
                 onNativeClose={handleCancel}
             >
                 <DialogHeader>
-                    <DialogTitle>Create Workspace</DialogTitle>
-                    <DialogDescription>
-                        Add a new workspace to your company. Fill in the details below.
-                    </DialogDescription>
+                    <DialogTitle>Edit Company</DialogTitle>
+                    <DialogDescription>Update your company details below.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <FieldGroup>
-                        <FormSelect
-                            name="companyId"
-                            control={control}
-                            placeholder="Select a company"
-                            label="Company*"
-                            disabled={!!companyId}
-                            displayValue={companyName}
-                            options={
-                                userCompanies?.map(c => ({ value: c.id, label: c.name })) || []
-                            }
-                        />
                         <FormField
                             name="name"
                             control={control}
-                            label="Name*"
-                            placeholder="Enter workspace name"
-                            Icon={Layers}
+                            label="Name"
+                            placeholder="Enter company name"
+                            Icon={Building2}
                         />
                         <FormField
                             name="slug"
                             control={control}
-                            label="Slug*"
-                            placeholder="workspace-slug"
+                            label="Slug"
+                            placeholder="company-slug"
                             Icon={Hash}
                         />
                         <FormField
                             name="description"
                             control={control}
                             label="Description"
-                            placeholder="Enter workspace description"
+                            placeholder="Enter company description"
                             type="description"
+                        />
+                        <FormField
+                            name="logoUrl"
+                            control={control}
+                            label="Logo URL"
+                            placeholder="https://example.com/logo.png"
+                            Icon={Image}
                         />
                     </FieldGroup>
 
@@ -120,7 +115,7 @@ export function CreateWorkspaceDialog({
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isPending}>
-                            {isPending ? 'Creating...' : 'Create Workspace'}
+                            {isPending ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </DialogFooter>
                 </form>

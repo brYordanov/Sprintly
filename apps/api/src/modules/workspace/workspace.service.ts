@@ -55,8 +55,8 @@ export class WorkspaceService {
     }
 
     async getManageableUserWorkspaces(userId: string): Promise<UserWorkspaceSummary[]> {
-        const workspacePerm = alias(schema.PermissionSchema, 'workspacePerm')
-        const companyPerm = alias(schema.PermissionSchema, 'companyPerm')
+        const workspacePerm = alias(schema.PermissionSchema, 'workspace_perm')
+        const companyPerm = alias(schema.PermissionSchema, 'company_perm')
         return this.db
             .select({
                 name: schema.WorkspaceSchema.name,
@@ -91,8 +91,8 @@ export class WorkspaceService {
             )
             .where(
                 or(
-                    gte(workspacePerm.level, PERMISSION.ADMIN.level),
-                    gte(companyPerm.level, PERMISSION.ADMIN.level),
+                    gte(workspacePerm.level, PERMISSION.admin.level),
+                    gte(companyPerm.level, PERMISSION.admin.level),
                 ),
             )
     }
@@ -101,8 +101,8 @@ export class WorkspaceService {
         userId: string,
         workspaceId: string,
     ): Promise<number | null> {
-        const workspacePerm = alias(schema.PermissionSchema, 'workspacePerm')
-        const companyPerm = alias(schema.PermissionSchema, 'companyPerm')
+        const workspacePerm = alias(schema.PermissionSchema, 'workspace_perm')
+        const companyPerm = alias(schema.PermissionSchema, 'company_perm')
 
         const [result] = await this.db
             .select({

@@ -1,9 +1,15 @@
-import { Section } from '@/components/ui/section'
+import { CompanyDetailsView } from '@/features/company/components/CompanyDetailsView'
 
-export default function CompanyDetailPage() {
+export default async function CompanyDetailPage({
+    params,
+}: {
+    params: Promise<{ companySlug: string }>
+}) {
+    const { companySlug } = await params
+
     return (
-        <Section>
-            <div>CompanyDetailPage</div>
-        </Section>
+        <div className="p-8 space-y-6">
+            <CompanyDetailsView companySlug={companySlug} />
+        </div>
     )
 }

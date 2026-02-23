@@ -1,8 +1,29 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseGuards,
+} from '@nestjs/common'
+import {
+    type AddMemberDto,
+    AddMemberSchema,
+    type ChangePermissionDto,
+    ChangePermissionSchema,
+    CompanyDetails,
+    CompanyMember,
+    CompanyNonMember,
     CompanyRowDto,
     type CreateCompanyDto,
     CreateCompanySchema,
+    type EditCompanyDto,
+    EditCompanySchema,
     UserCompanySummary,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
@@ -16,6 +37,7 @@ export class CompanyController {
     constructor(private readonly service: CompanyService) {}
 
     @Post()
+    @HttpCode(HttpStatus.CREATED)
     async create(
         @Body(new ZodValidationPipe(CreateCompanySchema)) dto: CreateCompanyDto,
         @User() user: { id: string },
@@ -33,5 +55,58 @@ export class CompanyController {
         @User() user: { id: string },
     ): Promise<UserCompanySummary[]> {
         return this.service.getManageableCompaniesForUser(user.id)
+    }
+
+    @Get(':companySlug/details')
+    async getCompanyDetails(
+        @Param('companySlug') companySlug: string,
+        @User() user: { id: string },
+    ): Promise<CompanyDetails> {
+        return this.service.getCompanyDetails(companySlug, user.id)
+    }
+
+    @Get(':companyId/invitable/search')
+    async searchNonMembers(
+        @Param('companyId') companyId: string,
+        @Query('q') query: string,
+    ): Promise<CompanyNonMember[]> {
+        return this.service.searchNonMembers(companyId, query)
+    }
+
+    @Patch(':companyId')
+    async editCompany(
+        @Body(new ZodValidationPipe(EditCompanySchema)) dto: EditCompanyDto,
+        @User() user: { id: string },
+        @Param('companyId') companyId: string,
+    ): Promise<CompanyRowDto> {
+        return this.service.editCompany(user.id, companyId, dto)
+    }
+
+    @Post(':companyId/add-member')
+    async addMember(
+        @Body(new ZodValidationPipe(AddMemberSchema)) dto: AddMemberDto,
+        @Param('companyId') companyId: string,
+    ): Promise<CompanyMember> {
+        return this.service.addMember(companyId, dto.id)
+    }
+
+    @Delete(':companyId/user/:userId')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async removeMember(
+        @User() user: { id: string },
+        @Param('companyId') companyId: string,
+        @Param('userId') userId: string,
+    ): Promise<void> {
+        return this.service.removeMember(user.id, companyId, userId)
+    }
+
+    @Patch(':companyId/user/:userId')
+    async changePermission(
+        @Body(new ZodValidationPipe(ChangePermissionSchema)) dto: ChangePermissionDto,
+        @User() user: { id: string },
+        @Param('companyId') companyId: string,
+        @Param('userId') userId: string,
+    ): Promise<CompanyMember> {
+        return this.service.changePermission(user.id, companyId, userId, dto.permissionId)
     }
 }

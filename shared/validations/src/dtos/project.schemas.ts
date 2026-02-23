@@ -51,4 +51,5 @@ export type ProjectSummary = Pick<ProjectRowDto, 'name' | 'slug' | 'id'>
 export type ProjectNavigationSummary = ProjectSummary & {
     companySlug: string
     workspaceSlug: string | null
+    workspaceName: string | null
 }
