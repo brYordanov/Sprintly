@@ -155,13 +155,6 @@ export class CompanyService {
                 schema.CompanySchema,
                 eq(schema.CompanySchema.id, schema.CompanyMemberSchema.companyId),
             )
-            .innerJoin(
-                schema.UserCompanyPermissionSchema,
-                and(
-                    eq(schema.CompanySchema.id, schema.UserCompanyPermissionSchema.companyId),
-                    eq(schema.UserCompanyPermissionSchema.userId, userId),
-                ),
-            )
             .where(eq(schema.CompanyMemberSchema.userId, userId))
     }
 

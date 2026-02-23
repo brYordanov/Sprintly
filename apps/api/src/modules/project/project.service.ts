@@ -37,6 +37,7 @@ export class ProjectService {
                 id: schema.ProjectSchema.id,
                 companySlug: schema.CompanySchema.slug,
                 workspaceSlug: schema.WorkspaceSchema.slug,
+                workspaceName: schema.WorkspaceSchema.name,
             })
             .from(schema.ProjectSchema)
             .innerJoin(
