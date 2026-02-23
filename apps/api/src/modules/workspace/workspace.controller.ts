@@ -8,7 +8,7 @@ import {
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { User } from '../auth/decorators/user.decorator'
-import { AuthGuard } from '../auth/guards/auth.guard'
+import { AuthGuard, type AuthUser } from '../auth/guards/auth.guard'
 import { WorkspaceService } from './workspace.service'
 
 @Controller('workspace')
@@ -19,22 +19,23 @@ export class WorkspaceController {
     @Post()
     async create(
         @Body(new ZodValidationPipe(CreateWorkspaceSchema)) dto: CreateWorkspaceDto,
-        @User() user: { id: string },
+        @User() user: AuthUser,
     ): Promise<WorkspaceRowDto> {
         return this.service.createWorkspace(dto, user.id)
     }
 
     @Get('viewable')
     async getViewableWorkspacesForUser(
-        @User() user: { id: string },
+        @User() user: AuthUser,
     ): Promise<UserWorkspaceNavigationSummary[]> {
         return this.service.getViewableUserWorkspaces(user.id)
     }
 
     @Get('manageable')
-    async getManageableWorkspacesForUser(
-        @User() user: { id: string },
-    ): Promise<UserWorkspaceSummary[]> {
+    async getManageableWorkspacesForUser(@User() user: AuthUser): Promise<UserWorkspaceSummary[]> {
         return this.service.getManageableUserWorkspaces(user.id)
     }
+
+    @Get('details')
+    async getWorkspaceDetails(@User() user: AuthUser) {}
 }

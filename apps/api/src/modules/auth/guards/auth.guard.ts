@@ -3,6 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 
+export interface AuthUser {
+    id: string
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
     private readonly accessSecret: string

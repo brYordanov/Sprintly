@@ -28,7 +28,7 @@ import {
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { User } from '../auth/decorators/user.decorator'
-import { AuthGuard } from '../auth/guards/auth.guard'
+import { AuthGuard, type AuthUser } from '../auth/guards/auth.guard'
 import { CompanyService } from './company.service'
 
 @Controller('company')
@@ -40,27 +40,25 @@ export class CompanyController {
     @HttpCode(HttpStatus.CREATED)
     async create(
         @Body(new ZodValidationPipe(CreateCompanySchema)) dto: CreateCompanyDto,
-        @User() user: { id: string },
+        @User() user: AuthUser,
     ): Promise<CompanyRowDto> {
         return this.service.createCompany(user.id, dto)
     }
 
     @Get('viewable')
-    async getViewableCompaniesForUser(@User() user: { id: string }): Promise<UserCompanySummary[]> {
+    async getViewableCompaniesForUser(@User() user: AuthUser): Promise<UserCompanySummary[]> {
         return this.service.getViewableCompaniesForUser(user.id)
     }
 
     @Get('manageable')
-    async getManageableCompaniesForUser(
-        @User() user: { id: string },
-    ): Promise<UserCompanySummary[]> {
+    async getManageableCompaniesForUser(@User() user: AuthUser): Promise<UserCompanySummary[]> {
         return this.service.getManageableCompaniesForUser(user.id)
     }
 
     @Get(':companySlug/details')
     async getCompanyDetails(
         @Param('companySlug') companySlug: string,
-        @User() user: { id: string },
+        @User() user: AuthUser,
     ): Promise<CompanyDetails> {
         return this.service.getCompanyDetails(companySlug, user.id)
     }
@@ -76,7 +74,7 @@ export class CompanyController {
     @Patch(':companyId')
     async editCompany(
         @Body(new ZodValidationPipe(EditCompanySchema)) dto: EditCompanyDto,
-        @User() user: { id: string },
+        @User() user: AuthUser,
         @Param('companyId') companyId: string,
     ): Promise<CompanyRowDto> {
         return this.service.editCompany(user.id, companyId, dto)
@@ -93,7 +91,7 @@ export class CompanyController {
     @Delete(':companyId/user/:userId')
     @HttpCode(HttpStatus.NO_CONTENT)
     async removeMember(
-        @User() user: { id: string },
+        @User() user: AuthUser,
         @Param('companyId') companyId: string,
         @Param('userId') userId: string,
     ): Promise<void> {
@@ -103,7 +101,7 @@ export class CompanyController {
     @Patch(':companyId/user/:userId')
     async changePermission(
         @Body(new ZodValidationPipe(ChangePermissionSchema)) dto: ChangePermissionDto,
-        @User() user: { id: string },
+        @User() user: AuthUser,
         @Param('companyId') companyId: string,
         @Param('userId') userId: string,
     ): Promise<CompanyMember> {
