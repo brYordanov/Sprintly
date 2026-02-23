@@ -1,10 +1,15 @@
+import { COMPANY_DETAILS } from '@/features/company/api/useGetCompanyDetails'
 import { apiClient } from '@/lib/api/client'
-import { CreateProjectDto, ProjectRowDto } from '@shared/validations'
+import { CompanyDetails, CreateProjectDto, ProjectRowDto } from '@shared/validations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { USER_PROJECTS } from './useGetUserProjects'
 
-export function useCreateProject() {
+export function useCreateProject(
+    companySlug?: string,
+    workspaceSlug?: string,
+    workspaceName?: string,
+) {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -13,9 +18,36 @@ export function useCreateProject() {
                 method: 'POST',
                 body: JSON.stringify(data),
             }),
-        onSuccess: () => {
+        onSuccess: newProject => {
             toast.success('Company created')
             queryClient.invalidateQueries({ queryKey: [USER_PROJECTS] })
+
+            if (!companySlug) return
+            queryClient.setQueryData<CompanyDetails>(
+                [COMPANY_DETAILS, companySlug],
+                old =>
+                    old && {
+                        ...old,
+                        companyProjects: [
+                            ...old.companyProjects,
+                            {
+                                id: newProject.id,
+                                name: newProject.name,
+                                slug: newProject.slug,
+                                companySlug: companySlug ?? null,
+                                workspaceSlug: workspaceSlug ?? null,
+                                workspaceName: workspaceName ?? null,
+                            },
+                        ],
+                        workspaces: old.workspaces.map(w =>
+                            w.name === workspaceName ? { ...w, projectCount: ++w.projectCount } : w,
+                        ),
+                        stats: {
+                            ...old.stats,
+                            projectCount: ++old.stats.projectCount,
+                        },
+                    },
+            )
         },
         onError: err => {
             console.error(`Company creation failed: ${err}`)

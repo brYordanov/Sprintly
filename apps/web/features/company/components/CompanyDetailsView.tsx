@@ -46,8 +46,18 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 companySlug={data.company.slug}
             />
             <div className="grid grid-cols-2 gap-6">
-                <WorkspacesSection workspaces={data.workspaces} companySlug={data.company.slug} companyId={data.company.id} companyName={data.company.name} />
-                <ProjectsSection projects={data.companyProjects} />
+                <WorkspacesSection
+                    workspaces={data.workspaces}
+                    companySlug={data.company.slug}
+                    companyId={data.company.id}
+                    companyName={data.company.name}
+                />
+                <ProjectsSection
+                    projects={data.companyProjects}
+                    companyId={data.company.id}
+                    companyName={data.company.name}
+                    companySlug={data.company.slug}
+                />
             </div>
         </>
     )
