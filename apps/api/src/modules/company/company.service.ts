@@ -353,6 +353,7 @@ export class CompanyService {
                 slug: schema.ProjectSchema.slug,
                 companySlug: schema.CompanySchema.slug,
                 workspaceSlug: schema.WorkspaceSchema.slug,
+                workspaceName: schema.WorkspaceSchema.name,
             })
             .from(schema.ProjectSchema)
             .innerJoin(
@@ -447,7 +448,11 @@ export class CompanyService {
         return updatedMember
     }
 
-    async removeMember(requestingUserId: string, companyId: string, targetUserId: string): Promise<void> {
+    async removeMember(
+        requestingUserId: string,
+        companyId: string,
+        targetUserId: string,
+    ): Promise<void> {
         await this.doesUserHavePermissionOrFail(companyId, requestingUserId, PERMISSION.admin.level)
 
         const [member] = await this.getCompanyMemberById(companyId, targetUserId)

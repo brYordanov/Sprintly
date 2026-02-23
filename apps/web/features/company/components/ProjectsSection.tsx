@@ -33,6 +33,7 @@ export function ProjectsSection({ projects }: { projects: ProjectNavigationSumma
                             <p className="text-sm font-medium text-foreground truncate">
                                 {project.name}
                             </p>
+                            <p className="text-xs text-muted-foreground">{project.workspaceName}</p>
                         </div>
                         <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                     </Link>
