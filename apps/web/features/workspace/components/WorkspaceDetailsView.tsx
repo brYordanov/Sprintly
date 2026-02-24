@@ -11,10 +11,9 @@ import { WorkspaceMembersSection } from './WorkspaceMembersSection'
 
 interface WorkspaceDetailsViewProps {
     workspaceSlug: string
-    companySlug: string
 }
 
-export function WorkspaceDetailsView({ workspaceSlug, companySlug }: WorkspaceDetailsViewProps) {
+export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProps) {
     const { data, isLoading, error } = useGetWorkspaceDetails(workspaceSlug)
 
     if (isLoading || !data) {
@@ -43,7 +42,7 @@ export function WorkspaceDetailsView({ workspaceSlug, companySlug }: WorkspaceDe
                 projects={data.workspaceProjects}
                 companyId={data.workspace.companyId}
                 companyName={data.workspace.company?.name ?? ''}
-                companySlug={companySlug}
+                companySlug={data.workspace.company?.slug ?? ''}
             />
         </>
     )
