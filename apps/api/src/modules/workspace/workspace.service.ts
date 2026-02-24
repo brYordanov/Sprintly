@@ -323,6 +323,7 @@ export class WorkspaceService {
                 schema.WorkspaceSchema,
                 eq(schema.WorkspaceSchema.id, schema.ProjectSchema.workspaceId),
             )
+            .where(eq(schema.ProjectSchema.workspaceId, workspaceId))
     }
 
     async doesUserHaveSufficientWorkspacePermissionOrFail(
