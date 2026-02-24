@@ -36,8 +36,11 @@ export class WorkspaceController {
         return this.service.getManageableUserWorkspaces(user.id)
     }
 
-    @Get(':worksapceId/details')
-    async getWorkspaceDetails(@User() user: AuthUser, @Param('workspaceId') workspaceId: string) {
-        return this.service.getWorkspaceDetails(workspaceId, user.id)
+    @Get(':workspaceSlug/details')
+    async getWorkspaceDetails(
+        @User() user: AuthUser,
+        @Param('workspaceSlug') workspaceSlug: string,
+    ) {
+        return this.service.getWorkspaceDetails(workspaceSlug, user.id)
     }
 }

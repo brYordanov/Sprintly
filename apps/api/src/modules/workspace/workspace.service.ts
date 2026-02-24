@@ -23,11 +23,11 @@ export class WorkspaceService {
         private readonly companyService: CompanyService,
     ) {}
 
-    async getWorkspaceByIdOrFail(workspaceId: string): Promise<WorkspaceRowDto> {
+    async getWorkspaceBySlugOrFail(workspaceSlug: string): Promise<WorkspaceRowDto> {
         const [workspace] = await this.db
             .select()
             .from(schema.WorkspaceSchema)
-            .where(eq(schema.WorkspaceSchema.id, workspaceId))
+            .where(eq(schema.WorkspaceSchema.slug, workspaceSlug))
             .limit(1)
 
         if (!workspace) throw new NotFoundException('Workspace not found')
@@ -162,18 +162,18 @@ export class WorkspaceService {
         return Math.max(workspacePermLevel, companyPermLevel)
     }
 
-    async getWorkspaceDetails(workspaceId: string, userId: string) {
-        const workspace = await this.getWorkspaceByIdOrFail(workspaceId)
+    async getWorkspaceDetails(workspaceSlug: string, userId: string) {
+        const workspace = await this.getWorkspaceBySlugOrFail(workspaceSlug)
         await this.doesUserHaveSufficientWorkspacePermissionOrFail(
-            workspaceId,
+            workspace.id,
             userId,
             PERMISSION.maintainer.level,
         )
 
         const [stats, members, workspaceProjects] = await Promise.all([
-            this.getWorkspaceStats(workspaceId),
-            this.getWorkspaceMembers(workspaceId),
-            this.getWorkspaceProjects(workspaceId),
+            this.getWorkspaceStats(workspace.id),
+            this.getWorkspaceMembers(workspace.id),
+            this.getWorkspaceProjects(workspace.id),
         ])
 
         return { workspace, stats, members, workspaceProjects }
