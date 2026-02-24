@@ -301,7 +301,7 @@ export class WorkspaceService {
                 ),
             )
 
-        return { ...groupA, ...groupB }
+        return [...groupA, ...groupB]
     }
 
     async getWorkspaceProjects(workspaceId: string): Promise<ProjectNavigationSummary[]> {
@@ -330,7 +330,7 @@ export class WorkspaceService {
         userId: string,
         permissionLevel: number,
     ): Promise<void> {
-        const [worksapcePermission] = await this.db
+        const [workspacePermission] = await this.db
             .select({ level: schema.PermissionSchema.level })
             .from(schema.UserWorkspacePermissionSchema)
             .innerJoin(
@@ -345,7 +345,7 @@ export class WorkspaceService {
             )
             .limit(1)
 
-        if (worksapcePermission.level >= permissionLevel) return
+        if (workspacePermission && workspacePermission.level >= permissionLevel) return
 
         const [workspace] = await this.db
             .select({ companyId: schema.WorkspaceSchema.companyId })
