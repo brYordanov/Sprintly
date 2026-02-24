@@ -1,4 +1,5 @@
 import z from 'zod'
+import { CompanyRowSchema } from './company.schemas'
 import { ProjectNavigationSummary } from './project.schemas'
 import { UserPublicDto } from './user.schemas'
 
@@ -11,6 +12,7 @@ export const WorkspaceRowSchema = z.object({
     createdBy: z.uuid(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
+    company: CompanyRowSchema.optional(),
 })
 export type WorkspaceRowDto = z.infer<typeof WorkspaceRowSchema>
 

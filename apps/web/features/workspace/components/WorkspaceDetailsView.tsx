@@ -42,7 +42,7 @@ export function WorkspaceDetailsView({ workspaceSlug, companySlug }: WorkspaceDe
             <ProjectsSection
                 projects={data.workspaceProjects}
                 companyId={data.workspace.companyId}
-                companyName=""
+                companyName={data.workspace.company?.name ?? ''}
                 companySlug={companySlug}
             />
         </>

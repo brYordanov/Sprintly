@@ -23,7 +23,7 @@ export class WorkspaceService {
         private readonly companyService: CompanyService,
     ) {}
 
-    async getWorkspaceBySlugOrFail(workspaceSlug: string): Promise<WorkspaceRowDto> {
+    async getWorkspaceWithCompanyBySlugOrFail(workspaceSlug: string): Promise<WorkspaceRowDto> {
         const [workspace] = await this.db
             .select()
             .from(schema.WorkspaceSchema)
@@ -32,7 +32,13 @@ export class WorkspaceService {
 
         if (!workspace) throw new NotFoundException('Workspace not found')
 
-        return workspace
+        const [company] = await this.db
+            .select()
+            .from(schema.CompanySchema)
+            .where(eq(schema.CompanySchema.id, workspace.companyId))
+            .limit(1)
+
+        return { ...workspace, company }
     }
 
     async createWorkspace(dto: CreateWorkspaceDto, userId: string): Promise<WorkspaceRowDto> {
@@ -163,7 +169,7 @@ export class WorkspaceService {
     }
 
     async getWorkspaceDetails(workspaceSlug: string, userId: string) {
-        const workspace = await this.getWorkspaceBySlugOrFail(workspaceSlug)
+        const workspace = await this.getWorkspaceWithCompanyBySlugOrFail(workspaceSlug)
         await this.doesUserHaveSufficientWorkspacePermissionOrFail(
             workspace.id,
             userId,
