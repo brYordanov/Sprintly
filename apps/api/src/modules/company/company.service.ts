@@ -182,7 +182,11 @@ export class CompanyService {
         return permission?.level ?? null
     }
 
-    async doesUserHavePermissionOrFail(companyId: string, userId: string, permissionLevel: number) {
+    async doesUserHavePermissionOrFail(
+        companyId: string,
+        userId: string,
+        permissionLevel: number,
+    ): Promise<void> {
         const [member] = await this.db
             .select({
                 permissionLevel: schema.PermissionSchema.level,

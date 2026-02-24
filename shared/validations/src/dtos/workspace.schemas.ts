@@ -1,4 +1,6 @@
 import z from 'zod'
+import { ProjectNavigationSummary } from './project.schemas'
+import { UserPublicDto } from './user.schemas'
 
 export const WorkspaceRowSchema = z.object({
     id: z.uuid(),
@@ -31,4 +33,23 @@ export type UserWorkspaceNavigationSummary = UserWorkspaceSummary & {
 export type WorkspaceSummary = Pick<WorkspaceRowDto, 'name' | 'slug' | 'id'> & {
     projectCount: number
     memberCount: number
+}
+
+export type WorkspaceNonMember = Pick<
+    UserPublicDto,
+    'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
+>
+export type WorkspaceMember = WorkspaceNonMember & {
+    workspacePermissionName: string | null
+    workspacePermissionId: number | null
+    companyPermissionName: string | null
+    companyPermissionId: number | null
+}
+
+export type WorkspaceStats = { memberCount: number; projectCount: number }
+export type WorkspaceDetails = {
+    workspace: WorkspaceRowDto
+    stats: WorkspaceStats
+    members: WorkspaceMember[]
+    workspaceProjects: ProjectNavigationSummary[]
 }

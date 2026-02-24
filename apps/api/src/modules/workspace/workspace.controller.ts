@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
 import {
     CreateWorkspaceSchema,
     UserWorkspaceNavigationSummary,
@@ -36,6 +36,8 @@ export class WorkspaceController {
         return this.service.getManageableUserWorkspaces(user.id)
     }
 
-    @Get('details')
-    async getWorkspaceDetails(@User() user: AuthUser) {}
+    @Get(':worksapceId/details')
+    async getWorkspaceDetails(@User() user: AuthUser, @Param('workspaceId') workspaceId: string) {
+        return this.service.getWorkspaceDetails(workspaceId, user.id)
+    }
 }
