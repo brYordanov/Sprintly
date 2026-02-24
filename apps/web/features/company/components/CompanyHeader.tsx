@@ -30,7 +30,6 @@ export function CompanyHeader({
     logoUrl,
 }: CompanyHeaderProps) {
     const [editOpen, setEditOpen] = useState(false)
-    console.log(logoUrl)
 
     return (
         <>
@@ -84,7 +83,11 @@ export function CompanyHeader({
                             </div>
                         </div>
                     </div>
-                    <Button variant="ghost" className="gap-2 group" onClick={() => setEditOpen(true)}>
+                    <Button
+                        variant="ghost"
+                        className="gap-2 group"
+                        onClick={() => setEditOpen(true)}
+                    >
                         <Settings className="h-4 w-4 group-hover:text-card transition-all" />
                         Settings
                     </Button>

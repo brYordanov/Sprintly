@@ -1,12 +1,12 @@
 'use client'
 
 import { InsufficientPermissionDialog } from '@/components/dialogs/InsufficientPermissionDialog'
+import { DetailsHeaderSkeleton } from '@/components/skeletons/DetailsHeaderSkeleton'
+import { MembersSectionSkeleton } from '@/components/skeletons/MembersSectionSkeleton'
+import { ProjectsSectionSkeleton } from '@/components/skeletons/ProjectsSectionSkeleton'
 import { useGetCompanyDetails } from '@/features/company/api/useGetCompanyDetails'
 import { CompanyHeader } from './CompanyHeader'
-import { CompanyHeaderSkeleton } from './CompanyHeaderSkeleton'
 import { MembersSection } from './MembersSection'
-import { MembersSectionSkeleton } from './MembersSectionSkeleton'
-import { ProjectsSectionSkeleton } from './ProjectSectionSkeleton'
 import { ProjectsSection } from './ProjectsSection'
 import { WorkspacesSectionSkeleton } from './WorkspaceSectionSkeleton'
 import { WorkspacesSection } from './WorkspacesSection'
@@ -17,7 +17,7 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
     if (isLoading || !data) {
         return (
             <>
-                <CompanyHeaderSkeleton />
+                <DetailsHeaderSkeleton />
                 <MembersSectionSkeleton />
                 <InsufficientPermissionDialog open={error?.status === 403} />
                 <div className="grid grid-cols-2 gap-6">

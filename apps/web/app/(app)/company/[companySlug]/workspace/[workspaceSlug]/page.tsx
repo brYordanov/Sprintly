@@ -1,8 +1,14 @@
+import { WorkspaceDetailsView } from '@/features/workspace/components/WorkspaceDetailsView'
+
 export default async function WorkspaceDetailsPage({
     params,
 }: {
-    params: Promise<{ workspaceSlug: string }>
+    params: Promise<{ companySlug: string; workspaceSlug: string }>
 }) {
-    const { workspaceSlug } = await params
-    return <div className="p-8 space-y-6">{workspaceSlug}</div>
+    const { companySlug, workspaceSlug } = await params
+    return (
+        <div className="p-8 space-y-6">
+            <WorkspaceDetailsView workspaceSlug={workspaceSlug} companySlug={companySlug} />
+        </div>
+    )
 }
