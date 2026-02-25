@@ -9,15 +9,15 @@ export function useAddMember(companyId: string, companySlug: string) {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async (data: AddMemberDto) =>
-            apiClient<CompanyMember>(`company/${companyId}/add-member`, {
+            apiClient<CompanyMember[]>(`company/${companyId}/add-member`, {
                 method: 'POST',
                 body: JSON.stringify(data),
             }),
-        onSuccess: addedMember => {
-            toast.success('Member added')
+        onSuccess: addedMembers => {
+            toast.success(`${addedMembers.length} member${addedMembers.length > 1 ? 's' : ''} added`)
             queryClient.setQueryData<CompanyDetails>(
                 [COMPANY_DETAILS, companySlug],
-                old => old && { ...old, members: [...old.members, addedMember] },
+                old => old && { ...old, members: [...old.members, ...addedMembers] },
             )
 
             queryClient.invalidateQueries({ queryKey: [INVITABLE_USERS, companyId] })

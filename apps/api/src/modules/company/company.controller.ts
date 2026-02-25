@@ -84,8 +84,8 @@ export class CompanyController {
     async addMember(
         @Body(new ZodValidationPipe(AddMemberSchema)) dto: AddMemberDto,
         @Param('companyId') companyId: string,
-    ): Promise<CompanyMember> {
-        return this.service.addMember(companyId, dto.id)
+    ): Promise<CompanyMember[]> {
+        return this.service.addMembers(companyId, dto.ids)
     }
 
     @Delete(':companyId/user/:userId')

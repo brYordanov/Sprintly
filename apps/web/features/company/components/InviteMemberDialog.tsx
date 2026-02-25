@@ -31,7 +31,7 @@ export function InviteMemberDialog({
     const [query, setQuery] = useState('')
     const debouncedValue = useDebounce(query, 300)
     const { data: users = [], isLoading } = useGetInvitableUsers(companyId, debouncedValue)
-    const [selectedUser, setSelectedUser] = useState<CompanyNonMember | null>(null)
+    const [selectedUsers, setSelectedUsers] = useState<CompanyNonMember[]>([])
     const { mutate: addMember } = useAddMember(companyId, companySlug)
 
     return (
@@ -51,7 +51,7 @@ export function InviteMemberDialog({
                     value={query}
                     onChange={e => {
                         setQuery(e.target.value)
-                        setSelectedUser(null)
+                        setSelectedUsers([])
                     }}
                     autoFocus
                     Icon={Search}
@@ -72,9 +72,13 @@ export function InviteMemberDialog({
                         <button
                             key={user.id}
                             onClick={() =>
-                                setSelectedUser(prev => (prev?.id === user.id ? null : user))
+                                setSelectedUsers(prev =>
+                                    prev.some(u => u.id === user.id)
+                                        ? prev.filter(u => u.id !== user.id)
+                                        : [...prev, user],
+                                )
                             }
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all cursor-pointer ${selectedUser?.id === user.id ? 'bg-primary/10 hover:shadow-soft' : 'hover:shadow-soft'}`}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all cursor-pointer ${selectedUsers.some(u => u.id === user.id) ? 'bg-primary/10 hover:shadow-soft' : 'hover:shadow-soft'}`}
                         >
                             <Avatar className="h-20 w-20" size="lg">
                                 {user.avatarUrl && (
@@ -101,10 +105,10 @@ export function InviteMemberDialog({
                 </div>
                 <div className="flex justify-end pt-2">
                     <Button
-                        disabled={!selectedUser}
+                        disabled={selectedUsers.length === 0}
                         onClick={() => {
                             onOpenChange(false)
-                            addMember({ id: selectedUser!.id })
+                            addMember({ ids: selectedUsers.map(u => u.id) })
                         }}
                         className="bg-primary text-primary-foreground hover:bg-primary/90"
                     >

@@ -46,7 +46,7 @@ export const EditCompanySchema = z.object({
 export type EditCompanyDto = z.infer<typeof EditCompanySchema>
 
 export const AddMemberSchema = z.object({
-    id: z.uuid(),
+    ids: z.array(z.uuid()).min(1),
 })
 export type AddMemberDto = z.infer<typeof AddMemberSchema>
 

@@ -481,20 +481,24 @@ export class CompanyService {
         })
     }
 
-    async addMember(companyId: string, userId: string): Promise<CompanyMember> {
-        const [member] = await this.getCompanyMemberById(companyId, userId)
-        if (member) {
-            throw new ConflictException('User is already a member of this company')
-        }
+    async addMembers(companyId: string, userIds: string[]): Promise<CompanyMember[]> {
+        return Promise.all(
+            userIds.map(async (userId) => {
+                const [member] = await this.getCompanyMemberById(companyId, userId)
+                if (member) {
+                    throw new ConflictException(`User ${userId} is already a member of this company`)
+                }
 
-        await this.db.insert(schema.CompanyMemberSchema).values({ companyId, userId })
+                await this.db.insert(schema.CompanyMemberSchema).values({ companyId, userId })
 
-        const user = await this.userService.findByIdOrFail(userId)
+                const user = await this.userService.findByIdOrFail(userId)
 
-        return {
-            ...user,
-            permissionId: null,
-            permissionName: null,
-        }
+                return {
+                    ...user,
+                    permissionId: null,
+                    permissionName: null,
+                }
+            }),
+        )
     }
 }
