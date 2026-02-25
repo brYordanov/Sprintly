@@ -1,9 +1,13 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import {
+    AddWorkspaceMemberSchema,
     CreateWorkspaceSchema,
     UserWorkspaceNavigationSummary,
     UserWorkspaceSummary,
+    WorkspaceMember,
+    WorkspaceNonMember,
     WorkspaceRowDto,
+    type AddWorkspaceMemberDto,
     type CreateWorkspaceDto,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
@@ -42,5 +46,21 @@ export class WorkspaceController {
         @Param('workspaceSlug') workspaceSlug: string,
     ) {
         return this.service.getWorkspaceDetails(workspaceSlug, user.id)
+    }
+
+    @Get(':workspaceId/invitable/search')
+    async searchNonMembers(
+        @Param('workspaceId') workspaceId: string,
+        @Query('q') query: string,
+    ): Promise<WorkspaceNonMember[]> {
+        return this.service.searchNonMembers(workspaceId, query)
+    }
+
+    @Post(':workspaceId/add-member')
+    async addMember(
+        @Body(new ZodValidationPipe(AddWorkspaceMemberSchema)) dto: AddWorkspaceMemberDto,
+        @Param('workspaceId') workspaceId: string,
+    ): Promise<WorkspaceMember[]> {
+        return this.service.addMembers(workspaceId, dto.nonMembers)
     }
 }

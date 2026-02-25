@@ -1,4 +1,10 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+    ConflictException,
+    ForbiddenException,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common'
 import {
     CreateWorkspaceDto,
     PERMISSION,
@@ -6,10 +12,11 @@ import {
     UserWorkspaceNavigationSummary,
     UserWorkspaceSummary,
     WorkspaceMember,
+    WorkspaceNonMember,
     WorkspaceRowDto,
     WorkspaceStats,
 } from '@shared/validations'
-import { and, eq, gte, isNull, or, sql } from 'drizzle-orm'
+import { and, eq, gte, ilike, isNull, or, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -330,6 +337,119 @@ export class WorkspaceService {
                 eq(schema.WorkspaceSchema.id, schema.ProjectSchema.workspaceId),
             )
             .where(eq(schema.ProjectSchema.workspaceId, workspaceId))
+    }
+
+    async getWorkspaceByIdOrFail(workspaceId: string) {
+        const [workspace] = await this.db
+            .select()
+            .from(schema.WorkspaceSchema)
+            .where(eq(schema.WorkspaceSchema.id, workspaceId))
+            .limit(1)
+
+        if (!workspace) throw new NotFoundException('Workspace not found')
+
+        return workspace
+    }
+
+    async searchNonMembers(workspaceId: string, query: string): Promise<WorkspaceNonMember[]> {
+        const q = `%${query}%`
+        const workspace = await this.getWorkspaceByIdOrFail(workspaceId)
+
+        return this.db
+            .select({
+                id: schema.UserSchema.id,
+                fullname: schema.UserSchema.fullname,
+                username: schema.UserSchema.username,
+                email: schema.UserSchema.email,
+                avatarUrl: schema.UserSchema.avatarUrl,
+            })
+            .from(schema.UserSchema)
+            .innerJoin(
+                schema.CompanyMemberSchema,
+                and(
+                    eq(schema.CompanyMemberSchema.userId, schema.UserSchema.id),
+                    eq(schema.CompanyMemberSchema.companyId, workspace.companyId),
+                ),
+            )
+            .leftJoin(
+                schema.UserWorkspacePermissionSchema,
+                and(
+                    eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                ),
+            )
+            .where(
+                and(
+                    isNull(schema.UserWorkspacePermissionSchema.userId),
+                    or(
+                        ilike(schema.UserSchema.fullname, q),
+                        ilike(schema.UserSchema.username, q),
+                        ilike(schema.UserSchema.email, q),
+                    ),
+                ),
+            )
+    }
+
+    async addMembers(
+        workspaceId: string,
+        members: { userId: string; permissionId: number }[],
+    ): Promise<WorkspaceMember[]> {
+        return Promise.all(
+            members.map(async ({ userId, permissionId }) => {
+                const [existing] = await this.db
+                    .select()
+                    .from(schema.UserWorkspacePermissionSchema)
+                    .where(
+                        and(
+                            eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                            eq(schema.UserWorkspacePermissionSchema.userId, userId),
+                        ),
+                    )
+                    .limit(1)
+
+                if (existing)
+                    throw new ConflictException(
+                        `User ${userId} already has a workspace permission`,
+                    )
+
+                await this.db
+                    .insert(schema.UserWorkspacePermissionSchema)
+                    .values({ workspaceId, userId, permissionId })
+
+                const [result] = await this.db
+                    .select({
+                        id: schema.UserSchema.id,
+                        fullname: schema.UserSchema.fullname,
+                        username: schema.UserSchema.username,
+                        email: schema.UserSchema.email,
+                        avatarUrl: schema.UserSchema.avatarUrl,
+                        workspacePermissionId: schema.PermissionSchema.id,
+                        workspacePermissionName: schema.PermissionSchema.name,
+                    })
+                    .from(schema.UserSchema)
+                    .innerJoin(
+                        schema.UserWorkspacePermissionSchema,
+                        and(
+                            eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
+                            eq(
+                                schema.UserWorkspacePermissionSchema.workspaceId,
+                                workspaceId,
+                            ),
+                        ),
+                    )
+                    .innerJoin(
+                        schema.PermissionSchema,
+                        eq(
+                            schema.PermissionSchema.id,
+                            schema.UserWorkspacePermissionSchema.permissionId,
+                        ),
+                    )
+                    .where(eq(schema.UserSchema.id, userId))
+                    .limit(1)
+
+                return { ...result, companyPermissionId: null, companyPermissionName: null }
+            }),
+        )
     }
 
     async doesUserHaveSufficientWorkspacePermissionOrFail(

@@ -48,6 +48,11 @@ export type WorkspaceMember = WorkspaceNonMember & {
     companyPermissionId: number | null
 }
 
+export const AddWorkspaceMemberSchema = z.object({
+    nonMembers: z.array(z.object({ userId: z.uuid(), permissionId: z.number().int() })).min(1),
+})
+export type AddWorkspaceMemberDto = z.infer<typeof AddWorkspaceMemberSchema>
+
 export type WorkspaceStats = { memberCount: number; projectCount: number }
 export type WorkspaceDetails = {
     workspace: WorkspaceRowDto
