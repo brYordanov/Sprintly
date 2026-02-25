@@ -58,7 +58,21 @@ export function useCreateProject(
             if (!workspaceName || !workspaceSlug) return
             queryClient.setQueryData<WorkspaceDetails>(
                 [WORKSPACE_DETAILS, workspaceSlug],
-                old => old && { ...old },
+                old =>
+                    old && {
+                        ...old,
+                        workspaceProjects: [
+                            ...old.workspaceProjects,
+                            {
+                                id: newProject.id,
+                                name: newProject.name,
+                                slug: newProject.slug,
+                                companySlug,
+                                workspaceSlug,
+                                workspaceName,
+                            },
+                        ],
+                    },
             )
         },
         onError: err => {
