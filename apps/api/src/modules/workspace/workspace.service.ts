@@ -473,6 +473,40 @@ export class WorkspaceService {
         )
     }
 
+    async removeMember(
+        requestingUserId: string,
+        workspaceId: string,
+        targetUserId: string,
+    ): Promise<void> {
+        await this.doesUserHaveSufficientWorkspacePermissionOrFail(
+            workspaceId,
+            requestingUserId,
+            PERMISSION.admin.level,
+        )
+
+        const [existing] = await this.db
+            .select()
+            .from(schema.UserWorkspacePermissionSchema)
+            .where(
+                and(
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                    eq(schema.UserWorkspacePermissionSchema.userId, targetUserId),
+                ),
+            )
+            .limit(1)
+
+        if (!existing) throw new NotFoundException('User does not have a workspace-level permission')
+
+        await this.db
+            .delete(schema.UserWorkspacePermissionSchema)
+            .where(
+                and(
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                    eq(schema.UserWorkspacePermissionSchema.userId, targetUserId),
+                ),
+            )
+    }
+
     async doesUserHaveSufficientWorkspacePermissionOrFail(
         workspaceId: string,
         userId: string,

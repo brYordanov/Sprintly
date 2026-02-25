@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import {
     AddWorkspaceMemberSchema,
     CreateWorkspaceSchema,
@@ -73,5 +73,15 @@ export class WorkspaceController {
         @Param('workspaceId') workspaceId: string,
     ): Promise<WorkspaceMember[]> {
         return this.service.addMembers(workspaceId, dto.nonMembers)
+    }
+
+    @Delete(':workspaceId/user/:userId')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async removeMember(
+        @User() user: AuthUser,
+        @Param('workspaceId') workspaceId: string,
+        @Param('userId') userId: string,
+    ): Promise<void> {
+        return this.service.removeMember(user.id, workspaceId, userId)
     }
 }
