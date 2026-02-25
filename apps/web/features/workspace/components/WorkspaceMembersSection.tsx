@@ -1,14 +1,12 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { getInitials } from '@/helpers'
 import { WorkspaceMember } from '@shared/validations'
 import { UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { InviteWorkspaceMemberDialog } from './InviteWorkspaceMemberDialog'
+import { WorkspaceMemberRow } from './WorkspaceMemberRow'
 
 interface WorkspaceMembersSectionProps {
     members: WorkspaceMember[]
@@ -54,7 +52,12 @@ export function WorkspaceMembersSection({
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {members.map(member => (
-                                    <WorkspaceMemberRow key={member.id} member={member} />
+                                    <WorkspaceMemberRow
+                                        key={member.id}
+                                        member={member}
+                                        workspaceId={workspaceId}
+                                        workspaceSlug={workspaceSlug}
+                                    />
                                 ))}
                             </tbody>
                         </table>
@@ -68,43 +71,5 @@ export function WorkspaceMembersSection({
                 workspaceSlug={workspaceSlug}
             />
         </>
-    )
-}
-
-function WorkspaceMemberRow({ member }: { member: WorkspaceMember }) {
-    const effectivePermission = member.workspacePermissionName ?? member.companyPermissionName
-    const isInherited = !member.workspacePermissionName && !!member.companyPermissionName
-
-    return (
-        <tr>
-            <td className="py-3 pr-4">
-                <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 shrink-0">
-                        {member.avatarUrl && (
-                            <AvatarImage src={member.avatarUrl} alt={member.fullname ?? 'avatar'} />
-                        )}
-                        <AvatarFallback className="text-xs">
-                            {getInitials(member.fullname)}
-                        </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium">{member.fullname}</span>
-                </div>
-            </td>
-            <td className="py-3 pr-4">
-                <span className="text-sm text-muted-foreground">{member.email}</span>
-            </td>
-            <td className="py-3 pr-4">
-                <div className="flex items-center gap-2">
-                    {effectivePermission && (
-                        <span className="text-sm capitalize">{effectivePermission}</span>
-                    )}
-                    {isInherited && (
-                        <Badge variant="outline" className="text-xs">
-                            Inherited
-                        </Badge>
-                    )}
-                </div>
-            </td>
-        </tr>
     )
 }
