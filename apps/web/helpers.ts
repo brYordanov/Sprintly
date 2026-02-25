@@ -1,6 +1,6 @@
 import { ProjectNavigationSummary } from '@shared/validations'
 
-export const getInitials = (name?: string) => {
+export const getInitials = (name?: string | null) => {
     if (!name) return 'U'
     return name
         .split(' ')

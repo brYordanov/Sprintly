@@ -48,8 +48,7 @@ export function WorkspaceMembersSection({ members }: WorkspaceMembersSectionProp
 }
 
 function WorkspaceMemberRow({ member }: { member: WorkspaceMember }) {
-    const effectivePermission =
-        member.workspacePermissionName ?? member.companyPermissionName
+    const effectivePermission = member.workspacePermissionName ?? member.companyPermissionName
     const isInherited = !member.workspacePermissionName && !!member.companyPermissionName
 
     return (
@@ -58,7 +57,7 @@ function WorkspaceMemberRow({ member }: { member: WorkspaceMember }) {
                 <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8 shrink-0">
                         {member.avatarUrl && (
-                            <AvatarImage src={member.avatarUrl} alt={member.fullname} />
+                            <AvatarImage src={member.avatarUrl} alt={member.fullname ?? 'avatar'} />
                         )}
                         <AvatarFallback className="text-xs">
                             {getInitials(member.fullname)}
