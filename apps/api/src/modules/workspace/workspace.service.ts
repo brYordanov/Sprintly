@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common'
 import {
     CreateWorkspaceDto,
+    EditWorkspaceDto,
     PERMISSION,
     ProjectNavigationSummary,
     UserWorkspaceNavigationSummary,
@@ -349,6 +350,26 @@ export class WorkspaceService {
         if (!workspace) throw new NotFoundException('Workspace not found')
 
         return workspace
+    }
+
+    async editWorkspace(
+        userId: string,
+        workspaceId: string,
+        dto: EditWorkspaceDto,
+    ): Promise<WorkspaceRowDto> {
+        await this.doesUserHaveSufficientWorkspacePermissionOrFail(
+            workspaceId,
+            userId,
+            PERMISSION.admin.level,
+        )
+
+        const [updated] = await this.db
+            .update(schema.WorkspaceSchema)
+            .set({ ...dto })
+            .where(eq(schema.WorkspaceSchema.id, workspaceId))
+            .returning()
+
+        return updated
     }
 
     async searchNonMembers(workspaceId: string, query: string): Promise<WorkspaceNonMember[]> {

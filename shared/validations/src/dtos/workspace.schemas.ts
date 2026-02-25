@@ -48,6 +48,22 @@ export type WorkspaceMember = WorkspaceNonMember & {
     companyPermissionId: number | null
 }
 
+export const EditWorkspaceSchema = z.object({
+    name: z
+        .string()
+        .min(1, 'Name cannot be empty')
+        .max(100, 'Name must be 100 characters or less')
+        .optional(),
+    slug: z
+        .string()
+        .min(1, 'Slug cannot be empty')
+        .max(100, 'Slug must be 100 characters or less')
+        .regex(/^[a-z0-9-]+$/, 'Slug must only contain lowercase letters, numbers, and hyphens')
+        .optional(),
+    description: z.string().nullable().optional(),
+})
+export type EditWorkspaceDto = z.infer<typeof EditWorkspaceSchema>
+
 export const AddWorkspaceMemberSchema = z.object({
     nonMembers: z.array(z.object({ userId: z.uuid(), permissionId: z.number().int() })).min(1),
 })

@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import {
     AddWorkspaceMemberSchema,
     CreateWorkspaceSchema,
+    EditWorkspaceSchema,
     UserWorkspaceNavigationSummary,
     UserWorkspaceSummary,
     WorkspaceMember,
@@ -9,6 +10,7 @@ import {
     WorkspaceRowDto,
     type AddWorkspaceMemberDto,
     type CreateWorkspaceDto,
+    type EditWorkspaceDto,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { User } from '../auth/decorators/user.decorator'
@@ -54,6 +56,15 @@ export class WorkspaceController {
         @Query('q') query: string,
     ): Promise<WorkspaceNonMember[]> {
         return this.service.searchNonMembers(workspaceId, query)
+    }
+
+    @Patch(':workspaceId')
+    async editWorkspace(
+        @Body(new ZodValidationPipe(EditWorkspaceSchema)) dto: EditWorkspaceDto,
+        @User() user: AuthUser,
+        @Param('workspaceId') workspaceId: string,
+    ): Promise<WorkspaceRowDto> {
+        return this.service.editWorkspace(user.id, workspaceId, dto)
     }
 
     @Post(':workspaceId/add-member')
