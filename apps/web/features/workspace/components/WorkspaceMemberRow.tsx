@@ -36,30 +36,22 @@ export function WorkspaceMemberRow({
     workspaceId,
     workspaceSlug,
 }: WorkspaceMemberRowProps) {
-    // caching error
-    // play with permissions
     const previousPermissionRef = useRef<PossiblePermissionName | null>(null)
-    const [effectivePermission, setEffectivePermission] = useState<PossiblePermissionName | null>(
-        () => {
-            console.log('+++++ Inside setter ++++++++')
-            console.log(member.email)
-            if (!!member.companyPermissionName && !!member.workspacePermissionName) {
-                const permission =
-                    PERMISSION[member.companyPermissionName].level >
-                    PERMISSION[member.workspacePermissionName].level
-                        ? member.companyPermissionName
-                        : member.workspacePermissionName
+    const [optimisticPermission, setOptimisticPermission] = useState<PossiblePermissionName | null>(null)
 
-                console.log(permission)
-                console.log('-------- Inside setter ------')
+    const derivedPermission = (() => {
+        if (member.companyPermissionName && member.workspacePermissionName) {
+            return PERMISSION[member.companyPermissionName].level >
+                PERMISSION[member.workspacePermissionName].level
+                ? member.companyPermissionName
+                : member.workspacePermissionName
+        } else if (member.companyPermissionName) {
+            return member.companyPermissionName
+        }
+        return member.workspacePermissionName
+    })()
 
-                return permission
-            } else if (!!member.companyPermissionName && !member.workspacePermissionName)
-                return member.companyPermissionName
-
-            return member.workspacePermissionName
-        },
-    )
+    const effectivePermission = optimisticPermission ?? derivedPermission
 
     const { mutate: changePermission } = useChangeWorkspacePermission(
         workspaceId,
@@ -76,8 +68,6 @@ export function WorkspaceMemberRow({
         : 0
 
     const isCompanyOwnerOrAdmin = companyPermLevel >= PERMISSION.admin.level
-    console.log(' ++++++++ inherit ++++++++')
-    console.log(member.email)
 
     const isInherited =
         (!member.workspacePermissionName && !!member.companyPermissionName) ||
@@ -86,24 +76,19 @@ export function WorkspaceMemberRow({
             PERMISSION[member.companyPermissionName].level >
                 PERMISSION[member.workspacePermissionName].level)
 
-    console.log(member.companyPermissionName)
-
-    console.log(member.workspacePermissionName)
-
-    console.log('----- inherit ------')
-
     const availablePermissions = Object.entries(PERMISSION).filter(
         ([, perm]) => perm.level >= companyPermLevel,
     )
 
     const onPermissionChange = (newPermission: PossiblePermissionName) => {
-        previousPermissionRef.current = effectivePermission
-        setEffectivePermission(newPermission)
+        previousPermissionRef.current = derivedPermission
+        setOptimisticPermission(newPermission)
         changePermission(
             { permissionId: PERMISSION[newPermission].id },
             {
+                onSuccess: () => setOptimisticPermission(null),
                 onError: () => {
-                    setEffectivePermission(previousPermissionRef.current)
+                    setOptimisticPermission(previousPermissionRef.current)
                     toast.error('Failed to update permission')
                 },
             },
