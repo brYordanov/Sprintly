@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { WorkspaceMember } from '@shared/validations'
-import { UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { InviteWorkspaceMemberDialog } from './InviteWorkspaceMemberDialog'
 import { WorkspaceMemberRow } from './WorkspaceMemberRow'
@@ -29,9 +28,11 @@ export function WorkspaceMembersSection({
                         <CardTitle className="text-base">Members</CardTitle>
                         <CardDescription>People with access to this workspace</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
-                        <UserPlus className="h-4 w-4 mr-1" />
-                        Add Member
+                    <Button
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => setIsDialogOpen(true)}
+                    >
+                        + Add Member
                     </Button>
                 </CardHeader>
                 <CardContent>

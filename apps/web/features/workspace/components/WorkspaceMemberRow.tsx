@@ -11,8 +11,18 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import { getInitials } from '@/helpers'
-import { WorkspaceMember } from '@shared/validations'
+import { PERMISSION, PossiblePermissionName, WorkspaceMember } from '@shared/validations'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { useChangeWorkspacePermission } from '../api/useChangeWorkspacePermission'
 import { useRemoveWorkspaceMember } from '../api/useRemoveWorkspaceMember'
 
 interface WorkspaceMemberRowProps {
@@ -26,12 +36,79 @@ export function WorkspaceMemberRow({
     workspaceId,
     workspaceSlug,
 }: WorkspaceMemberRowProps) {
-    const effectivePermission = member.workspacePermissionName ?? member.companyPermissionName
-    const isInherited = !member.workspacePermissionName && !!member.companyPermissionName
+    // caching error
+    // play with permissions
+    const previousPermissionRef = useRef<PossiblePermissionName | null>(null)
+    const [effectivePermission, setEffectivePermission] = useState<PossiblePermissionName | null>(
+        () => {
+            console.log('+++++ Inside setter ++++++++')
+            console.log(member.email)
+            if (!!member.companyPermissionName && !!member.workspacePermissionName) {
+                const permission =
+                    PERMISSION[member.companyPermissionName].level >
+                    PERMISSION[member.workspacePermissionName].level
+                        ? member.companyPermissionName
+                        : member.workspacePermissionName
+
+                console.log(permission)
+                console.log('-------- Inside setter ------')
+
+                return permission
+            } else if (!!member.companyPermissionName && !member.workspacePermissionName)
+                return member.companyPermissionName
+
+            return member.workspacePermissionName
+        },
+    )
+
+    const { mutate: changePermission } = useChangeWorkspacePermission(
+        workspaceId,
+        member.id,
+        workspaceSlug,
+    )
     const { mutate: removeMember, isPending: isRemoving } = useRemoveWorkspaceMember(
         workspaceId,
         workspaceSlug,
     )
+
+    const companyPermLevel = member.companyPermissionId
+        ? (Object.values(PERMISSION).find(p => p.id === member.companyPermissionId)?.level ?? 0)
+        : 0
+
+    const isCompanyOwnerOrAdmin = companyPermLevel >= PERMISSION.admin.level
+    console.log(' ++++++++ inherit ++++++++')
+    console.log(member.email)
+
+    const isInherited =
+        (!member.workspacePermissionName && !!member.companyPermissionName) ||
+        (!!member.companyPermissionName &&
+            !!member.workspacePermissionName &&
+            PERMISSION[member.companyPermissionName].level >
+                PERMISSION[member.workspacePermissionName].level)
+
+    console.log(member.companyPermissionName)
+
+    console.log(member.workspacePermissionName)
+
+    console.log('----- inherit ------')
+
+    const availablePermissions = Object.entries(PERMISSION).filter(
+        ([, perm]) => perm.level >= companyPermLevel,
+    )
+
+    const onPermissionChange = (newPermission: PossiblePermissionName) => {
+        previousPermissionRef.current = effectivePermission
+        setEffectivePermission(newPermission)
+        changePermission(
+            { permissionId: PERMISSION[newPermission].id },
+            {
+                onError: () => {
+                    setEffectivePermission(previousPermissionRef.current)
+                    toast.error('Failed to update permission')
+                },
+            },
+        )
+    }
 
     return (
         <tr>
@@ -53,9 +130,22 @@ export function WorkspaceMemberRow({
             </td>
             <td className="py-3 pr-4">
                 <div className="flex items-center gap-2">
-                    {effectivePermission && (
-                        <span className="text-sm capitalize">{effectivePermission}</span>
-                    )}
+                    <Select
+                        value={effectivePermission ?? ''}
+                        disabled={isCompanyOwnerOrAdmin}
+                        onValueChange={onPermissionChange}
+                    >
+                        <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
+                            <SelectValue placeholder=""></SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availablePermissions.map(([name]) => (
+                                <SelectItem key={name} value={name} className="text-sm">
+                                    {name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                     {isInherited && (
                         <Badge variant="outline" className="text-xs">
                             Inherited

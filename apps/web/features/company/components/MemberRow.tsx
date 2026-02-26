@@ -18,7 +18,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { getInitials } from '@/helpers'
-import { CompanyMember, PERMISSION, PermissionName } from '@shared/validations'
+import { CompanyMember, PERMISSION, PossiblePermissionName } from '@shared/validations'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useChangePermission } from '../api/useChangePermission'
@@ -42,7 +42,7 @@ export function MemberRow({
         companySlug,
     )
 
-    const onPermissionChange = (newPermission: PermissionName) => {
+    const onPermissionChange = (newPermission: PossiblePermissionName) => {
         previousPermissionRef.current = currentPermission
         setCurrentPermission(newPermission)
         changePermission(

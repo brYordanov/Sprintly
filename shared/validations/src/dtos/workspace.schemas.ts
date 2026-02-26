@@ -1,5 +1,6 @@
 import z from 'zod'
 import { CompanyRowSchema } from './company.schemas'
+import { PossiblePermissionName } from './permission.schemas'
 import { ProjectNavigationSummary } from './project.schemas'
 import { UserPublicDto } from './user.schemas'
 
@@ -42,9 +43,9 @@ export type WorkspaceNonMember = Pick<
     'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
 >
 export type WorkspaceMember = WorkspaceNonMember & {
-    workspacePermissionName: string | null
+    workspacePermissionName: PossiblePermissionName | null
     workspacePermissionId: number | null
-    companyPermissionName: string | null
+    companyPermissionName: PossiblePermissionName | null
     companyPermissionId: number | null
 }
 

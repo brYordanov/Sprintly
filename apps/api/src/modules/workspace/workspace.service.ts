@@ -17,7 +17,7 @@ import {
     WorkspaceRowDto,
     WorkspaceStats,
 } from '@shared/validations'
-import { and, eq, gte, ilike, isNull, or, sql } from 'drizzle-orm'
+import { and, eq, gt, gte, ilike, isNull, lt, or, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -234,7 +234,7 @@ export class WorkspaceService {
         const companyPermission = alias(schema.PermissionSchema, 'company_permission')
 
         // users with explicit workspace permission, also fetch their company permission
-        const groupA = await this.db
+        const groupA = (await this.db
             .select({
                 id: schema.UserSchema.id,
                 fullname: schema.UserSchema.fullname,
@@ -270,10 +270,12 @@ export class WorkspaceService {
                 companyPermission,
                 eq(companyPermission.id, schema.UserCompanyPermissionSchema.permissionId),
             )
-            .where(eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId))
+            .where(
+                eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+            )) as WorkspaceMember[]
 
         // users with company permission but NO workspace permission
-        const groupB = await this.db
+        const groupB = (await this.db
             .select({
                 id: schema.UserSchema.id,
                 fullname: schema.UserSchema.fullname,
@@ -312,8 +314,9 @@ export class WorkspaceService {
                 and(
                     eq(schema.WorkspaceSchema.id, workspaceId),
                     isNull(schema.UserWorkspacePermissionSchema.userId),
+                    gt(companyPermission.level, PERMISSION.guest.level),
                 ),
-            )
+            )) as WorkspaceMember[]
 
         return [...groupA, ...groupB]
     }
@@ -375,6 +378,7 @@ export class WorkspaceService {
     async searchNonMembers(workspaceId: string, query: string): Promise<WorkspaceNonMember[]> {
         const q = `%${query}%`
         const workspace = await this.getWorkspaceByIdOrFail(workspaceId)
+        const companyPermission = alias(schema.PermissionSchema, 'company_permission')
 
         return this.db
             .select({
@@ -399,6 +403,17 @@ export class WorkspaceService {
                     eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
                 ),
             )
+            .leftJoin(
+                schema.UserCompanyPermissionSchema,
+                and(
+                    eq(schema.UserCompanyPermissionSchema.userId, schema.UserSchema.id),
+                    eq(schema.UserCompanyPermissionSchema.companyId, workspace.companyId),
+                ),
+            )
+            .leftJoin(
+                companyPermission,
+                eq(companyPermission.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
             .where(
                 and(
                     isNull(schema.UserWorkspacePermissionSchema.userId),
@@ -406,6 +421,10 @@ export class WorkspaceService {
                         ilike(schema.UserSchema.fullname, q),
                         ilike(schema.UserSchema.username, q),
                         ilike(schema.UserSchema.email, q),
+                    ),
+                    or(
+                        isNull(schema.UserCompanyPermissionSchema.userId),
+                        lt(companyPermission.level, PERMISSION.admin.level),
                     ),
                 ),
             )
@@ -429,9 +448,7 @@ export class WorkspaceService {
                     .limit(1)
 
                 if (existing)
-                    throw new ConflictException(
-                        `User ${userId} already has a workspace permission`,
-                    )
+                    throw new ConflictException(`User ${userId} already has a workspace permission`)
 
                 await this.db
                     .insert(schema.UserWorkspacePermissionSchema)
@@ -452,10 +469,7 @@ export class WorkspaceService {
                         schema.UserWorkspacePermissionSchema,
                         and(
                             eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
-                            eq(
-                                schema.UserWorkspacePermissionSchema.workspaceId,
-                                workspaceId,
-                            ),
+                            eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
                         ),
                     )
                     .innerJoin(
@@ -468,9 +482,100 @@ export class WorkspaceService {
                     .where(eq(schema.UserSchema.id, userId))
                     .limit(1)
 
-                return { ...result, companyPermissionId: null, companyPermissionName: null }
+                return {
+                    ...result,
+                    companyPermissionId: null,
+                    companyPermissionName: null,
+                } as WorkspaceMember
             }),
         )
+    }
+
+    async changeWorkspaceMemberPermission(
+        requestingUserId: string,
+        workspaceId: string,
+        targetUserId: string,
+        permissionId: number,
+    ): Promise<WorkspaceMember> {
+        await this.doesUserHaveSufficientWorkspacePermissionOrFail(
+            workspaceId,
+            requestingUserId,
+            PERMISSION.admin.level,
+        )
+
+        const [existing] = await this.db
+            .select()
+            .from(schema.UserWorkspacePermissionSchema)
+            .where(
+                and(
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                    eq(schema.UserWorkspacePermissionSchema.userId, targetUserId),
+                ),
+            )
+            .limit(1)
+
+        if (existing) {
+            await this.db
+                .update(schema.UserWorkspacePermissionSchema)
+                .set({ permissionId })
+                .where(
+                    and(
+                        eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                        eq(schema.UserWorkspacePermissionSchema.userId, targetUserId),
+                    ),
+                )
+        } else {
+            await this.db
+                .insert(schema.UserWorkspacePermissionSchema)
+                .values({ workspaceId, userId: targetUserId, permissionId })
+        }
+
+        const workspacePermission = alias(schema.PermissionSchema, 'workspace_permission')
+        const companyPermission = alias(schema.PermissionSchema, 'company_permission')
+
+        const [result] = await this.db
+            .select({
+                id: schema.UserSchema.id,
+                fullname: schema.UserSchema.fullname,
+                username: schema.UserSchema.username,
+                email: schema.UserSchema.email,
+                avatarUrl: schema.UserSchema.avatarUrl,
+                workspacePermissionId: workspacePermission.id,
+                workspacePermissionName: workspacePermission.name,
+                companyPermissionId: companyPermission.id,
+                companyPermissionName: companyPermission.name,
+            })
+            .from(schema.UserSchema)
+            .innerJoin(
+                schema.UserWorkspacePermissionSchema,
+                and(
+                    eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                ),
+            )
+            .innerJoin(
+                workspacePermission,
+                eq(workspacePermission.id, schema.UserWorkspacePermissionSchema.permissionId),
+            )
+            .leftJoin(schema.WorkspaceSchema, eq(schema.WorkspaceSchema.id, workspaceId))
+            .leftJoin(
+                schema.UserCompanyPermissionSchema,
+                and(
+                    eq(
+                        schema.UserCompanyPermissionSchema.companyId,
+                        schema.WorkspaceSchema.companyId,
+                    ),
+                    eq(schema.UserCompanyPermissionSchema.userId, schema.UserSchema.id),
+                ),
+            )
+            .leftJoin(
+                companyPermission,
+                eq(companyPermission.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
+            .where(eq(schema.UserSchema.id, targetUserId))
+            .limit(1)
+
+        return result as WorkspaceMember
     }
 
     async removeMember(
@@ -495,7 +600,8 @@ export class WorkspaceService {
             )
             .limit(1)
 
-        if (!existing) throw new NotFoundException('User does not have a workspace-level permission')
+        if (!existing)
+            throw new NotFoundException('User does not have a workspace-level permission')
 
         await this.db
             .delete(schema.UserWorkspacePermissionSchema)

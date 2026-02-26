@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import {
     AddWorkspaceMemberSchema,
+    ChangePermissionSchema,
+    type ChangePermissionDto,
     CreateWorkspaceSchema,
     EditWorkspaceSchema,
     UserWorkspaceNavigationSummary,
@@ -73,6 +75,16 @@ export class WorkspaceController {
         @Param('workspaceId') workspaceId: string,
     ): Promise<WorkspaceMember[]> {
         return this.service.addMembers(workspaceId, dto.nonMembers)
+    }
+
+    @Patch(':workspaceId/user/:userId')
+    async changeMemberPermission(
+        @Body(new ZodValidationPipe(ChangePermissionSchema)) dto: ChangePermissionDto,
+        @User() user: AuthUser,
+        @Param('workspaceId') workspaceId: string,
+        @Param('userId') userId: string,
+    ): Promise<WorkspaceMember> {
+        return this.service.changeWorkspaceMemberPermission(user.id, workspaceId, userId, dto.permissionId)
     }
 
     @Delete(':workspaceId/user/:userId')
