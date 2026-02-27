@@ -20,10 +20,10 @@ import {
 } from '@/components/ui/select'
 import { getInitials } from '@/helpers'
 import { PERMISSION, PossiblePermissionName, WorkspaceMember } from '@shared/validations'
-import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useChangeWorkspacePermission } from '../api/useChangeWorkspacePermission'
 import { useRemoveWorkspaceMember } from '../api/useRemoveWorkspaceMember'
+import { useManageWorkspacePermission } from '../hooks/useManageWorkspacePermission'
 
 interface WorkspaceMemberRowProps {
     member: WorkspaceMember
@@ -36,22 +36,15 @@ export function WorkspaceMemberRow({
     workspaceId,
     workspaceSlug,
 }: WorkspaceMemberRowProps) {
-    const previousPermissionRef = useRef<PossiblePermissionName | null>(null)
-    const [optimisticPermission, setOptimisticPermission] = useState<PossiblePermissionName | null>(null)
-
-    const derivedPermission = (() => {
-        if (member.companyPermissionName && member.workspacePermissionName) {
-            return PERMISSION[member.companyPermissionName].level >
-                PERMISSION[member.workspacePermissionName].level
-                ? member.companyPermissionName
-                : member.workspacePermissionName
-        } else if (member.companyPermissionName) {
-            return member.companyPermissionName
-        }
-        return member.workspacePermissionName
-    })()
-
-    const effectivePermission = optimisticPermission ?? derivedPermission
+    const {
+        effectivePermission,
+        isCompanyOwnerOrAdmin,
+        isInherited,
+        availablePermissions,
+        onPermissionChange,
+        onInvalidChange,
+        onValidChange,
+    } = useManageWorkspacePermission(member)
 
     const { mutate: changePermission } = useChangeWorkspacePermission(
         workspaceId,
@@ -63,32 +56,14 @@ export function WorkspaceMemberRow({
         workspaceSlug,
     )
 
-    const companyPermLevel = member.companyPermissionId
-        ? (Object.values(PERMISSION).find(p => p.id === member.companyPermissionId)?.level ?? 0)
-        : 0
-
-    const isCompanyOwnerOrAdmin = companyPermLevel >= PERMISSION.admin.level
-
-    const isInherited =
-        (!member.workspacePermissionName && !!member.companyPermissionName) ||
-        (!!member.companyPermissionName &&
-            !!member.workspacePermissionName &&
-            PERMISSION[member.companyPermissionName].level >
-                PERMISSION[member.workspacePermissionName].level)
-
-    const availablePermissions = Object.entries(PERMISSION).filter(
-        ([, perm]) => perm.level >= companyPermLevel,
-    )
-
-    const onPermissionChange = (newPermission: PossiblePermissionName) => {
-        previousPermissionRef.current = derivedPermission
-        setOptimisticPermission(newPermission)
+    function handlePermissionChange(newPermission: PossiblePermissionName) {
+        onPermissionChange(newPermission)
         changePermission(
             { permissionId: PERMISSION[newPermission].id },
             {
-                onSuccess: () => setOptimisticPermission(null),
+                onSuccess: () => onValidChange(),
                 onError: () => {
-                    setOptimisticPermission(previousPermissionRef.current)
+                    onInvalidChange()
                     toast.error('Failed to update permission')
                 },
             },
@@ -118,7 +93,7 @@ export function WorkspaceMemberRow({
                     <Select
                         value={effectivePermission ?? ''}
                         disabled={isCompanyOwnerOrAdmin}
-                        onValueChange={onPermissionChange}
+                        onValueChange={handlePermissionChange}
                     >
                         <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
                             <SelectValue placeholder=""></SelectValue>
