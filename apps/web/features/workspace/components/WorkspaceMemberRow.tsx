@@ -42,8 +42,8 @@ export function WorkspaceMemberRow({
         isInherited,
         availablePermissions,
         onPermissionChange,
-        onInvalidChange,
-        onValidChange,
+        onPermissionChangeError,
+        onPermissionChangeSuccess,
     } = useManageWorkspacePermission(member)
 
     const { mutate: changePermission } = useChangeWorkspacePermission(
@@ -61,9 +61,9 @@ export function WorkspaceMemberRow({
         changePermission(
             { permissionId: PERMISSION[newPermission].id },
             {
-                onSuccess: () => onValidChange(),
+                onSuccess: () => onPermissionChangeSuccess(),
                 onError: () => {
-                    onInvalidChange()
+                    onPermissionChangeError()
                     toast.error('Failed to update permission')
                 },
             },

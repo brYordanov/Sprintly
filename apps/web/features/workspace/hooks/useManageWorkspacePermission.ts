@@ -21,8 +21,8 @@ export function useManageWorkspacePermission(member: WorkspaceMember) {
 
     const effectivePermission = optimisticPermission ?? derivedPermission
 
-    const companyPermLevel = member.companyPermissionId
-        ? (Object.values(PERMISSION).find(p => p.id === member.companyPermissionId)?.level ?? 0)
+    const companyPermLevel = member.companyPermissionName
+        ? PERMISSION[member.companyPermissionName].level
         : 0
     const isCompanyOwnerOrAdmin = companyPermLevel >= PERMISSION.admin.level
 
@@ -42,11 +42,11 @@ export function useManageWorkspacePermission(member: WorkspaceMember) {
         setOptimisticPermission(newPermission)
     }
 
-    const onInvalidChange = () => {
+    const onPermissionChangeError = () => {
         setOptimisticPermission(previousPermissionRef.current)
     }
 
-    const onValidChange = () => {
+    const onPermissionChangeSuccess = () => {
         setOptimisticPermission(null)
     }
 
@@ -56,7 +56,7 @@ export function useManageWorkspacePermission(member: WorkspaceMember) {
         isInherited,
         availablePermissions,
         onPermissionChange,
-        onInvalidChange,
-        onValidChange,
+        onPermissionChangeError,
+        onPermissionChangeSuccess,
     }
 }
