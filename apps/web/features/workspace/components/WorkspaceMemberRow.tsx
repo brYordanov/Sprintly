@@ -1,14 +1,4 @@
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+import { RemoveMemberDialog } from '@/components/dialogs/RemoveMemberDialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -115,35 +105,12 @@ export function WorkspaceMemberRow({
             </td>
             {!isInherited && (
                 <td className="py-3 text-right">
-                    <AlertDialog>
-                        <AlertDialogTrigger
-                            disabled={isRemoving}
-                            className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Remove
-                        </AlertDialogTrigger>
-                        <AlertDialogContent size="sm">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Remove member</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Are you sure you want to remove{' '}
-                                    <span className="font-medium text-foreground">
-                                        {member.fullname}
-                                    </span>{' '}
-                                    from this workspace?
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                    variant="destructive"
-                                    onClick={() => removeMember(member.id)}
-                                >
-                                    Remove
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <RemoveMemberDialog
+                        memberName={member.fullname}
+                        context="workspace"
+                        isRemoving={isRemoving}
+                        onConfirm={() => removeMember(member.id)}
+                    />
                 </td>
             )}
         </tr>
