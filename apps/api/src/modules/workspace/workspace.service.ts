@@ -15,7 +15,6 @@ import {
     WorkspaceMember,
     WorkspaceNonMember,
     WorkspaceRowDto,
-    WorkspaceStats,
 } from '@shared/validations'
 import { and, eq, gt, gte, ilike, isNull, lt, or, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
@@ -184,49 +183,12 @@ export class WorkspaceService {
             PERMISSION.maintainer.level,
         )
 
-        const [stats, members, workspaceProjects] = await Promise.all([
-            this.getWorkspaceStats(workspace.id),
+        const [members, workspaceProjects] = await Promise.all([
             this.getWorkspaceMembers(workspace.id),
             this.getWorkspaceProjects(workspace.id),
         ])
 
-        return { workspace, stats, members, workspaceProjects }
-    }
-
-    async getWorkspaceStats(workspaceId: string): Promise<WorkspaceStats> {
-        const workspacePermission = alias(schema.PermissionSchema, 'workspace_perm')
-        const companyPermission = alias(schema.PermissionSchema, 'company_perm')
-
-        const [stats] = await this.db
-            .select({
-                memberCount: sql<number>`count(distinct CASE
-                WHEN ${workspacePermission} IS NOT NULL THEN ${schema.UserWorkspacePermissionSchema.userId}
-                WHEN ${companyPermission} IS NOT NULL THEN ${schema.UserCompanyPermissionSchema.userId}
-                ELSE NULL
-            END)`,
-                projectCount: sql<number>`count(distinct ${schema.ProjectSchema.id})`,
-            })
-            .from(schema.WorkspaceSchema)
-            .leftJoin(schema.ProjectSchema, eq(schema.ProjectSchema.workspaceId, workspaceId))
-            .leftJoin(
-                schema.UserWorkspacePermissionSchema,
-                eq(schema.UserWorkspacePermissionSchema.workspaceId, schema.WorkspaceSchema.id),
-            )
-            .leftJoin(
-                workspacePermission,
-                eq(workspacePermission.id, schema.UserWorkspacePermissionSchema.permissionId),
-            )
-            .leftJoin(
-                schema.UserCompanyPermissionSchema,
-                eq(schema.UserCompanyPermissionSchema.companyId, schema.WorkspaceSchema.companyId),
-            )
-            .leftJoin(
-                companyPermission,
-                eq(companyPermission.id, schema.UserCompanyPermissionSchema.permissionId),
-            )
-            .where(eq(schema.WorkspaceSchema.id, workspaceId))
-
-        return stats
+        return { workspace, members, workspaceProjects }
     }
 
     async getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {

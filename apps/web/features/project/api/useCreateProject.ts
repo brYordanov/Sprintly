@@ -48,10 +48,6 @@ export function useCreateProject(
                         workspaces: old.workspaces.map(w =>
                             w.name === workspaceName ? { ...w, projectCount: ++w.projectCount } : w,
                         ),
-                        stats: {
-                            ...old.stats,
-                            projectCount: ++old.stats.projectCount,
-                        },
                     },
             )
 

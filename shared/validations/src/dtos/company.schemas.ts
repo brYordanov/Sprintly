@@ -52,7 +52,6 @@ export type AddMemberDto = z.infer<typeof AddMemberSchema>
 
 export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>
 
-export type CompanyStats = { memberCount: number; workspaceCount: number; projectCount: number }
 export type CompanyNonMember = Pick<
     UserPublicDto,
     'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
@@ -64,7 +63,6 @@ export type CompanyMember = CompanyNonMember & {
 
 export type CompanyDetails = {
     company: CompanyRowDto
-    stats: CompanyStats
     workspaces: WorkspaceSummary[]
     members: CompanyMember[]
     companyProjects: ProjectNavigationSummary[]

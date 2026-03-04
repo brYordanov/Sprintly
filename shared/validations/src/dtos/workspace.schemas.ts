@@ -70,10 +70,8 @@ export const AddWorkspaceMemberSchema = z.object({
 })
 export type AddWorkspaceMemberDto = z.infer<typeof AddWorkspaceMemberSchema>
 
-export type WorkspaceStats = { memberCount: number; projectCount: number }
 export type WorkspaceDetails = {
     workspace: WorkspaceRowDto
-    stats: WorkspaceStats
     members: WorkspaceMember[]
     workspaceProjects: ProjectNavigationSummary[]
 }

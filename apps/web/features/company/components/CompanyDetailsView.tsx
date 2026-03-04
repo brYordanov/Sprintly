@@ -36,9 +36,9 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 slug={data.company.slug}
                 logoUrl={data.company.logoUrl}
                 description={data.company.description}
-                memberCount={data.stats.memberCount}
-                workspaceCount={data.stats.workspaceCount}
-                projectCount={data.stats.projectCount}
+                memberCount={data.members.length}
+                workspaceCount={data.workspaces.length}
+                projectCount={data.companyProjects.length}
             />
             <MembersSection
                 members={data.members}

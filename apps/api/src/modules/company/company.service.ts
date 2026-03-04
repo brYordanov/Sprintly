@@ -10,7 +10,6 @@ import {
     CompanyMember,
     CompanyNonMember,
     CompanyRowDto,
-    CompanyStats,
     CreateCompanyDto,
     EditCompanyDto,
     PERMISSION,
@@ -99,8 +98,7 @@ export class CompanyService {
         const company = await this.getCompanyBySlugOrFail(companySlug)
         await this.doesUserHavePermissionOrFail(company.id, userId, PERMISSION.maintainer.level)
 
-        const [stats, workspaces, members, companyProjects] = await Promise.all([
-            this.getCompanyStats(company.id),
+        const [workspaces, members, companyProjects] = await Promise.all([
             this.getCompanyWorkspaces(company.id),
             this.getCompanyMembers(company.id),
             this.getCompanyProjects(company.id),
@@ -108,7 +106,6 @@ export class CompanyService {
 
         return {
             company,
-            stats,
             workspaces,
             members,
             companyProjects,
@@ -206,31 +203,6 @@ export class CompanyService {
         if (!member) throw new ForbiddenException('Company not found')
         if (member.permissionLevel < permissionLevel)
             throw new ForbiddenException('Not high enough permission')
-    }
-
-    async getCompanyStats(companyId: string): Promise<CompanyStats> {
-        const [stats] = await this.db
-            .select({
-                memberCount: sql<number>`count(distinct ${schema.CompanyMemberSchema.userId})`,
-                workspaceCount: sql<number>`count(distinct ${schema.WorkspaceSchema.id})`,
-                projectCount: sql<number>`count(distinct ${schema.ProjectSchema.id})`,
-            })
-            .from(schema.CompanySchema)
-            .leftJoin(
-                schema.CompanyMemberSchema,
-                eq(schema.CompanySchema.id, schema.CompanyMemberSchema.companyId),
-            )
-            .leftJoin(
-                schema.WorkspaceSchema,
-                eq(schema.CompanySchema.id, schema.WorkspaceSchema.companyId),
-            )
-            .leftJoin(
-                schema.ProjectSchema,
-                eq(schema.CompanySchema.id, schema.ProjectSchema.companyId),
-            )
-            .where(eq(schema.CompanySchema.id, companyId))
-
-        return stats
     }
 
     async getCompanyWorkspaces(companyId: string): Promise<WorkspaceSummary[]> {
