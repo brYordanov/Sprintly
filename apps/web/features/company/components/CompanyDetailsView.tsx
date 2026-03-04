@@ -45,7 +45,7 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 companyId={data.company.id}
                 companySlug={data.company.slug}
             />
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
                 <WorkspacesSection
                     workspaces={data.workspaces}
                     companySlug={data.company.slug}

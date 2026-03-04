@@ -26,7 +26,7 @@ export function ProjectsSection({
 
     return (
         <>
-            <Card className="md:w-1/2">
+            <Card>
                 <CardHeader className="flex flex-row items-start justify-between space-y-0">
                     <div>
                         <CardTitle className="text-base">Projects</CardTitle>

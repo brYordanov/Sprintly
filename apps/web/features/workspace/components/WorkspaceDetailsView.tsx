@@ -42,12 +42,14 @@ export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProp
                 workspaceId={data.workspace.id}
                 workspaceSlug={data.workspace.slug}
             />
-            <ProjectsSection
-                projects={data.workspaceProjects}
-                companyId={data.workspace.companyId}
-                companyName={data.workspace.company?.name ?? ''}
-                companySlug={data.workspace.company?.slug ?? ''}
-            />
+            <div className="md:w-1/2">
+                <ProjectsSection
+                    projects={data.workspaceProjects}
+                    companyId={data.workspace.companyId}
+                    companyName={data.workspace.company?.name ?? ''}
+                    companySlug={data.workspace.company?.slug ?? ''}
+                />
+            </div>
         </>
     )
 }

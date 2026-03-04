@@ -58,7 +58,7 @@ export function MemberRow({
                                 className="object-cover"
                             />
                         )}
-                        <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                        <AvatarFallback className="bg-primary text-white font-semibold">
                             {getInitials(member.fullname ?? member.username)}
                         </AvatarFallback>
                     </Avatar>
