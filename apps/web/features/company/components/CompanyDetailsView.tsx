@@ -39,11 +39,13 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 memberCount={data.members.length}
                 workspaceCount={data.workspaces.length}
                 projectCount={data.companyProjects.length}
+                currentUserEffectivePermissionLevel={data.currentUserEffectivePermissionLevel}
             />
             <CompanyMembersSection
                 members={data.members}
                 companyId={data.company.id}
                 companySlug={data.company.slug}
+                currentUserEffectivePermissionLevel={data.currentUserEffectivePermissionLevel}
             />
             <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
                 <WorkspacesSection
@@ -51,12 +53,14 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                     companySlug={data.company.slug}
                     companyId={data.company.id}
                     companyName={data.company.name}
+                    currentUserEffectivePermissionLevel={data.currentUserEffectivePermissionLevel}
                 />
                 <ProjectsSection
                     projects={data.companyProjects}
                     companyId={data.company.id}
                     companyName={data.company.name}
                     companySlug={data.company.slug}
+                    currentUserEffectivePermissionLevel={data.currentUserEffectivePermissionLevel}
                 />
             </div>
         </>

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { CompanyMember } from '@shared/validations'
+import { CompanyMember, PERMISSION } from '@shared/validations'
 import { useState } from 'react'
 import { CompanyMemberRow } from './CompanyMemberRow'
 import { InviteMemberDialog } from './InviteMemberDialog'
@@ -9,9 +9,15 @@ interface MembersSectionProps {
     members: CompanyMember[]
     companyId: string
     companySlug: string
+    currentUserEffectivePermissionLevel: number
 }
 
-export function CompanyMembersSection({ members, companyId, companySlug }: MembersSectionProps) {
+export function CompanyMembersSection({
+    members,
+    companyId,
+    companySlug,
+    currentUserEffectivePermissionLevel,
+}: MembersSectionProps) {
     const [isInviteOpen, setIsInviteOpen] = useState(false)
 
     return (
@@ -21,12 +27,14 @@ export function CompanyMembersSection({ members, companyId, companySlug }: Membe
                     <CardTitle className="text-base">Members</CardTitle>
                     <CardDescription>Manage team members and their permissions</CardDescription>
                 </div>
-                <Button
-                    onClick={() => setIsInviteOpen(true)}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                    + Invite
-                </Button>
+                {currentUserEffectivePermissionLevel >= PERMISSION.admin.level && (
+                    <Button
+                        onClick={() => setIsInviteOpen(true)}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                        + Invite
+                    </Button>
+                )}
                 <InviteMemberDialog
                     isOpen={isInviteOpen}
                     onOpenChange={setIsInviteOpen}
@@ -58,6 +66,9 @@ export function CompanyMembersSection({ members, companyId, companySlug }: Membe
                                     member={m}
                                     companyId={companyId}
                                     companySlug={companySlug}
+                                    currentUserEffectivePermissionLevel={
+                                        currentUserEffectivePermissionLevel
+                                    }
                                 />
                             ))}
                         </tbody>

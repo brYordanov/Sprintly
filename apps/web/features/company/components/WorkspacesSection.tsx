@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
-import { WorkspaceSummary } from '@shared/validations'
+import { PERMISSION, WorkspaceSummary } from '@shared/validations'
 import { ExternalLink, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -13,6 +13,7 @@ interface WorkspacesSectionProps {
     companySlug: string
     companyId: string
     companyName: string
+    currentUserEffectivePermissionLevel: number
 }
 
 export function WorkspacesSection({
@@ -20,6 +21,7 @@ export function WorkspacesSection({
     companySlug,
     companyId,
     companyName,
+    currentUserEffectivePermissionLevel,
 }: WorkspacesSectionProps) {
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -31,9 +33,11 @@ export function WorkspacesSection({
                         <CardTitle className="text-base">Workspaces</CardTitle>
                         <CardDescription>Organized team spaces</CardDescription>
                     </div>
-                    <Button variant="outline" onClick={() => setDialogOpen(true)}>
-                        + New
-                    </Button>
+                    {currentUserEffectivePermissionLevel >= PERMISSION.maintainer.level && (
+                        <Button variant="outline" onClick={() => setDialogOpen(true)}>
+                            + New
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent className="space-y-1">
                     {workspaces.map(workspace => (

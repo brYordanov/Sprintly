@@ -14,15 +14,19 @@ import { toast } from 'sonner'
 import { useChangePermission } from '../api/useChangePermission'
 import { useRemoveMember } from '../api/useRemoveMember'
 
+interface CompanyMemberRowProps {
+    member: CompanyMember
+    companyId: string
+    companySlug: string
+    currentUserEffectivePermissionLevel: number
+}
+
 export function CompanyMemberRow({
     member,
     companyId,
     companySlug,
-}: {
-    member: CompanyMember
-    companyId: string
-    companySlug: string
-}) {
+    currentUserEffectivePermissionLevel,
+}: CompanyMemberRowProps) {
     const [currentPermission, setCurrentPermission] = useState(member.permissionName)
     const previousPermissionRef = useRef<string | null>(null)
     const { mutate: changePermission } = useChangePermission(companyId, member.id, companySlug)
@@ -73,7 +77,10 @@ export function CompanyMemberRow({
             <td className="py-3 pr-4">
                 <Select
                     value={currentPermission ?? undefined}
-                    disabled={member.permissionId === PERMISSION.owner.id}
+                    disabled={
+                        member.permissionId === PERMISSION.owner.id ||
+                        currentUserEffectivePermissionLevel < PERMISSION.admin.level
+                    }
                     onValueChange={onPermissionChange}
                 >
                     <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
@@ -88,16 +95,17 @@ export function CompanyMemberRow({
                     </SelectContent>
                 </Select>
             </td>
-            {member.permissionId !== PERMISSION.owner.id && (
-                <td className="py-3 text-right">
-                    <RemoveMemberDialog
-                        memberName={member.fullname ?? member.username}
-                        context="company"
-                        isRemoving={isRemoving}
-                        onConfirm={() => removeMember()}
-                    />
-                </td>
-            )}
+            {member.permissionId !== PERMISSION.owner.id &&
+                currentUserEffectivePermissionLevel >= PERMISSION.admin.level && (
+                    <td className="py-3 text-right">
+                        <RemoveMemberDialog
+                            memberName={member.fullname ?? member.username}
+                            context="company"
+                            isRemoving={isRemoving}
+                            onConfirm={() => removeMember()}
+                        />
+                    </td>
+                )}
         </tr>
     )
 }

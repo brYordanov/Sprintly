@@ -66,4 +66,5 @@ export type CompanyDetails = {
     workspaces: WorkspaceSummary[]
     members: CompanyMember[]
     companyProjects: ProjectNavigationSummary[]
+    currentUserEffectivePermissionLevel: number
 }

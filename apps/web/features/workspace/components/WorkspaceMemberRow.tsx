@@ -19,12 +19,14 @@ interface WorkspaceMemberRowProps {
     member: WorkspaceMember
     workspaceId: string
     workspaceSlug: string
+    currentUserEffectivePermissionLevel: number
 }
 
 export function WorkspaceMemberRow({
     member,
     workspaceId,
     workspaceSlug,
+    currentUserEffectivePermissionLevel,
 }: WorkspaceMemberRowProps) {
     const {
         effectivePermission,
@@ -86,7 +88,10 @@ export function WorkspaceMemberRow({
                 <div className="flex items-center gap-2">
                     <Select
                         value={effectivePermission ?? ''}
-                        disabled={isCompanyOwnerOrAdmin}
+                        disabled={
+                            isCompanyOwnerOrAdmin ||
+                            currentUserEffectivePermissionLevel < PERMISSION.admin.level
+                        }
                         onValueChange={handlePermissionChange}
                     >
                         <SelectTrigger className="w-36 h-8 text-sm cursor-pointer">
@@ -107,7 +112,7 @@ export function WorkspaceMemberRow({
                     )}
                 </div>
             </td>
-            {!isInherited && (
+            {!isInherited && currentUserEffectivePermissionLevel >= PERMISSION.admin.level && (
                 <td className="py-3 text-right">
                     <RemoveMemberDialog
                         memberName={member.fullname}

@@ -74,4 +74,5 @@ export type WorkspaceDetails = {
     workspace: WorkspaceRowDto
     members: WorkspaceMember[]
     workspaceProjects: ProjectNavigationSummary[]
+    currentUserEffectivePermission: number
 }

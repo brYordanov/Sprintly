@@ -96,7 +96,11 @@ export class CompanyService {
 
     async getCompanyDetails(companySlug: string, userId: string): Promise<CompanyDetails> {
         const company = await this.getCompanyBySlugOrFail(companySlug)
-        await this.doesUserHavePermissionOrFail(company.id, userId, PERMISSION.maintainer.level)
+        const currentUserEffectivePermissionLevel = await this.doesUserHavePermissionOrFail(
+            company.id,
+            userId,
+            PERMISSION.guest.level,
+        )
 
         const [workspaces, members, companyProjects] = await Promise.all([
             this.getCompanyWorkspaces(company.id),
@@ -109,6 +113,7 @@ export class CompanyService {
             workspaces,
             members,
             companyProjects,
+            currentUserEffectivePermissionLevel,
         }
     }
 
@@ -183,7 +188,7 @@ export class CompanyService {
         companyId: string,
         userId: string,
         permissionLevel: number,
-    ): Promise<void> {
+    ): Promise<number> {
         const [member] = await this.db
             .select({
                 permissionLevel: schema.PermissionSchema.level,
@@ -203,6 +208,8 @@ export class CompanyService {
         if (!member) throw new ForbiddenException('Company not found')
         if (member.permissionLevel < permissionLevel)
             throw new ForbiddenException('Not high enough permission')
+
+        return member.permissionLevel
     }
 
     async getCompanyWorkspaces(companyId: string): Promise<WorkspaceSummary[]> {
@@ -455,10 +462,12 @@ export class CompanyService {
 
     async addMembers(companyId: string, userIds: string[]): Promise<CompanyMember[]> {
         return Promise.all(
-            userIds.map(async (userId) => {
+            userIds.map(async userId => {
                 const [member] = await this.getCompanyMemberById(companyId, userId)
                 if (member) {
-                    throw new ConflictException(`User ${userId} is already a member of this company`)
+                    throw new ConflictException(
+                        `User ${userId} is already a member of this company`,
+                    )
                 }
 
                 await this.db.insert(schema.CompanyMemberSchema).values({ companyId, userId })

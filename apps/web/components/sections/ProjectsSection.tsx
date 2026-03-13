@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CreateProjectDialog } from '@/features/project/components/CreateProjectDialog'
 import { getProjectHref } from '@/helpers'
-import { ProjectNavigationSummary } from '@shared/validations'
+import { PERMISSION, ProjectNavigationSummary } from '@shared/validations'
 import { ExternalLink, FolderKanban } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -14,6 +14,7 @@ interface ProjectsSectionProps {
     companyId: string
     companyName: string
     companySlug: string
+    currentUserEffectivePermissionLevel: number
 }
 
 export function ProjectsSection({
@@ -21,6 +22,7 @@ export function ProjectsSection({
     companyId,
     companyName,
     companySlug,
+    currentUserEffectivePermissionLevel,
 }: ProjectsSectionProps) {
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -32,9 +34,11 @@ export function ProjectsSection({
                         <CardTitle className="text-base">Projects</CardTitle>
                         <CardDescription>All company projects</CardDescription>
                     </div>
-                    <Button variant="outline" onClick={() => setDialogOpen(true)}>
-                        + New
-                    </Button>
+                    {currentUserEffectivePermissionLevel >= PERMISSION.maintainer.level && (
+                        <Button variant="outline" onClick={() => setDialogOpen(true)}>
+                            + New
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent className="space-y-1">
                     {projects.map(project => (

@@ -37,11 +37,13 @@ export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProp
                 memberCount={data.members.length}
                 projectCount={data.workspaceProjects.length}
                 companyName={data.workspace.company?.name}
+                currentUserEffectivePermissionLevel={data.currentUserEffectivePermission}
             />
             <WorkspaceMembersSection
                 members={data.members}
                 workspaceId={data.workspace.id}
                 workspaceSlug={data.workspace.slug}
+                currentUserEffectivePermissionLevel={data.currentUserEffectivePermission}
             />
             <div className="md:w-1/2">
                 <ProjectsSection
@@ -49,6 +51,7 @@ export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProp
                     companyId={data.workspace.companyId}
                     companyName={data.workspace.company?.name ?? ''}
                     companySlug={data.workspace.company?.slug ?? ''}
+                    currentUserEffectivePermissionLevel={data.currentUserEffectivePermission}
                 />
             </div>
         </>

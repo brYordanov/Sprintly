@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { WorkspaceMember } from '@shared/validations'
+import { PERMISSION, WorkspaceMember } from '@shared/validations'
 import { useState } from 'react'
 import { InviteWorkspaceMemberDialog } from './InviteWorkspaceMemberDialog'
 import { WorkspaceMemberRow } from './WorkspaceMemberRow'
@@ -11,12 +11,14 @@ interface WorkspaceMembersSectionProps {
     members: WorkspaceMember[]
     workspaceId: string
     workspaceSlug: string
+    currentUserEffectivePermissionLevel: number
 }
 
 export function WorkspaceMembersSection({
     members,
     workspaceId,
     workspaceSlug,
+    currentUserEffectivePermissionLevel,
 }: WorkspaceMembersSectionProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -28,12 +30,14 @@ export function WorkspaceMembersSection({
                         <CardTitle className="text-base">Members</CardTitle>
                         <CardDescription>People with access to this workspace</CardDescription>
                     </div>
-                    <Button
-                        className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={() => setIsDialogOpen(true)}
-                    >
-                        + Add Member
-                    </Button>
+                    {currentUserEffectivePermissionLevel >= PERMISSION.admin.level && (
+                        <Button
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            onClick={() => setIsDialogOpen(true)}
+                        >
+                            + Add Member
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-y-auto max-h-96">
@@ -58,6 +62,9 @@ export function WorkspaceMembersSection({
                                         member={member}
                                         workspaceId={workspaceId}
                                         workspaceSlug={workspaceSlug}
+                                        currentUserEffectivePermissionLevel={
+                                            currentUserEffectivePermissionLevel
+                                        }
                                     />
                                 ))}
                             </tbody>

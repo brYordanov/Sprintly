@@ -12,6 +12,7 @@ import {
     ProjectNavigationSummary,
     UserWorkspaceNavigationSummary,
     UserWorkspaceSummary,
+    WorkspaceDetails,
     WorkspaceMember,
     WorkspaceNonMember,
     WorkspaceRowDto,
@@ -175,20 +176,21 @@ export class WorkspaceService {
         return Math.max(workspacePermLevel, companyPermLevel)
     }
 
-    async getWorkspaceDetails(workspaceSlug: string, userId: string) {
+    async getWorkspaceDetails(workspaceSlug: string, userId: string): Promise<WorkspaceDetails> {
         const workspace = await this.getWorkspaceWithCompanyBySlugOrFail(workspaceSlug)
-        await this.doesUserHaveSufficientWorkspacePermissionOrFail(
-            workspace.id,
-            userId,
-            PERMISSION.maintainer.level,
-        )
+        const currentUserEffectivePermission =
+            await this.doesUserHaveSufficientWorkspacePermissionOrFail(
+                workspace.id,
+                userId,
+                PERMISSION.guest.level,
+            )
 
         const [members, workspaceProjects] = await Promise.all([
             this.getWorkspaceMembers(workspace.id),
             this.getWorkspaceProjects(workspace.id),
         ])
 
-        return { workspace, members, workspaceProjects }
+        return { workspace, members, workspaceProjects, currentUserEffectivePermission }
     }
 
     async getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {
@@ -579,7 +581,7 @@ export class WorkspaceService {
         workspaceId: string,
         userId: string,
         permissionLevel: number,
-    ): Promise<void> {
+    ): Promise<number> {
         const [workspacePermission] = await this.db
             .select({ level: schema.PermissionSchema.level })
             .from(schema.UserWorkspacePermissionSchema)
@@ -595,7 +597,8 @@ export class WorkspaceService {
             )
             .limit(1)
 
-        if (workspacePermission && workspacePermission.level >= permissionLevel) return
+        if (workspacePermission && workspacePermission.level >= permissionLevel)
+            return workspacePermission.level
 
         const [workspace] = await this.db
             .select({ companyId: schema.WorkspaceSchema.companyId })
@@ -623,5 +626,7 @@ export class WorkspaceService {
         if (!companyPermission || companyPermission.level < permissionLevel) {
             throw new ForbiddenException('Insufficient permissions')
         }
+
+        return companyPermission.level
     }
 }
