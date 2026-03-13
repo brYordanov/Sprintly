@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
 import {
     CreateProjectSchema,
+    ProjectDetails,
     ProjectNavigationSummary,
     type CreateProjectDto,
     type ProjectRowDto,
@@ -26,5 +27,13 @@ export class ProjectController {
     @Get()
     async getProjectsForUser(@User() user: AuthUser): Promise<ProjectNavigationSummary[]> {
         return this.service.getUserProjects(user.id)
+    }
+
+    @Get(':projectSlug/details')
+    async getProjectDetails(
+        @User() user: AuthUser,
+        @Param('projectSlug') projectSlug: string,
+    ): Promise<ProjectDetails> {
+        return this.service.getProjectDetails(projectSlug, user.id)
     }
 }
