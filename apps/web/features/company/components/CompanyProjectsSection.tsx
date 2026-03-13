@@ -16,7 +16,7 @@ interface ProjectsSectionProps {
     companySlug: string
 }
 
-export function ProjectsSection({
+export function CompanyProjectsSection({
     projects,
     companyId,
     companyName,

@@ -6,8 +6,8 @@ import { MembersSectionSkeleton } from '@/components/skeletons/MembersSectionSke
 import { ProjectsSectionSkeleton } from '@/components/skeletons/ProjectsSectionSkeleton'
 import { useGetCompanyDetails } from '@/features/company/api/useGetCompanyDetails'
 import { CompanyHeader } from './CompanyHeader'
-import { MembersSection } from './MembersSection'
-import { ProjectsSection } from './ProjectsSection'
+import { CompanyMembersSection } from './CompanyMembersSection'
+import { CompanyProjectsSection } from './CompanyProjectsSection'
 import { WorkspacesSectionSkeleton } from './WorkspaceSectionSkeleton'
 import { WorkspacesSection } from './WorkspacesSection'
 
@@ -40,7 +40,7 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                 workspaceCount={data.workspaces.length}
                 projectCount={data.companyProjects.length}
             />
-            <MembersSection
+            <CompanyMembersSection
                 members={data.members}
                 companyId={data.company.id}
                 companySlug={data.company.slug}
@@ -52,7 +52,7 @@ export function CompanyDetailsView({ companySlug }: { companySlug: string }) {
                     companyId={data.company.id}
                     companyName={data.company.name}
                 />
-                <ProjectsSection
+                <CompanyProjectsSection
                     projects={data.companyProjects}
                     companyId={data.company.id}
                     companyName={data.company.name}

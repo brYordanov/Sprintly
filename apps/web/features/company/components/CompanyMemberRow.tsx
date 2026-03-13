@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import { useChangePermission } from '../api/useChangePermission'
 import { useRemoveMember } from '../api/useRemoveMember'
 
-export function MemberRow({
+export function CompanyMemberRow({
     member,
     companyId,
     companySlug,

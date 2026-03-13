@@ -4,7 +4,7 @@ import { InsufficientPermissionDialog } from '@/components/dialogs/InsufficientP
 import { DetailsHeaderSkeleton } from '@/components/skeletons/DetailsHeaderSkeleton'
 import { MembersSectionSkeleton } from '@/components/skeletons/MembersSectionSkeleton'
 import { ProjectsSectionSkeleton } from '@/components/skeletons/ProjectsSectionSkeleton'
-import { ProjectsSection } from '@/features/company/components/ProjectsSection'
+import { CompanyProjectsSection } from '@/features/company/components/CompanyProjectsSection'
 import { useGetWorkspaceDetails } from '../api/useGetWorkspaceDetails'
 import { WorkspaceHeader } from './WorkspaceHeader'
 import { WorkspaceMembersSection } from './WorkspaceMembersSection'
@@ -44,7 +44,7 @@ export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProp
                 workspaceSlug={data.workspace.slug}
             />
             <div className="md:w-1/2">
-                <ProjectsSection
+                <CompanyProjectsSection
                     projects={data.workspaceProjects}
                     companyId={data.workspace.companyId}
                     companyName={data.workspace.company?.name ?? ''}

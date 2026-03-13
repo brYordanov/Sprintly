@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CompanyMember } from '@shared/validations'
 import { useState } from 'react'
+import { CompanyMemberRow } from './CompanyMemberRow'
 import { InviteMemberDialog } from './InviteMemberDialog'
-import { MemberRow } from './MemberRow'
 
 interface MembersSectionProps {
     members: CompanyMember[]
@@ -11,7 +11,7 @@ interface MembersSectionProps {
     companySlug: string
 }
 
-export function MembersSection({ members, companyId, companySlug }: MembersSectionProps) {
+export function CompanyMembersSection({ members, companyId, companySlug }: MembersSectionProps) {
     const [isInviteOpen, setIsInviteOpen] = useState(false)
 
     return (
@@ -53,7 +53,7 @@ export function MembersSection({ members, companyId, companySlug }: MembersSecti
                         </thead>
                         <tbody className="divide-y divide-border">
                             {members.map(m => (
-                                <MemberRow
+                                <CompanyMemberRow
                                     key={m.id}
                                     member={m}
                                     companyId={companyId}
