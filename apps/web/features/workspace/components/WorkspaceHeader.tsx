@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getInitials } from '@/helpers'
-import { FolderKanban, Layers, Settings, Users } from 'lucide-react'
+import { Building2, FolderKanban, Layers, Settings, Users } from 'lucide-react'
 import { useState } from 'react'
 import { EditWorkspaceDialog } from './EditWorkspaceDialog'
 
@@ -15,6 +15,7 @@ interface WorkspaceHeaderProps {
     memberCount: number
     projectCount: number
     description?: string | null
+    companyName?: string
 }
 
 export function WorkspaceHeader({
@@ -24,6 +25,7 @@ export function WorkspaceHeader({
     memberCount,
     projectCount,
     description,
+    companyName,
 }: WorkspaceHeaderProps) {
     const [editOpen, setEditOpen] = useState(false)
 
@@ -62,10 +64,18 @@ export function WorkspaceHeader({
                                         {projectCount} {projectCount <= 1 ? 'project' : 'projects'}
                                     </span>
                                 </div>
+                                <div className="flex items-center gap-1.5">
+                                    <Building2 className="h-4 w-4" />
+                                    <span>{companyName}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <Button variant="ghost" className="gap-2 group" onClick={() => setEditOpen(true)}>
+                    <Button
+                        variant="ghost"
+                        className="gap-2 group"
+                        onClick={() => setEditOpen(true)}
+                    >
                         <Settings className="h-4 w-4 group-hover:text-card transition-all" />
                         Settings
                     </Button>

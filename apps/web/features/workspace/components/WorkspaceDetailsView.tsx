@@ -36,6 +36,7 @@ export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProp
                 description={data.workspace.description}
                 memberCount={data.members.length}
                 projectCount={data.workspaceProjects.length}
+                companyName={data.workspace.company?.name}
             />
             <WorkspaceMembersSection
                 members={data.members}

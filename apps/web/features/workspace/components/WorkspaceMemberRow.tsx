@@ -64,12 +64,16 @@ export function WorkspaceMemberRow({
         <tr>
             <td className="py-3 pr-4">
                 <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 shrink-0">
+                    <Avatar className="h-20 w-20" size="lg">
                         {member.avatarUrl && (
-                            <AvatarImage src={member.avatarUrl} alt={member.fullname ?? 'avatar'} />
+                            <AvatarImage
+                                src={member.avatarUrl}
+                                alt={member.username}
+                                className="object-cover"
+                            />
                         )}
-                        <AvatarFallback className="text-xs">
-                            {getInitials(member.fullname)}
+                        <AvatarFallback className="bg-primary text-white font-semibold">
+                            {getInitials(member.fullname ?? member.username)}
                         </AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium">{member.fullname}</span>
