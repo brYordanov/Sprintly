@@ -1,10 +1,10 @@
 'use client'
 
 import { InsufficientPermissionDialog } from '@/components/dialogs/InsufficientPermissionDialog'
+import { ProjectsSection } from '@/components/sections/ProjectsSection'
 import { DetailsHeaderSkeleton } from '@/components/skeletons/DetailsHeaderSkeleton'
 import { MembersSectionSkeleton } from '@/components/skeletons/MembersSectionSkeleton'
 import { ProjectsSectionSkeleton } from '@/components/skeletons/ProjectsSectionSkeleton'
-import { CompanyProjectsSection } from '@/features/company/components/CompanyProjectsSection'
 import { useGetWorkspaceDetails } from '../api/useGetWorkspaceDetails'
 import { WorkspaceHeader } from './WorkspaceHeader'
 import { WorkspaceMembersSection } from './WorkspaceMembersSection'
@@ -44,7 +44,7 @@ export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProp
                 workspaceSlug={data.workspace.slug}
             />
             <div className="md:w-1/2">
-                <CompanyProjectsSection
+                <ProjectsSection
                     projects={data.workspaceProjects}
                     companyId={data.workspace.companyId}
                     companyName={data.workspace.company?.name ?? ''}
