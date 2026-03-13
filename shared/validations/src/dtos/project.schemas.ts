@@ -1,5 +1,7 @@
 import z from 'zod'
 import { ValidImgUrlSchema } from './common.schemas'
+import { PossiblePermissionName } from './permission.schemas'
+import { UserPublicDto } from './user.schemas'
 
 export const ProjectRowSchema = z.object({
     id: z.uuid(),
@@ -52,4 +54,22 @@ export type ProjectNavigationSummary = ProjectSummary & {
     companySlug: string
     workspaceSlug: string | null
     workspaceName: string | null
+}
+
+export type ProjectNonMember = Pick<
+    UserPublicDto,
+    'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
+>
+export type ProjectMember = ProjectNonMember & {
+    projectPermissionName: PossiblePermissionName | null
+    projectPermissionId: number | null
+    workspacePermissionName: PossiblePermissionName | null
+    workspacePermissionId: number | null
+    companyPermissionName: PossiblePermissionName | null
+    companyPermissionId: number | null
+}
+
+export type ProjectDetails = {
+    project: ProjectRowDto
+    members: ProjectMember[]
 }

@@ -6,5 +6,5 @@ export default async function ProjectDetaisPage({
     params: Promise<{ projectSlug: string }>
 }) {
     const { projectSlug } = await params
-    return <ProjectDetailsView></ProjectDetailsView>
+    return <ProjectDetailsView projectSlug={projectSlug} />
 }
