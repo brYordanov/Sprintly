@@ -46,13 +46,12 @@ export const EditCompanySchema = z.object({
 export type EditCompanyDto = z.infer<typeof EditCompanySchema>
 
 export const AddMemberSchema = z.object({
-    id: z.uuid(),
+    ids: z.array(z.uuid()).min(1),
 })
 export type AddMemberDto = z.infer<typeof AddMemberSchema>
 
 export type UserCompanySummary = Pick<CompanyRowDto, 'name' | 'slug' | 'id'>
 
-export type CompanyStats = { memberCount: number; workspaceCount: number; projectCount: number }
 export type CompanyNonMember = Pick<
     UserPublicDto,
     'id' | 'fullname' | 'username' | 'email' | 'avatarUrl'
@@ -64,7 +63,6 @@ export type CompanyMember = CompanyNonMember & {
 
 export type CompanyDetails = {
     company: CompanyRowDto
-    stats: CompanyStats
     workspaces: WorkspaceSummary[]
     members: CompanyMember[]
     companyProjects: ProjectNavigationSummary[]

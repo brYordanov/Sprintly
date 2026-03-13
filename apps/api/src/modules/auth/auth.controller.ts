@@ -21,7 +21,7 @@ import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
 import { UserService } from '../user/user.service'
 import { AuthService } from './auth.service'
 import { User } from './decorators/user.decorator'
-import { AuthGuard } from './guards/auth.guard'
+import { AuthGuard, type AuthUser } from './guards/auth.guard'
 
 const AuthThrottler = () =>
     Throttle({
@@ -38,7 +38,7 @@ export class AuthController {
 
     @Get('me')
     @UseGuards(AuthGuard)
-    async me(@Req() req: Request, @User() user: { id: string }): Promise<UserPublicDto> {
+    async me(@Req() req: Request, @User() user: AuthUser): Promise<UserPublicDto> {
         return this.userService.findByIdOrFail(user.id)
     }
 

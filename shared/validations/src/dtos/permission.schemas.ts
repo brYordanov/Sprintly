@@ -17,4 +17,4 @@ export const PERMISSION = {
     },
 } as const
 
-export type PermissionName = keyof typeof PERMISSION
+export type PossiblePermissionName = keyof typeof PERMISSION

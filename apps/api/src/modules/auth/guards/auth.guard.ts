@@ -3,6 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 
+export interface AuthUser {
+    id: string
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
     private readonly accessSecret: string
@@ -22,13 +26,5 @@ export class AuthGuard implements CanActivate {
             req.user = { id: typeof payload === 'string' ? payload : payload.sub }
         } catch (err) {}
         return true
-    }
-
-    private getTokenFromHeader(req: Request): string | undefined {
-        const authHeader = req.headers.authorization
-        if (!authHeader) return undefined
-
-        const [type, token] = authHeader.split(' ')
-        return type === 'Bearer' ? token : undefined
     }
 }

@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-export function CompanyHeaderSkeleton() {
+export function DetailsHeaderSkeleton() {
     return (
         <div className="flex items-start justify-between p-6 bg-white rounded-lg border">
             <div className="flex gap-6">

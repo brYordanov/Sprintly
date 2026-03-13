@@ -1,6 +1,12 @@
 import { COMPANY_DETAILS } from '@/features/company/api/useGetCompanyDetails'
+import { WORKSPACE_DETAILS } from '@/features/workspace/api/useGetWorkspaceDetails'
 import { apiClient } from '@/lib/api/client'
-import { CompanyDetails, CreateProjectDto, ProjectRowDto } from '@shared/validations'
+import {
+    CompanyDetails,
+    CreateProjectDto,
+    ProjectRowDto,
+    WorkspaceDetails,
+} from '@shared/validations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { USER_PROJECTS } from './useGetUserProjects'
@@ -42,10 +48,26 @@ export function useCreateProject(
                         workspaces: old.workspaces.map(w =>
                             w.name === workspaceName ? { ...w, projectCount: ++w.projectCount } : w,
                         ),
-                        stats: {
-                            ...old.stats,
-                            projectCount: ++old.stats.projectCount,
-                        },
+                    },
+            )
+
+            if (!workspaceName || !workspaceSlug) return
+            queryClient.setQueryData<WorkspaceDetails>(
+                [WORKSPACE_DETAILS, workspaceSlug],
+                old =>
+                    old && {
+                        ...old,
+                        workspaceProjects: [
+                            ...old.workspaceProjects,
+                            {
+                                id: newProject.id,
+                                name: newProject.name,
+                                slug: newProject.slug,
+                                companySlug,
+                                workspaceSlug,
+                                workspaceName,
+                            },
+                        ],
                     },
             )
         },

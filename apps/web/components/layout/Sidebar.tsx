@@ -25,7 +25,7 @@ import { useGetUserProjects } from '@/features/project/api/useGetUserProjects'
 import { CreateProjectDialog } from '@/features/project/components/CreateProjectDialog'
 import { useGetViewableUserWorkspaces } from '@/features/workspace/api/useGetViewableUserWorkspaces'
 import { CreateWorkspaceDialog } from '@/features/workspace/components/CreateWorkspaceDialog'
-import { getInitials } from '@/helpers'
+import { getInitials, getProjectHref } from '@/helpers'
 import { cn } from '@/lib/utils'
 import {
     Building2,
@@ -134,7 +134,7 @@ export function AppSidebar() {
                     items={
                         userWorkspaces?.map(w => ({
                             title: w.name,
-                            url: `company/${w.companySlug}/workspace/${w.slug}`,
+                            url: `/company/${w.companySlug}/workspace/${w.slug}`,
                         })) ?? []
                     }
                     pathname={pathname}
@@ -151,9 +151,7 @@ export function AppSidebar() {
                     items={
                         userProjects?.map(p => ({
                             title: p.name,
-                            url: p.workspaceSlug
-                                ? `company/${p.companySlug}/workspace/${p.workspaceSlug}/project/${p.slug}`
-                                : `company/${p.companySlug}/project/${p.slug}`,
+                            url: getProjectHref(p),
                         })) ?? []
                     }
                     pathname={pathname}

@@ -1,14 +1,4 @@
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+import { RemoveMemberDialog } from '@/components/dialogs/RemoveMemberDialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     Select,
@@ -18,7 +8,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { getInitials } from '@/helpers'
-import { CompanyMember, PERMISSION, PermissionName } from '@shared/validations'
+import { CompanyMember, PERMISSION, PossiblePermissionName } from '@shared/validations'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useChangePermission } from '../api/useChangePermission'
@@ -42,7 +32,7 @@ export function MemberRow({
         companySlug,
     )
 
-    const onPermissionChange = (newPermission: PermissionName) => {
+    const onPermissionChange = (newPermission: PossiblePermissionName) => {
         previousPermissionRef.current = currentPermission
         setCurrentPermission(newPermission)
         changePermission(
@@ -68,7 +58,7 @@ export function MemberRow({
                                 className="object-cover"
                             />
                         )}
-                        <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                        <AvatarFallback className="bg-primary text-white font-semibold">
                             {getInitials(member.fullname ?? member.username)}
                         </AvatarFallback>
                     </Avatar>
@@ -100,35 +90,12 @@ export function MemberRow({
             </td>
             {member.permissionId !== PERMISSION.owner.id && (
                 <td className="py-3 text-right">
-                    <AlertDialog>
-                        <AlertDialogTrigger
-                            disabled={isRemoving}
-                            className="text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Remove
-                        </AlertDialogTrigger>
-                        <AlertDialogContent size="sm">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Remove member</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Are you sure you want to remove{' '}
-                                    <span className="font-medium text-foreground">
-                                        {member.fullname ?? member.username}
-                                    </span>{' '}
-                                    from this company?
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                    variant="destructive"
-                                    onClick={() => removeMember()}
-                                >
-                                    Remove
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <RemoveMemberDialog
+                        memberName={member.fullname ?? member.username}
+                        context="company"
+                        isRemoving={isRemoving}
+                        onConfirm={() => removeMember()}
+                    />
                 </td>
             )}
         </tr>
