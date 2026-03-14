@@ -1,9 +1,15 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import {
+    AddProjectMemberSchema,
+    ChangePermissionSchema,
     CreateProjectSchema,
     EditProjectSchema,
     ProjectDetails,
+    ProjectMember,
     ProjectNavigationSummary,
+    ProjectNonMember,
+    type AddProjectMemberDto,
+    type ChangePermissionDto,
     type CreateProjectDto,
     type EditProjectDto,
     type ProjectRowDto,
@@ -46,5 +52,41 @@ export class ProjectController {
         @Param('projectSlug') projectSlug: string,
     ): Promise<ProjectDetails> {
         return this.service.getProjectDetails(projectSlug, user.id)
+    }
+
+    @Get(':projectId/invitable/search')
+    async searchNonMembers(
+        @Param('projectId') projectId: string,
+        @Query('q') query: string,
+    ): Promise<ProjectNonMember[]> {
+        return this.service.searchNonMembers(projectId, query)
+    }
+
+    @Post(':projectId/add-member')
+    async addMember(
+        @Body(new ZodValidationPipe(AddProjectMemberSchema)) dto: AddProjectMemberDto,
+        @Param('projectId') projectId: string,
+    ): Promise<ProjectMember[]> {
+        return this.service.addMembers(projectId, dto.nonMembers)
+    }
+
+    @Patch(':projectId/user/:userId')
+    async changeMemberPermission(
+        @Body(new ZodValidationPipe(ChangePermissionSchema)) dto: ChangePermissionDto,
+        @User() user: AuthUser,
+        @Param('projectId') projectId: string,
+        @Param('userId') userId: string,
+    ): Promise<ProjectMember> {
+        return this.service.changeProjectMemberPermission(user.id, projectId, userId, dto.permissionId)
+    }
+
+    @Delete(':projectId/user/:userId')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async removeMember(
+        @User() user: AuthUser,
+        @Param('projectId') projectId: string,
+        @Param('userId') userId: string,
+    ): Promise<void> {
+        return this.service.removeProjectMember(user.id, projectId, userId)
     }
 }

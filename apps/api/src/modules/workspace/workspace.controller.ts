@@ -1,8 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseGuards,
+} from '@nestjs/common'
 import {
     AddWorkspaceMemberSchema,
     ChangePermissionSchema,
-    type ChangePermissionDto,
     CreateWorkspaceSchema,
     EditWorkspaceSchema,
     UserWorkspaceNavigationSummary,
@@ -11,6 +22,7 @@ import {
     WorkspaceNonMember,
     WorkspaceRowDto,
     type AddWorkspaceMemberDto,
+    type ChangePermissionDto,
     type CreateWorkspaceDto,
     type EditWorkspaceDto,
 } from '@shared/validations'
@@ -52,14 +64,6 @@ export class WorkspaceController {
         return this.service.getWorkspaceDetails(workspaceSlug, user.id)
     }
 
-    @Get(':workspaceId/invitable/search')
-    async searchNonMembers(
-        @Param('workspaceId') workspaceId: string,
-        @Query('q') query: string,
-    ): Promise<WorkspaceNonMember[]> {
-        return this.service.searchNonMembers(workspaceId, query)
-    }
-
     @Patch(':workspaceId')
     async editWorkspace(
         @Body(new ZodValidationPipe(EditWorkspaceSchema)) dto: EditWorkspaceDto,
@@ -67,6 +71,14 @@ export class WorkspaceController {
         @Param('workspaceId') workspaceId: string,
     ): Promise<WorkspaceRowDto> {
         return this.service.editWorkspace(user.id, workspaceId, dto)
+    }
+
+    @Get(':workspaceId/invitable/search')
+    async searchNonMembers(
+        @Param('workspaceId') workspaceId: string,
+        @Query('q') query: string,
+    ): Promise<WorkspaceNonMember[]> {
+        return this.service.searchNonMembers(workspaceId, query)
     }
 
     @Post(':workspaceId/add-member')
@@ -84,7 +96,12 @@ export class WorkspaceController {
         @Param('workspaceId') workspaceId: string,
         @Param('userId') userId: string,
     ): Promise<WorkspaceMember> {
-        return this.service.changeWorkspaceMemberPermission(user.id, workspaceId, userId, dto.permissionId)
+        return this.service.changeWorkspaceMemberPermission(
+            user.id,
+            workspaceId,
+            userId,
+            dto.permissionId,
+        )
     }
 
     @Delete(':workspaceId/user/:userId')

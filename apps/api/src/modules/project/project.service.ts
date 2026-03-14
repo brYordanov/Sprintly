@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import {
     CreateProjectDto,
     EditProjectDto,
@@ -6,9 +6,10 @@ import {
     ProjectDetails,
     ProjectMember,
     ProjectNavigationSummary,
+    ProjectNonMember,
     ProjectRowDto,
 } from '@shared/validations'
-import { and, eq, getTableColumns, isNull, sql } from 'drizzle-orm'
+import { and, eq, getTableColumns, ilike, isNull, or, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -375,6 +376,246 @@ export class ProjectService {
             )) as ProjectMember[]
 
         return [...groupA, ...groupB, ...groupC]
+    }
+
+    async searchNonMembers(projectId: string, query: string): Promise<ProjectNonMember[]> {
+        const q = `%${query}%`
+        const project = await this.getProjectByIdOrFail(projectId)
+
+        return this.db
+            .select({
+                id: schema.UserSchema.id,
+                fullname: schema.UserSchema.fullname,
+                username: schema.UserSchema.username,
+                email: schema.UserSchema.email,
+                avatarUrl: schema.UserSchema.avatarUrl,
+            })
+            .from(schema.UserSchema)
+            .innerJoin(
+                schema.CompanyMemberSchema,
+                and(
+                    eq(schema.CompanyMemberSchema.userId, schema.UserSchema.id),
+                    eq(schema.CompanyMemberSchema.companyId, project.companyId),
+                ),
+            )
+            .leftJoin(
+                schema.UserProjectPermissionSchema,
+                and(
+                    eq(schema.UserProjectPermissionSchema.userId, schema.UserSchema.id),
+                    eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                ),
+            )
+            .where(
+                and(
+                    isNull(schema.UserProjectPermissionSchema.userId),
+                    or(
+                        ilike(schema.UserSchema.fullname, q),
+                        ilike(schema.UserSchema.username, q),
+                        ilike(schema.UserSchema.email, q),
+                    ),
+                ),
+            )
+    }
+
+    async addMembers(
+        projectId: string,
+        members: { userId: string; permissionId: number }[],
+    ): Promise<ProjectMember[]> {
+        return Promise.all(
+            members.map(async ({ userId, permissionId }) => {
+                const [existing] = await this.db
+                    .select()
+                    .from(schema.UserProjectPermissionSchema)
+                    .where(
+                        and(
+                            eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                            eq(schema.UserProjectPermissionSchema.userId, userId),
+                        ),
+                    )
+                    .limit(1)
+
+                if (existing)
+                    throw new ConflictException(`User ${userId} already has a project permission`)
+
+                await this.db
+                    .insert(schema.UserProjectPermissionSchema)
+                    .values({ projectId, userId, permissionId })
+
+                const projectPerm = alias(schema.PermissionSchema, 'project_permission')
+
+                const [result] = await this.db
+                    .select({
+                        id: schema.UserSchema.id,
+                        fullname: schema.UserSchema.fullname,
+                        username: schema.UserSchema.username,
+                        email: schema.UserSchema.email,
+                        avatarUrl: schema.UserSchema.avatarUrl,
+                        projectPermissionId: projectPerm.id,
+                        projectPermissionName: projectPerm.name,
+                        workspacePermissionId: sql<number | null>`null`,
+                        workspacePermissionName: sql<string | null>`null`,
+                        companyPermissionId: sql<number | null>`null`,
+                        companyPermissionName: sql<string | null>`null`,
+                    })
+                    .from(schema.UserSchema)
+                    .innerJoin(
+                        schema.UserProjectPermissionSchema,
+                        and(
+                            eq(schema.UserProjectPermissionSchema.userId, schema.UserSchema.id),
+                            eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                        ),
+                    )
+                    .innerJoin(
+                        projectPerm,
+                        eq(projectPerm.id, schema.UserProjectPermissionSchema.permissionId),
+                    )
+                    .where(eq(schema.UserSchema.id, userId))
+                    .limit(1)
+
+                return result as ProjectMember
+            }),
+        )
+    }
+
+    async changeProjectMemberPermission(
+        requestingUserId: string,
+        projectId: string,
+        targetUserId: string,
+        permissionId: number,
+    ): Promise<ProjectMember> {
+        const project = await this.getProjectByIdOrFail(projectId)
+        await this.getCurrentUserEffectivePermissionOrFails(
+            project,
+            requestingUserId,
+            PERMISSION.maintainer.level,
+        )
+
+        const [existing] = await this.db
+            .select()
+            .from(schema.UserProjectPermissionSchema)
+            .where(
+                and(
+                    eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                    eq(schema.UserProjectPermissionSchema.userId, targetUserId),
+                ),
+            )
+            .limit(1)
+
+        if (existing) {
+            await this.db
+                .update(schema.UserProjectPermissionSchema)
+                .set({ permissionId })
+                .where(
+                    and(
+                        eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                        eq(schema.UserProjectPermissionSchema.userId, targetUserId),
+                    ),
+                )
+        } else {
+            await this.db
+                .insert(schema.UserProjectPermissionSchema)
+                .values({ projectId, userId: targetUserId, permissionId })
+        }
+
+        const projectPerm = alias(schema.PermissionSchema, 'project_permission')
+        const workspacePerm = alias(schema.PermissionSchema, 'workspace_permission')
+        const companyPerm = alias(schema.PermissionSchema, 'company_permission')
+
+        const [result] = await this.db
+            .select({
+                id: schema.UserSchema.id,
+                fullname: schema.UserSchema.fullname,
+                username: schema.UserSchema.username,
+                email: schema.UserSchema.email,
+                avatarUrl: schema.UserSchema.avatarUrl,
+                projectPermissionId: projectPerm.id,
+                projectPermissionName: projectPerm.name,
+                workspacePermissionId: workspacePerm.id,
+                workspacePermissionName: workspacePerm.name,
+                companyPermissionId: companyPerm.id,
+                companyPermissionName: companyPerm.name,
+            })
+            .from(schema.UserSchema)
+            .innerJoin(
+                schema.UserProjectPermissionSchema,
+                and(
+                    eq(schema.UserProjectPermissionSchema.userId, schema.UserSchema.id),
+                    eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                ),
+            )
+            .innerJoin(
+                projectPerm,
+                eq(projectPerm.id, schema.UserProjectPermissionSchema.permissionId),
+            )
+            .leftJoin(schema.ProjectSchema, eq(schema.ProjectSchema.id, projectId))
+            .leftJoin(
+                schema.UserWorkspacePermissionSchema,
+                and(
+                    eq(
+                        schema.UserWorkspacePermissionSchema.workspaceId,
+                        schema.ProjectSchema.workspaceId,
+                    ),
+                    eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
+                ),
+            )
+            .leftJoin(
+                workspacePerm,
+                eq(workspacePerm.id, schema.UserWorkspacePermissionSchema.permissionId),
+            )
+            .leftJoin(
+                schema.UserCompanyPermissionSchema,
+                and(
+                    eq(
+                        schema.UserCompanyPermissionSchema.companyId,
+                        schema.ProjectSchema.companyId,
+                    ),
+                    eq(schema.UserCompanyPermissionSchema.userId, schema.UserSchema.id),
+                ),
+            )
+            .leftJoin(
+                companyPerm,
+                eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
+            .where(eq(schema.UserSchema.id, targetUserId))
+            .limit(1)
+
+        return result as ProjectMember
+    }
+
+    async removeProjectMember(
+        requestingUserId: string,
+        projectId: string,
+        targetUserId: string,
+    ): Promise<void> {
+        const project = await this.getProjectByIdOrFail(projectId)
+        await this.getCurrentUserEffectivePermissionOrFails(
+            project,
+            requestingUserId,
+            PERMISSION.maintainer.level,
+        )
+
+        const [existing] = await this.db
+            .select()
+            .from(schema.UserProjectPermissionSchema)
+            .where(
+                and(
+                    eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                    eq(schema.UserProjectPermissionSchema.userId, targetUserId),
+                ),
+            )
+            .limit(1)
+
+        if (!existing)
+            throw new NotFoundException('User does not have a project-level permission')
+
+        await this.db
+            .delete(schema.UserProjectPermissionSchema)
+            .where(
+                and(
+                    eq(schema.UserProjectPermissionSchema.projectId, projectId),
+                    eq(schema.UserProjectPermissionSchema.userId, targetUserId),
+                ),
+            )
     }
 
     async checkForPermissions(
