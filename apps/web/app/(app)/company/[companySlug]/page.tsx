@@ -1,3 +1,4 @@
+import { PageContainer } from '@/components/layout/PageContainer'
 import { CompanyDetailsView } from '@/features/company/components/CompanyDetailsView'
 
 export default async function CompanyDetailPage({
@@ -8,8 +9,8 @@ export default async function CompanyDetailPage({
     const { companySlug } = await params
 
     return (
-        <div className="p-8 space-y-6">
+        <PageContainer>
             <CompanyDetailsView companySlug={companySlug} />
-        </div>
+        </PageContainer>
     )
 }

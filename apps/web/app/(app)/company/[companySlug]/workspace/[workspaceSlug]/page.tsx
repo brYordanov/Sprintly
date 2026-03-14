@@ -1,3 +1,4 @@
+import { PageContainer } from '@/components/layout/PageContainer'
 import { WorkspaceDetailsView } from '@/features/workspace/components/WorkspaceDetailsView'
 
 export default async function WorkspaceDetailsPage({
@@ -7,8 +8,8 @@ export default async function WorkspaceDetailsPage({
 }) {
     const { workspaceSlug } = await params
     return (
-        <div className="p-8 space-y-6">
+        <PageContainer>
             <WorkspaceDetailsView workspaceSlug={workspaceSlug} />
-        </div>
+        </PageContainer>
     )
 }
