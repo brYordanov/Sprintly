@@ -1,7 +1,9 @@
 import z from 'zod'
 import { ValidImgUrlSchema } from './common.schemas'
+import { CompanyRowSchema } from './company.schemas'
 import { PossiblePermissionName } from './permission.schemas'
 import { UserPublicDto } from './user.schemas'
+import { WorkspaceRowSchema } from './workspace.schemas'
 
 export const ProjectRowSchema = z.object({
     id: z.uuid(),
@@ -14,6 +16,8 @@ export const ProjectRowSchema = z.object({
     createdBy: z.uuid(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
+    company: CompanyRowSchema.optional(),
+    workspace: WorkspaceRowSchema.optional().nullable(),
 })
 export type ProjectRowDto = z.infer<typeof ProjectRowSchema>
 
@@ -72,4 +76,5 @@ export type ProjectMember = ProjectNonMember & {
 export type ProjectDetails = {
     project: ProjectRowDto
     members: ProjectMember[]
+    currentUserEffectivePermission: number
 }
