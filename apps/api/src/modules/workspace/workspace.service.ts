@@ -178,7 +178,7 @@ export class WorkspaceService {
         const workspace = await this.getWorkspaceWithCompanyBySlugOrFail(workspaceSlug)
         const currentUserEffectivePermission =
             await this.doesUserHaveSufficientWorkspacePermissionOrFail(
-                workspace.id,
+                workspace,
                 userId,
                 PERMISSION.guest.level,
             )
@@ -322,8 +322,10 @@ export class WorkspaceService {
         workspaceId: string,
         dto: EditWorkspaceDto,
     ): Promise<WorkspaceRowDto> {
+        const workspace = await this.getWorkspaceByIdOrFail(workspaceId)
+
         await this.doesUserHaveSufficientWorkspacePermissionOrFail(
-            workspaceId,
+            workspace,
             userId,
             PERMISSION.admin.level,
         )
@@ -333,6 +335,8 @@ export class WorkspaceService {
             .set({ ...dto })
             .where(eq(schema.WorkspaceSchema.id, workspaceId))
             .returning()
+
+        if (!updated) throw new NotFoundException('Workspace not found')
 
         return updated
     }
@@ -459,8 +463,10 @@ export class WorkspaceService {
         targetUserId: string,
         permissionId: number,
     ): Promise<WorkspaceMember> {
+        const workspace = await this.getWorkspaceByIdOrFail(workspaceId)
+
         await this.doesUserHaveSufficientWorkspacePermissionOrFail(
-            workspaceId,
+            workspace,
             requestingUserId,
             PERMISSION.admin.level,
         )
@@ -545,8 +551,10 @@ export class WorkspaceService {
         workspaceId: string,
         targetUserId: string,
     ): Promise<void> {
+        const workspace = await this.getWorkspaceByIdOrFail(workspaceId)
+
         await this.doesUserHaveSufficientWorkspacePermissionOrFail(
-            workspaceId,
+            workspace,
             requestingUserId,
             PERMISSION.admin.level,
         )
@@ -576,7 +584,7 @@ export class WorkspaceService {
     }
 
     async doesUserHaveSufficientWorkspacePermissionOrFail(
-        workspaceId: string,
+        workspace: WorkspaceRowDto,
         userId: string,
         permissionLevel: number,
     ): Promise<number> {
@@ -590,21 +598,13 @@ export class WorkspaceService {
             .where(
                 and(
                     eq(schema.UserWorkspacePermissionSchema.userId, userId),
-                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspaceId),
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, workspace.id),
                 ),
             )
             .limit(1)
 
         if (workspacePermission && workspacePermission.level >= permissionLevel)
             return workspacePermission.level
-
-        const [workspace] = await this.db
-            .select({ companyId: schema.WorkspaceSchema.companyId })
-            .from(schema.WorkspaceSchema)
-            .where(eq(schema.WorkspaceSchema.id, workspaceId))
-            .limit(1)
-
-        if (!workspace) throw new NotFoundException('Workspace not found')
 
         const [companyPermission] = await this.db
             .select({ level: schema.PermissionSchema.level })

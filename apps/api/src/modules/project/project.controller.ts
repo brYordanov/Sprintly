@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     CreateProjectSchema,
+    EditProjectSchema,
     ProjectDetails,
     ProjectNavigationSummary,
     type CreateProjectDto,
+    type EditProjectDto,
     type ProjectRowDto,
 } from '@shared/validations'
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe'
@@ -27,6 +29,15 @@ export class ProjectController {
     @Get()
     async getProjectsForUser(@User() user: AuthUser): Promise<ProjectNavigationSummary[]> {
         return this.service.getUserProjects(user.id)
+    }
+
+    @Patch(':projectId')
+    async edit(
+        @User() user: AuthUser,
+        @Param('projectId') projectId: string,
+        @Body(new ZodValidationPipe(EditProjectSchema)) dto: EditProjectDto,
+    ): Promise<ProjectRowDto> {
+        return this.service.editProject(projectId, user.id, dto)
     }
 
     @Get(':projectSlug/details')

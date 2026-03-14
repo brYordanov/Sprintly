@@ -1,6 +1,7 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import {
     CreateProjectDto,
+    EditProjectDto,
     PERMISSION,
     ProjectDetails,
     ProjectMember,
@@ -82,21 +83,63 @@ export class ProjectService {
         return project
     }
 
+    async editProject(
+        projectId: string,
+        userId: string,
+        dto: EditProjectDto,
+    ): Promise<ProjectRowDto> {
+        const project = await this.getProjectByIdOrFail(projectId)
+        await this.getCurrentUserEffectivePermissionOrFails(
+            project,
+            userId,
+            PERMISSION.maintainer.level,
+        )
+        const [updated] = await this.db
+            .update(schema.ProjectSchema)
+            .set(dto)
+            .where(eq(schema.ProjectSchema.id, project.id))
+            .returning()
+        return updated
+    }
+
+    async getProjectByIdOrFail(projectId: string): Promise<ProjectRowDto> {
+        const [project] = await this.db
+            .select({
+                ...getTableColumns(schema.ProjectSchema),
+                company: schema.CompanySchema,
+                workspace: schema.WorkspaceSchema,
+            })
+            .from(schema.ProjectSchema)
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.CompanySchema.id, schema.ProjectSchema.companyId),
+            )
+            .leftJoin(
+                schema.WorkspaceSchema,
+                eq(schema.WorkspaceSchema.id, schema.ProjectSchema.workspaceId),
+            )
+            .where(eq(schema.ProjectSchema.id, projectId))
+            .limit(1)
+
+        if (!project) throw new NotFoundException('Project not found')
+
+        return project
+    }
+
     async getProjectDetails(projectSlug: string, userId: string): Promise<ProjectDetails> {
         const project = await this.getProjectBySlugOrFail(projectSlug)
-        const currentUserEffectivePermission =
-            await this.doesUserHaveSufficientProjectPermissionOrFail(
-                project,
-                userId,
-                PERMISSION.maintainer.level,
-            )
+        const currentUserEffectivePermission = await this.getCurrentUserEffectivePermissionOrFails(
+            project,
+            userId,
+            PERMISSION.maintainer.level,
+        )
 
         const members = await this.getProjectMembers(project)
 
         return { project, members, currentUserEffectivePermission }
     }
 
-    async doesUserHaveSufficientProjectPermissionOrFail(
+    async getCurrentUserEffectivePermissionOrFails(
         project: ProjectRowDto,
         userId: string,
         permissionLevel: number,
