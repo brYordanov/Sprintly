@@ -9,11 +9,7 @@ import { useGetWorkspaceDetails } from '../api/useGetWorkspaceDetails'
 import { WorkspaceHeader } from './WorkspaceHeader'
 import { WorkspaceMembersSection } from './WorkspaceMembersSection'
 
-interface WorkspaceDetailsViewProps {
-    workspaceSlug: string
-}
-
-export function WorkspaceDetailsView({ workspaceSlug }: WorkspaceDetailsViewProps) {
+export function WorkspaceDetailsView({ workspaceSlug }: { workspaceSlug: string }) {
     const { data, isLoading, error } = useGetWorkspaceDetails(workspaceSlug)
 
     if (isLoading || !data) {
