@@ -5,6 +5,7 @@ import { DetailsHeaderSkeleton } from '@/components/skeletons/DetailsHeaderSkele
 import { MembersSectionSkeleton } from '@/components/skeletons/MembersSectionSkeleton'
 import { useGetProjectDetails } from '../api/useGetProjectDetails'
 import { ProjectHeader } from './ProjectHeader'
+import { ProjectMembersSection } from './ProjectMembersSection'
 
 export function ProjectDetailsView({ projectSlug }: { projectSlug: string }) {
     const { data, isLoading, error } = useGetProjectDetails(projectSlug)
@@ -31,6 +32,12 @@ export function ProjectDetailsView({ projectSlug }: { projectSlug: string }) {
                 iconUrl={data.project.iconUrl}
                 workspaceName={data.project.workspace?.name}
                 companyName={data.project.company?.name}
+            />
+            <ProjectMembersSection
+                members={data.members}
+                projectId={data.project.id}
+                projectSlug={data.project.slug}
+                currentUserEffectivePermissionLevel={data.currentUserEffectivePermission}
             />
         </>
     )

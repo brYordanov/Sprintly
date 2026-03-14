@@ -78,3 +78,8 @@ export type ProjectDetails = {
     members: ProjectMember[]
     currentUserEffectivePermission: number
 }
+
+export const AddProjectMemberSchema = z.object({
+    nonMembers: z.array(z.object({ userId: z.uuid(), permissionId: z.number().int() })).min(1),
+})
+export type AddProjectMemberDto = z.infer<typeof AddProjectMemberSchema>
