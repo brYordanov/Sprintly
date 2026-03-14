@@ -1,4 +1,10 @@
-import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+    ConflictException,
+    ForbiddenException,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common'
 import {
     CreateProjectDto,
     EditProjectDto,
@@ -213,7 +219,7 @@ export class ProjectService {
         const workspacePerm = alias(schema.PermissionSchema, 'workspace_permission')
         const companyPerm = alias(schema.PermissionSchema, 'company_permission')
 
-        // GroupA: users with explicit project permission
+        // users with explicit project permission
         const groupA = (await this.db
             .select({
                 id: schema.UserSchema.id,
@@ -268,7 +274,7 @@ export class ProjectService {
             )
             .where(eq(schema.UserProjectPermissionSchema.projectId, project.id))) as ProjectMember[]
 
-        // GroupB: workspace permission but no project permission (only if project belongs to a workspace)
+        // workspace permission but no project permission (only if project belongs to a workspace)
         let groupB: ProjectMember[] = []
         if (project.workspaceId) {
             groupB = (await this.db
@@ -327,8 +333,8 @@ export class ProjectService {
                 )) as ProjectMember[]
         }
 
-        // GroupC: company permission only (no project or workspace permission)
-        const groupC = (await this.db
+        // company permission only (no project or workspace permission)
+        const groupCQuery = this.db
             .select({
                 id: schema.UserSchema.id,
                 fullname: schema.UserSchema.fullname,
@@ -358,22 +364,24 @@ export class ProjectService {
                     eq(schema.UserProjectPermissionSchema.userId, schema.UserSchema.id),
                 ),
             )
-            .leftJoin(
+
+        const groupCWhereConditions = [
+            eq(schema.UserCompanyPermissionSchema.companyId, project.companyId),
+            isNull(schema.UserProjectPermissionSchema.userId),
+        ]
+
+        if (project.workspaceId) {
+            groupCQuery.leftJoin(
                 schema.UserWorkspacePermissionSchema,
-                project.workspaceId
-                    ? and(
-                          eq(schema.UserWorkspacePermissionSchema.workspaceId, project.workspaceId),
-                          eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
-                      )
-                    : undefined,
-            )
-            .where(
                 and(
-                    eq(schema.UserCompanyPermissionSchema.companyId, project.companyId),
-                    isNull(schema.UserProjectPermissionSchema.userId),
-                    isNull(schema.UserWorkspacePermissionSchema.userId),
+                    eq(schema.UserWorkspacePermissionSchema.workspaceId, project.workspaceId),
+                    eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
                 ),
-            )) as ProjectMember[]
+            )
+            groupCWhereConditions.push(isNull(schema.UserWorkspacePermissionSchema.userId))
+        }
+
+        const groupC = (await groupCQuery.where(and(...groupCWhereConditions))) as ProjectMember[]
 
         return [...groupA, ...groupB, ...groupC]
     }
@@ -605,8 +613,7 @@ export class ProjectService {
             )
             .limit(1)
 
-        if (!existing)
-            throw new NotFoundException('User does not have a project-level permission')
+        if (!existing) throw new NotFoundException('User does not have a project-level permission')
 
         await this.db
             .delete(schema.UserProjectPermissionSchema)
