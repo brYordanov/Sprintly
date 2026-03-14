@@ -7,9 +7,9 @@ import {
     ProjectNavigationSummary,
     ProjectRowDto,
 } from '@shared/validations'
-import { and, eq, isNull, sql } from 'drizzle-orm'
-import { alias } from 'drizzle-orm/pg-core'
+import { and, eq, getTableColumns, isNull, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
 import * as schema from 'src/db/drizzle-entrypoint'
 import { CompanyService } from '../company/company.service'
@@ -60,8 +60,20 @@ export class ProjectService {
 
     async getProjectBySlugOrFail(projectSlug: string): Promise<ProjectRowDto> {
         const [project] = await this.db
-            .select()
+            .select({
+                ...getTableColumns(schema.ProjectSchema),
+                company: schema.CompanySchema,
+                workspace: schema.WorkspaceSchema,
+            })
             .from(schema.ProjectSchema)
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.CompanySchema.id, schema.ProjectSchema.companyId),
+            )
+            .leftJoin(
+                schema.WorkspaceSchema,
+                eq(schema.WorkspaceSchema.id, schema.ProjectSchema.workspaceId),
+            )
             .where(eq(schema.ProjectSchema.slug, projectSlug))
             .limit(1)
 
@@ -72,18 +84,23 @@ export class ProjectService {
 
     async getProjectDetails(projectSlug: string, userId: string): Promise<ProjectDetails> {
         const project = await this.getProjectBySlugOrFail(projectSlug)
-        await this.doesUserHaveSufficientProjectPermissionOrFail(project, userId, PERMISSION.maintainer.level)
+        const currentUserEffectivePermission =
+            await this.doesUserHaveSufficientProjectPermissionOrFail(
+                project,
+                userId,
+                PERMISSION.maintainer.level,
+            )
 
         const members = await this.getProjectMembers(project)
 
-        return { project, members }
+        return { project, members, currentUserEffectivePermission }
     }
 
     async doesUserHaveSufficientProjectPermissionOrFail(
         project: ProjectRowDto,
         userId: string,
         permissionLevel: number,
-    ): Promise<void> {
+    ): Promise<number> {
         const [projectPermission] = await this.db
             .select({ level: schema.PermissionSchema.level })
             .from(schema.UserProjectPermissionSchema)
@@ -99,7 +116,8 @@ export class ProjectService {
             )
             .limit(1)
 
-        if (projectPermission && projectPermission.level >= permissionLevel) return
+        if (projectPermission && projectPermission.level >= permissionLevel)
+            return projectPermission.level
 
         if (project.workspaceId) {
             const [workspacePermission] = await this.db
@@ -107,7 +125,10 @@ export class ProjectService {
                 .from(schema.UserWorkspacePermissionSchema)
                 .innerJoin(
                     schema.PermissionSchema,
-                    eq(schema.PermissionSchema.id, schema.UserWorkspacePermissionSchema.permissionId),
+                    eq(
+                        schema.PermissionSchema.id,
+                        schema.UserWorkspacePermissionSchema.permissionId,
+                    ),
                 )
                 .where(
                     and(
@@ -117,7 +138,8 @@ export class ProjectService {
                 )
                 .limit(1)
 
-            if (workspacePermission && workspacePermission.level >= permissionLevel) return
+            if (workspacePermission && workspacePermission.level >= permissionLevel)
+                return workspacePermission.level
         }
 
         const [companyPermission] = await this.db
@@ -138,6 +160,8 @@ export class ProjectService {
         if (!companyPermission || companyPermission.level < permissionLevel) {
             throw new ForbiddenException('Insufficient permissions')
         }
+
+        return companyPermission.level
     }
 
     async getProjectMembers(project: ProjectRowDto): Promise<ProjectMember[]> {
@@ -165,24 +189,39 @@ export class ProjectService {
                 schema.UserSchema,
                 eq(schema.UserSchema.id, schema.UserProjectPermissionSchema.userId),
             )
-            .innerJoin(projectPerm, eq(projectPerm.id, schema.UserProjectPermissionSchema.permissionId))
+            .innerJoin(
+                projectPerm,
+                eq(projectPerm.id, schema.UserProjectPermissionSchema.permissionId),
+            )
             .leftJoin(schema.ProjectSchema, eq(schema.ProjectSchema.id, project.id))
             .leftJoin(
                 schema.UserWorkspacePermissionSchema,
                 and(
-                    eq(schema.UserWorkspacePermissionSchema.workspaceId, schema.ProjectSchema.workspaceId),
+                    eq(
+                        schema.UserWorkspacePermissionSchema.workspaceId,
+                        schema.ProjectSchema.workspaceId,
+                    ),
                     eq(schema.UserWorkspacePermissionSchema.userId, schema.UserSchema.id),
                 ),
             )
-            .leftJoin(workspacePerm, eq(workspacePerm.id, schema.UserWorkspacePermissionSchema.permissionId))
+            .leftJoin(
+                workspacePerm,
+                eq(workspacePerm.id, schema.UserWorkspacePermissionSchema.permissionId),
+            )
             .leftJoin(
                 schema.UserCompanyPermissionSchema,
                 and(
-                    eq(schema.UserCompanyPermissionSchema.companyId, schema.ProjectSchema.companyId),
+                    eq(
+                        schema.UserCompanyPermissionSchema.companyId,
+                        schema.ProjectSchema.companyId,
+                    ),
                     eq(schema.UserCompanyPermissionSchema.userId, schema.UserSchema.id),
                 ),
             )
-            .leftJoin(companyPerm, eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId))
+            .leftJoin(
+                companyPerm,
+                eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
             .where(eq(schema.UserProjectPermissionSchema.projectId, project.id))) as ProjectMember[]
 
         // GroupB: workspace permission but no project permission (only if project belongs to a workspace)
@@ -207,16 +246,28 @@ export class ProjectService {
                     schema.UserSchema,
                     eq(schema.UserSchema.id, schema.UserWorkspacePermissionSchema.userId),
                 )
-                .innerJoin(workspacePerm, eq(workspacePerm.id, schema.UserWorkspacePermissionSchema.permissionId))
-                .leftJoin(schema.WorkspaceSchema, eq(schema.WorkspaceSchema.id, project.workspaceId))
+                .innerJoin(
+                    workspacePerm,
+                    eq(workspacePerm.id, schema.UserWorkspacePermissionSchema.permissionId),
+                )
+                .leftJoin(
+                    schema.WorkspaceSchema,
+                    eq(schema.WorkspaceSchema.id, project.workspaceId),
+                )
                 .leftJoin(
                     schema.UserCompanyPermissionSchema,
                     and(
-                        eq(schema.UserCompanyPermissionSchema.companyId, schema.WorkspaceSchema.companyId),
+                        eq(
+                            schema.UserCompanyPermissionSchema.companyId,
+                            schema.WorkspaceSchema.companyId,
+                        ),
                         eq(schema.UserCompanyPermissionSchema.userId, schema.UserSchema.id),
                     ),
                 )
-                .leftJoin(companyPerm, eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId))
+                .leftJoin(
+                    companyPerm,
+                    eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId),
+                )
                 .leftJoin(
                     schema.UserProjectPermissionSchema,
                     and(
@@ -252,7 +303,10 @@ export class ProjectService {
                 schema.UserSchema,
                 eq(schema.UserSchema.id, schema.UserCompanyPermissionSchema.userId),
             )
-            .innerJoin(companyPerm, eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId))
+            .innerJoin(
+                companyPerm,
+                eq(companyPerm.id, schema.UserCompanyPermissionSchema.permissionId),
+            )
             .leftJoin(
                 schema.UserProjectPermissionSchema,
                 and(

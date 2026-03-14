@@ -17,7 +17,7 @@ import {
     WorkspaceNonMember,
     WorkspaceRowDto,
 } from '@shared/validations'
-import { and, eq, gt, gte, ilike, isNull, lt, or, sql } from 'drizzle-orm'
+import { and, eq, getTableColumns, gt, gte, ilike, isNull, lt, or, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { alias } from 'drizzle-orm/pg-core'
 import { DRIZZLE_DB } from 'src/db/db.module'
@@ -33,20 +33,18 @@ export class WorkspaceService {
 
     async getWorkspaceWithCompanyBySlugOrFail(workspaceSlug: string): Promise<WorkspaceRowDto> {
         const [workspace] = await this.db
-            .select()
+            .select({ ...getTableColumns(schema.WorkspaceSchema), company: schema.CompanySchema })
             .from(schema.WorkspaceSchema)
+            .innerJoin(
+                schema.CompanySchema,
+                eq(schema.WorkspaceSchema.companyId, schema.CompanySchema.id),
+            )
             .where(eq(schema.WorkspaceSchema.slug, workspaceSlug))
             .limit(1)
 
         if (!workspace) throw new NotFoundException('Workspace not found')
 
-        const [company] = await this.db
-            .select()
-            .from(schema.CompanySchema)
-            .where(eq(schema.CompanySchema.id, workspace.companyId))
-            .limit(1)
-
-        return { ...workspace, company }
+        return { ...workspace }
     }
 
     async createWorkspace(dto: CreateWorkspaceDto, userId: string): Promise<WorkspaceRowDto> {
